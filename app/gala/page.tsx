@@ -1,5 +1,3 @@
-import { existsSync } from "fs"
-import { join } from "path"
 import type { Metadata } from "next"
 import BrandMarquee from "@/components/brand-marquee"
 import DiagonalArrow from "@/components/diagonal-arrow"
@@ -36,9 +34,14 @@ const OG_TITLE = "Gala MG · Primer encuentro de la comunidad"
 const OG_DESCRIPTION =
   "11 de octubre, 5:00 a 9:00 p.m. El primer evento presencial de la comunidad MG: 80 lugares, sin cover, solo con registro confirmado."
 
+/* La tarjeta OG se referencia directo, sin comprobar que el archivo exista.
+   El truco de existsSync que usan las páginas estáticas no sirve aquí: esta
+   ruta es dinámica, así que generateMetadata corre en el lambda, y Next no
+   incluye public/ en el bundle de la función — el archivo se sirve desde el
+   CDN pero desde dentro no se ve, y la comprobación caía siempre al OG
+   genérico. Se regenera con scripts/generar-og-gala.mjs. */
 export function generateMetadata(): Metadata {
-  const custom = "/og/og-gala.jpg"
-  const ogImage = existsSync(join(process.cwd(), "public", custom)) ? custom : "/og/og-home.jpg"
+  const ogImage = "/og/og-gala.jpg"
 
   return {
     title: "Gala MG · Registro | MG Company Group",
