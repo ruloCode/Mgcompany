@@ -353,8 +353,18 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
 /* --- Estados de salida ---------------------------------------------------
    Dos desenlaces, y la diferencia importa: quedar dentro del aforo no es
    estar confirmado (eso lo decide el equipo), y quedar en lista de espera no
-   es un rechazo. Cada uno con su copy, su color y lo que la persona tiene que
-   hacer después — que en los dos casos es lo mismo: mirar el WhatsApp. */
+   es un rechazo. Cada uno con su copy y lo que la persona tiene que hacer
+   después — que en los dos casos es lo mismo: mirar el WhatsApp.
+
+   Los dos salen como un TALÓN CLARO sobre el fondo negro, con el mismo
+   troquel del pase. El motivo es que en esta marca el rojo sobre negro es el
+   lenguaje de los errores —así se pintan las alertas del formulario— y un
+   registro correcto pintado igual se lee como una falla. Invertir a claro
+   resuelve eso sin inventar un verde que aquí sería un color extranjero: lo
+   que confirma no es un color nuevo, es que algo se imprimió.
+
+   Éxito y espera se separan por el acento (rojo MG contra grafito) y por el
+   icono, no por el fondo. */
 
 function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
   const espera = resultado.estado === "waitlist"
@@ -365,72 +375,92 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`max-w-2xl border-l-4 p-7 md:p-10 ${
-        espera ? "border-white/40 bg-white/[0.04]" : "border-mg-red bg-mg-red/[0.07]"
+      className={`relative max-w-2xl overflow-hidden border-t-4 bg-[#F5F2ED] p-7 text-mg-black md:p-10 ${
+        espera ? "border-mg-black" : "border-mg-red"
       }`}
     >
-      <motion.span
-        initial={{ scale: 0.4, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.15 }}
-        className={`flex h-14 w-14 items-center justify-center rounded-full ${
-          espera ? "bg-white/10 text-white" : "bg-mg-red text-white"
-        }`}
-      >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+      {/* Troquel: el mismo motivo del pase de entrada */}
+      <span aria-hidden className="pointer-events-none absolute inset-y-0 right-[86px] hidden border-l-2 border-dashed border-black/15 sm:block" />
+      <span aria-hidden className="absolute -right-3 -top-3 hidden h-6 w-6 rounded-full bg-mg-black sm:block" style={{ right: 73 }} />
+      <span aria-hidden className="absolute -bottom-3 hidden h-6 w-6 rounded-full bg-mg-black sm:block" style={{ right: 73 }} />
+
+      <div className="sm:pr-[86px]">
+        <motion.span
+          initial={{ scale: 0.4, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.15 }}
+          className={`flex h-14 w-14 items-center justify-center rounded-full text-white ${
+            espera ? "bg-mg-black" : "bg-mg-red"
+          }`}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+            {espera ? (
+              <>
+                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                <path d="M12 7v5.2l3.4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </>
+            ) : (
+              <motion.path
+                d="M5 12.5l4.5 4.5L19 7.5"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.45, delay: 0.35, ease: "easeOut" }}
+              />
+            )}
+          </svg>
+        </motion.span>
+
+        <h3 className="mt-6 font-heading text-3xl uppercase leading-none tracking-wide md:text-4xl">
+          {espera ? "Quedaste en lista de espera" : "Registro recibido"}
+        </h3>
+
+        <p className="mt-4 text-[15px] leading-relaxed text-zinc-700">
           {espera ? (
             <>
-              <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-              <path d="M12 7v5.2l3.4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              El cupo ya se llenó — la Gala es de <b className="text-mg-black">{GALA_CUPO} personas</b> y
+              no hay una silla más. Estate pendiente de tu WhatsApp: si se abre un espacio,
+              el equipo escribe en orden de llegada.
             </>
           ) : (
-            <path
-              d="M5 12.5l4.5 4.5L19 7.5"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <>
+              Estás en la lista. El equipo MG revisa cada registro a mano y confirma por
+              WhatsApp: <b className="text-mg-black">cuando quedes confirmado te llega tu código QR</b>,
+              que es lo único que abre la puerta. Es único e intransferible.
+            </>
           )}
-        </svg>
-      </motion.span>
+        </p>
 
-      <h3 className="mt-6 font-heading text-3xl uppercase leading-none tracking-wide md:text-4xl">
-        {espera ? "Quedaste en lista de espera" : "Registro recibido"}
-      </h3>
+        <dl className="mt-7 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-black/15 pt-6 font-mono text-[11px] uppercase tracking-wider">
+          <dt className="text-black/45">Cuándo:</dt>
+          <dd className="text-mg-black">
+            {fechaLarga()} · {GALA_HORA_INICIO_TXT} – {GALA_HORA_FIN_TXT}
+          </dd>
+          <dt className="text-black/45">Dónde:</dt>
+          <dd className="text-mg-black">{GALA_CIUDAD} · dirección por WhatsApp</dd>
+          <dt className="text-black/45">Estado:</dt>
+          <dd className={espera ? "text-black/70" : "text-mg-red"}>
+            {espera ? "En lista de espera" : "Por confirmar"}
+          </dd>
+        </dl>
 
-      <p className="mt-4 text-[15px] leading-relaxed text-zinc-300">
-        {espera ? (
-          <>
-            El cupo ya se llenó — la Gala es de <b className="text-white">{GALA_CUPO} personas</b> y
-            no hay una silla más. Estate pendiente de tu WhatsApp: si se abre un espacio,
-            el equipo escribe en orden de llegada.
-          </>
-        ) : (
-          <>
-            Estás en la lista. El equipo MG revisa cada registro a mano y confirma por
-            WhatsApp: <b className="text-white">cuando quedes confirmado te llega tu código QR</b>,
-            que es lo único que abre la puerta. Es único e intransferible.
-          </>
-        )}
-      </p>
+        <p className="mt-6 text-xs leading-relaxed text-black/45">
+          MG Company se reserva el derecho de admisión y permanencia.
+        </p>
+      </div>
 
-      <dl className="mt-7 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-white/10 pt-6 font-mono text-[11px] uppercase tracking-wider">
-        <dt className="text-white/50">Cuándo:</dt>
-        <dd className="text-white">
-          {fechaLarga()} · {GALA_HORA_INICIO_TXT} – {GALA_HORA_FIN_TXT}
-        </dd>
-        <dt className="text-white/50">Dónde:</dt>
-        <dd className="text-white">{GALA_CIUDAD} · dirección por WhatsApp</dd>
-        <dt className="text-white/50">Estado:</dt>
-        <dd className={espera ? "text-white/70" : "text-mg-red-bright"}>
-          {espera ? "En lista de espera" : "Por confirmar"}
-        </dd>
-      </dl>
-
-      <p className="mt-6 text-xs leading-relaxed text-zinc-500">
-        MG Company se reserva el derecho de admisión y permanencia.
-      </p>
+      {/* Talón: el número que la persona se lleva de esta pantalla */}
+      <div aria-hidden className="absolute inset-y-0 right-0 hidden w-[86px] flex-col items-center justify-center gap-2 sm:flex">
+        <span className={`font-heading text-4xl leading-none ${espera ? "text-mg-black" : "text-mg-red"}`}>
+          {espera ? "80" : "11"}
+        </span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-black/50">
+          {espera ? "Lleno" : "Oct"}
+        </span>
+      </div>
     </motion.div>
   )
 }
