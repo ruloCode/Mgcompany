@@ -8,6 +8,7 @@ import DiagonalArrow from "@/components/diagonal-arrow"
 import {
   GALA_CIUDAD,
   GALA_CUPO,
+  GALA_FECHA,
   GALA_HORA_FIN_TXT,
   GALA_HORA_INICIO_TXT,
   RANGOS_EDAD,
@@ -50,7 +51,7 @@ function Bloque({ index, titulo, children }: { index: string; titulo: string; ch
   )
 }
 
-export default function RegistroGalaForm({ restantes }: { restantes: number }) {
+export default function RegistroGalaForm() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [resultado, setResultado] = useState<RespuestaRegistro | null>(null)
 
@@ -128,19 +129,23 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
               className={inputClass}
               disabled={isSubmitting}
               aria-invalid={errors.email ? true : undefined}
-              aria-describedby={errors.email ? "email-error" : undefined}
+              aria-describedby={errors.email ? "email-error" : "email-ayuda"}
               {...register("email")}
             />
-            {errors.email && (
+            {errors.email ? (
               <p id="email-error" className={errorClass}>
                 {errors.email.message}
+              </p>
+            ) : (
+              <p id="email-ayuda" className="mt-1.5 text-xs text-zinc-500">
+                Aquí te llega la confirmación y el QR.
               </p>
             )}
           </div>
 
           <div>
             <label className={labelClass} htmlFor="celular">
-              WhatsApp *
+              Celular / WhatsApp *
             </label>
             <input
               id="celular"
@@ -160,7 +165,7 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
               </p>
             ) : (
               <p id="celular-ayuda" className="mt-1.5 text-xs text-zinc-500">
-                Por aquí te llega el QR de entrada.
+                Solo para avisos de último momento.
               </p>
             )}
           </div>
@@ -342,9 +347,7 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
       </motion.button>
 
       <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-        {restantes > 0
-          ? `Entrada libre · Quedan ${restantes} de ${GALA_CUPO} lugares`
-          : `Aforo completo · Entras a lista de espera`}
+        Entrada libre · {GALA_CUPO} lugares · Sujeto a confirmación
       </p>
     </form>
   )
@@ -354,7 +357,7 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
    Dos desenlaces, y la diferencia importa: quedar dentro del aforo no es
    estar confirmado (eso lo decide el equipo), y quedar en lista de espera no
    es un rechazo. Cada uno con su copy y lo que la persona tiene que hacer
-   después — que en los dos casos es lo mismo: mirar el WhatsApp.
+   después — que en los dos casos es lo mismo: mirar el correo.
 
    Los dos salen como un TALÓN CLARO sobre el fondo negro, con el mismo
    troquel del pase. El motivo es que en esta marca el rojo sobre negro es el
@@ -365,6 +368,14 @@ export default function RegistroGalaForm({ restantes }: { restantes: number }) {
 
    Éxito y espera se separan por el acento (rojo MG contra grafito) y por el
    icono, no por el fondo. */
+
+/** El talón lleva la fecha de GALA_FECHA, no escrita a mano: ya se movió una
+ *  vez de octubre a septiembre y no tiene por qué haber dos fuentes. */
+const [, mesGala, diaGala] = GALA_FECHA.split("-")
+const diaDeLaGala = String(Number(diaGala))
+const mesDeLaGala = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"][
+  Number(mesGala) - 1
+]
 
 function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
   const espera = resultado.estado === "waitlist"
@@ -422,13 +433,13 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
           {espera ? (
             <>
               El cupo ya se llenó — la Gala es de <b className="text-mg-black">{GALA_CUPO} personas</b> y
-              no hay una silla más. Estate pendiente de tu WhatsApp: si se abre un espacio,
+              no hay una silla más. Estate pendiente de tu correo: si se abre un espacio,
               el equipo escribe en orden de llegada.
             </>
           ) : (
             <>
               Estás en la lista. El equipo MG revisa cada registro a mano y confirma por
-              WhatsApp: <b className="text-mg-black">cuando quedes confirmado te llega tu código QR</b>,
+              correo: <b className="text-mg-black">cuando quedes confirmado te llega tu código QR</b>,
               que es lo único que abre la puerta. Es único e intransferible.
             </>
           )}
@@ -440,7 +451,7 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
             {fechaLarga()} · {GALA_HORA_INICIO_TXT} – {GALA_HORA_FIN_TXT}
           </dd>
           <dt className="text-black/45">Dónde:</dt>
-          <dd className="text-mg-black">{GALA_CIUDAD} · dirección por WhatsApp</dd>
+          <dd className="text-mg-black">{GALA_CIUDAD} · dirección en el correo</dd>
           <dt className="text-black/45">Estado:</dt>
           <dd className={espera ? "text-black/70" : "text-mg-red"}>
             {espera ? "En lista de espera" : "Por confirmar"}
@@ -455,10 +466,10 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
       {/* Talón: el número que la persona se lleva de esta pantalla */}
       <div aria-hidden className="absolute inset-y-0 right-0 hidden w-[86px] flex-col items-center justify-center gap-2 sm:flex">
         <span className={`font-heading text-4xl leading-none ${espera ? "text-mg-black" : "text-mg-red"}`}>
-          {espera ? "80" : "11"}
+          {espera ? GALA_CUPO : diaDeLaGala}
         </span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-black/50">
-          {espera ? "Lleno" : "Oct"}
+          {espera ? "Lleno" : mesDeLaGala}
         </span>
       </div>
     </motion.div>

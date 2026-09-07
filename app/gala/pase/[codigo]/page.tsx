@@ -51,10 +51,10 @@ export default async function PaseGalaPage({
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
             {resultado.estado === "no_valido"
-              ? "Este pase existe pero no está confirmado. Si crees que es un error, escríbele al equipo MG por WhatsApp."
+              ? "Este pase existe pero no está confirmado. Si crees que es un error, escríbele al equipo MG."
               : resultado.estado === "sin_servicio"
                 ? "No pudimos verificar el pase en este momento. Intenta de nuevo en un minuto."
-                : "No encontramos ningún pase con este código. Revisa el enlace que te llegó por WhatsApp."}
+                : "No encontramos ningún pase con este código. Revisa el enlace del correo de confirmación."}
           </p>
           <Link
             href="/gala"

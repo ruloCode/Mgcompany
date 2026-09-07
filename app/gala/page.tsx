@@ -1,38 +1,22 @@
 import type { Metadata } from "next"
 import BrandMarquee from "@/components/brand-marquee"
-import DiagonalArrow from "@/components/diagonal-arrow"
 import ScrollProgress from "@/components/scroll-progress"
 import ScrollReveal from "@/components/scroll-reveal"
 import SectionHeading from "@/components/section-heading"
-import SpecMeta from "@/components/spec-meta"
 import FaqAccordion, { type FaqItem } from "@/components/mg1/faq-accordion"
-import Parallax from "@/components/mg1/parallax"
 import PopIn from "@/components/mg1/pop-in"
 import StatItem from "@/components/mg1/stat-item"
 import Cronograma from "@/components/gala/cronograma"
 import CtaFlotante from "@/components/gala/cta-flotante"
-import CuentaRegresiva from "@/components/gala/cuenta-regresiva"
-import MedidorCupo from "@/components/gala/medidor-cupo"
+import HeroGala from "@/components/gala/hero"
 import RegistroGalaForm from "@/components/gala/registro-form"
-import { getSupabaseAdmin } from "@/lib/supabase-admin"
-import {
-  GALA_CIUDAD,
-  GALA_CUPO,
-  GALA_EDICION,
-  GALA_FECHA,
-  GALA_HORARIO,
-  GALA_HORA_FIN_TXT,
-  GALA_HORA_INICIO,
-  GALA_HORA_INICIO_TXT,
-  GALA_REPARTO,
-  fechaLarga,
-} from "@/lib/gala"
+import { GALA_CIUDAD, GALA_CUPO, GALA_HORARIO, GALA_REPARTO } from "@/lib/gala"
 
 export const dynamic = "force-dynamic"
 
 const OG_TITLE = "Gala MG · Primer encuentro de la comunidad"
 const OG_DESCRIPTION =
-  "11 de octubre, 5:00 a 9:00 p.m. El primer evento presencial de la comunidad MG: 80 lugares, sin cover, solo con registro confirmado."
+  "Viernes 11 de septiembre, 5:00 a 9:00 p.m. El primer evento presencial de la comunidad MG: 80 lugares, sin cover, solo con registro confirmado."
 
 /* La tarjeta OG se referencia directo, sin comprobar que el archivo exista.
    El truco de existsSync que usan las páginas estáticas no sirve aquí: esta
@@ -54,7 +38,7 @@ export function generateMetadata(): Metadata {
       url: "/gala",
       title: OG_TITLE,
       description: OG_DESCRIPTION,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: "Gala MG — 11 de octubre" }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "Gala MG — viernes 11 de septiembre" }],
     },
     twitter: {
       card: "summary_large_image",
@@ -69,7 +53,7 @@ const hl = "text-mg-red-bright font-semibold"
 
 const MARQUEE = [
   "GALA MG",
-  "11 DE OCTUBRE",
+  "VIERNES 11 DE SEPTIEMBRE",
   "EVENTO PRIVADO",
   "80 LUGARES",
   "SIN COVER",
@@ -101,7 +85,7 @@ const ACCESO = [
     title: "Llega tu QR",
     desc: (
       <>
-        Al confirmarte te llega el <b className={hl}>código por WhatsApp</b>. Es lo único
+        Al confirmarte te llega el <b className={hl}>código a tu correo</b>. Es lo único
         que abre la puerta.
       </>
     ),
@@ -124,7 +108,7 @@ const FAQ: FaqItem[] = [
       <>
         No. Todos los registros entran <b className="text-white">por revisar</b> y el
         equipo confirma a mano. Solo cuando quedas confirmado se genera tu QR y te llega
-        por WhatsApp.
+        <b className="text-white"> a tu correo</b>.
       </>
     ),
   },
@@ -133,7 +117,7 @@ const FAQ: FaqItem[] = [
     answer: (
       <>
         Quedas en <b className="text-white">lista de espera</b>, no rechazado. Si alguien
-        cae, el equipo escribe por WhatsApp en orden de llegada.
+        cae, el equipo escribe por correo en orden de llegada.
       </>
     ),
   },
@@ -151,107 +135,20 @@ const FAQ: FaqItem[] = [
     question: "¿Dónde es?",
     answer: (
       <>
-        En {GALA_CIUDAD}. La dirección exacta se envía por WhatsApp junto con el QR: es un
-        evento privado y por eso no se publica.
+        En {GALA_CIUDAD}. La dirección exacta va en el correo de confirmación, junto con el
+        QR: es un evento privado y por eso no se publica.
       </>
     ),
   },
 ]
 
-/** Cuántas sillas quedan. Se lee en el servidor para que el número ya venga
- *  pintado en el HTML — un contador que aparece medio segundo tarde en un
- *  celular lento se lee como si no hubiera cupo. */
-async function ocupacion(): Promise<number> {
-  const supabase = getSupabaseAdmin()
-  if (!supabase) return 0
-
-  const { count } = await supabase
-    .from("gala_registros")
-    .select("id", { count: "exact", head: true })
-    .eq("edicion", GALA_EDICION)
-    .in("estado", ["pending", "confirmed"])
-
-  return count ?? 0
-}
-
-export default async function GalaPage() {
-  const ocupados = await ocupacion()
-  const restantes = Math.max(0, GALA_CUPO - ocupados)
-
-  const HERO_META = [
-    { label: "Fecha:", value: fechaLarga() },
-    { label: "Hora:", value: `${GALA_HORA_INICIO_TXT} – ${GALA_HORA_FIN_TXT}` },
-    { label: "Ciudad:", value: GALA_CIUDAD },
-    { label: "Cover:", value: "Sin costo" },
-  ]
-
+export default function GalaPage() {
   return (
     <>
       <ScrollProgress />
       <CtaFlotante />
 
-      {/* Hero */}
-      <header className="relative overflow-hidden border-b border-white/10">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-1/3 -top-1/4 h-[70vh] w-[70vh] rounded-full bg-mg-red/20 blur-[120px]"
-        />
-
-        <div className="container relative mx-auto grid grid-cols-12 gap-8 px-4 pb-14 pt-10 md:px-6 md:pb-20 md:pt-16 lg:px-10">
-          <div className="col-span-12 lg:col-span-7">
-            <ScrollReveal direction="up">
-              <div className="flex items-center gap-3">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-mg-red" />
-                <p className="font-mono text-[11px] font-medium uppercase tracking-[0.28em] text-mg-red-bright md:text-xs">
-                  [ Evento privado · Registro abierto ]
-                </p>
-              </div>
-
-              <h1 className="mt-5 font-heading uppercase leading-[0.88] tracking-tight text-[clamp(3.25rem,15vw,8rem)]">
-                <span className="block">Gala</span>
-                <span className="block text-mg-red">MG</span>
-              </h1>
-
-              <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-300 md:text-lg">
-                El <b className={hl}>primer encuentro presencial</b> de la comunidad MG.
-                Una noche, {GALA_CUPO} personas y la escena entera en la misma sala:
-                artistas, managers y productores. <b className={hl}>Sin cover</b> — pero
-                solo se entra con registro confirmado.
-              </p>
-
-              <div className="mt-8">
-                <CuentaRegresiva iso={`${GALA_FECHA}T${GALA_HORA_INICIO}:00-05:00`} />
-              </div>
-
-              <a
-                href="#registro"
-                className="group mt-8 inline-flex min-h-[60px] w-full items-center justify-center gap-4 border-2 border-mg-red bg-mg-red px-8 transition-colors duration-300 hover:bg-transparent hover:text-mg-red-bright sm:w-auto"
-              >
-                <span className="font-mono text-xs font-medium uppercase tracking-[0.3em] md:text-sm">
-                  Quiero mi lugar
-                </span>
-                <DiagonalArrow
-                  size={22}
-                  strokeWidth={1.75}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </a>
-
-              <div className="mt-8 border-l-4 border-mg-red pl-5">
-                <SpecMeta items={HERO_META} className="[&_dd]:text-mg-red-bright" />
-              </div>
-            </ScrollReveal>
-          </div>
-
-          <div className="col-span-12 lg:col-span-5">
-            <ScrollReveal direction="up" delay={0.15}>
-              <Parallax from={0} to={40}>
-                <MedidorCupo ocupados={ocupados} />
-              </Parallax>
-            </ScrollReveal>
-          </div>
-        </div>
-      </header>
+      <HeroGala />
 
       <BrandMarquee items={MARQUEE} variant="red" />
 
@@ -349,24 +246,16 @@ export default async function GalaPage() {
               title="Regístrate"
               subtitle={
                 <>
-                  {restantes > 0 ? (
-                    <>
-                      Quedan <b className={hl}>{restantes} de {GALA_CUPO}</b> lugares.
-                    </>
-                  ) : (
-                    <>
-                      El aforo está completo: tu registro entra a{" "}
-                      <b className={hl}>lista de espera</b>.
-                    </>
-                  )}{" "}
-                  Deja tu WhatsApp bien escrito — por ahí llega la confirmación y el QR.
+                  La sala es de <b className={hl}>{GALA_CUPO} personas</b> y cada registro
+                  se revisa a mano. Deja tu <b className={hl}>correo bien escrito</b> — por
+                  ahí llegan la confirmación y el QR de entrada.
                 </>
               }
             />
           </ScrollReveal>
 
           <div className="mt-10 md:mt-14">
-            <RegistroGalaForm restantes={restantes} />
+            <RegistroGalaForm />
           </div>
         </div>
       </section>

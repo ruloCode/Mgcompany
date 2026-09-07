@@ -28,6 +28,38 @@ const FILTROS = [
   ...ESTADOS_GALA.map((e) => ({ valor: e.valor, label: e.label })),
 ]
 
+/** Asunto y cuerpo del correo de confirmación.
+ *
+ *  El envío es manual a propósito: no hay proveedor de correo conectado, así
+ *  que el panel arma el mensaje y lo abre en el cliente de correo de quien
+ *  confirma. Prometer un envío automático que no existe sería peor que un
+ *  clic. Cuando se conecte uno (Resend o similar), esta función es el texto
+ *  que ese servicio debe mandar.
+ */
+function enlaceCorreo(r: RegistroGala, urlPase: string | null): string {
+  const nombre = (r.nombre_artistico || r.nombre_completo).split(" ")[0]
+  const cuando = `${fechaLarga()}, ${GALA_HORARIO}`
+
+  const asunto =
+    r.estado === "confirmed"
+      ? "Estás confirmado para la Gala MG · tu pase de entrada"
+      : r.estado === "waitlist"
+        ? "Gala MG · quedaste en lista de espera"
+        : "Recibimos tu registro a la Gala MG"
+
+  const cuerpo =
+    r.estado === "confirmed" && urlPase
+      ? `Hola ${nombre},\n\nQuedaste confirmado para la Gala MG.\n\nCuándo: ${cuando}\nDónde: Bogotá (te compartimos la dirección exacta por este medio)\n\nEste es tu pase de entrada:\n${urlPase}\n\nEs único e intransferible: preséntalo en la puerta desde tu celular. Nos vemos.\n\nEquipo MG Company`
+      : r.estado === "waitlist"
+        ? `Hola ${nombre},\n\nRecibimos tu registro a la Gala MG. El cupo ya está lleno, así que quedaste en lista de espera: si se abre un espacio te escribimos por este mismo medio, en orden de llegada.\n\nGracias por querer estar.\n\nEquipo MG Company`
+        : r.estado === "rejected"
+          ? `Hola ${nombre},\n\nGracias por registrarte a la Gala MG. Esta vez no alcanzamos a darte un lugar, pero te avisamos del siguiente encuentro.\n\nEquipo MG Company`
+          : `Hola ${nombre},\n\nRecibimos tu registro a la Gala MG (${cuando}). Estamos armando la lista y te confirmamos por este medio.\n\nEquipo MG Company`
+
+  return `mailto:${r.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`
+}
+
+/** WhatsApp queda para lo urgente del mismo día, no para confirmar. */
 function mensajeWhatsApp(r: RegistroGala, urlPase: string | null): string {
   const nombre = (r.nombre_artistico || r.nombre_completo).split(" ")[0]
   const cuando = `${fechaLarga()}, ${GALA_HORARIO}`
@@ -103,7 +135,7 @@ export default function VistaGala({
             {fechaLarga()} · {GALA_HORARIO} · aforo {GALA_CUPO}.
             {puedeAcreditar && !puedeAdmitir
               ? " Puedes marcar ingresos y anotar; a quién se admite lo decide la coordinación."
-              : " Nadie queda confirmado solo: el pase QR se emite al confirmar."}
+              : " Nadie queda confirmado solo: el pase QR se emite al confirmar y se envía por correo."}
           </div>
         </div>
         <div className="spacer" />
@@ -227,6 +259,9 @@ export default function VistaGala({
                       </button>
                     ) : null}
 
+                    <a className="btn sm" href={enlaceCorreo(r, url)}
+                      title={`Escribirle a ${r.email}`}>Correo ↗</a>
+
                     <button className="btn sm ghost" onClick={() => setDetalle(r)}>Ficha</button>
                   </div>
                 </div>
@@ -300,10 +335,13 @@ function Ficha({
     <Modal titulo={registro.nombre_artistico || registro.nombre_completo} onClose={onClose}
       pie={
         <>
+          <a className="btn primary" href={enlaceCorreo(registro, url)}>
+            Enviar por correo ↗
+          </a>
           {wa ? (
-            <a className="btn primary" href={`https://wa.me/${wa}?text=${encodeURIComponent(mensajeWhatsApp(registro, url))}`}
+            <a className="btn" href={`https://wa.me/${wa}?text=${encodeURIComponent(mensajeWhatsApp(registro, url))}`}
               target="_blank" rel="noopener noreferrer">
-              Escribir por WhatsApp ↗
+              WhatsApp ↗
             </a>
           ) : null}
           {url ? (
@@ -325,7 +363,7 @@ function Ficha({
       {registro.codigo ? (
         <p className="small" style={{ marginTop: 14 }}>
           Pase <span className="gala-pase mono">{registro.codigo}</span> — el QR lo emitió la
-          base al confirmar. Se envía por WhatsApp con el botón de abajo.
+          base al confirmar. Se envía por correo con el botón de abajo.
         </p>
       ) : (
         <p className="small muted" style={{ marginTop: 14 }}>

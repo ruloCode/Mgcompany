@@ -13,10 +13,10 @@ import { z } from "zod"
    como cupo principal. El trigger `gala_asignar_cupo` serializa esa decisión.
 */
 
-export const GALA_EDICION = "gala-2026-10-11"
+export const GALA_EDICION = "gala-2026-09-11"
 
 /** ISO local. La etiqueta del día se deriva: escribirla a mano se desfasa. */
-export const GALA_FECHA = "2026-10-11"
+export const GALA_FECHA = "2026-09-11"
 export const GALA_HORA_INICIO = "17:00"
 export const GALA_HORA_FIN = "21:00"
 
@@ -168,7 +168,7 @@ export const etiquetaEstado = (e: string): string =>
 export const colorEstado = (e: string): string =>
   ESTADOS_GALA.find((x) => x.valor === e)?.color ?? "var(--muted)"
 
-/** "Domingo 11 de octubre" sin escribir el día de la semana a mano. */
+/** "Viernes 11 de septiembre" sin escribir el día de la semana a mano. */
 export function fechaLarga(iso: string = GALA_FECHA): string {
   const [a, m, d] = iso.split("-").map(Number)
   const fecha = new Date(a, m - 1, d, 12)

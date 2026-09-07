@@ -115,7 +115,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg-flow/[slug]` | Show detail with episode list |
 | `/galeria` | Photo/video gallery with category filters |
 | `/registro` | Redirect a `/gala` (era una maqueta que no guardaba nada) |
-| `/gala` | Landing y registro de la **Gala MG** (11 oct, 5–9 p.m., aforo 80) |
+| `/gala` | Landing y registro de la **Gala MG** (vie 11 sep, 5–9 p.m., aforo 80) |
 | `/gala/pase/[codigo]` | Pase de entrada con QR. Solo existe si el registro está `confirmed` |
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
@@ -362,7 +362,7 @@ blanca de la seccion `mg1`, hay que tocar las dos.
 
 ### `gala_registros` (migracion `019`)
 
-Registro publico a la **Gala MG** (11 de octubre, 5:00–9:00 p.m., privado, sin
+Registro publico a la **Gala MG** (viernes 11 de septiembre, 5:00–9:00 p.m., privado, sin
 cover, aforo 80). Se escribe desde `app/api/gala/registro/route.ts` con
 `lib/supabase-admin.ts`; el modelo compartido cliente/servidor vive en
 `lib/gala.ts`.
@@ -380,6 +380,19 @@ Tres reglas viven en Postgres y no en la aplicacion, a proposito:
    (BEFORE UPDATE) genera `codigo` al pasar a `confirmed`, y un CHECK impide
    que exista un codigo en cualquier otro estado. La landing lo promete y la
    base lo cumple.
+
+La `020` corrigio la fecha: la edicion se llama `gala-2026-09-11` y el DEFAULT
+de la columna se movio con ella, porque ese texto es la clave por la que el
+trigger del aforo cuenta y por la que agrupa el indice unico de correo.
+
+La confirmacion y el QR se envian por **correo**, no por WhatsApp. Hoy ese
+envio es manual: `/admin/gala` arma el mensaje y lo abre en el cliente de
+correo (`enlaceCorreo` en `components/admin/vista-gala.tsx`). Automatizarlo
+exige conectar un proveedor; ese texto es el que tendria que mandar.
+
+El medidor de aforo publico (`components/gala/medidor-cupo.tsx`) existe pero
+NO se monta: enseñar "quedan 80 de 80" con la lista corta juega en contra. El
+aforo real lo sigue imponiendo la base.
 
 RLS: INSERT para anon (el formulario), SELECT y UPDATE solo para quien ve la
 seccion — `puede_ver_gala()`, espejo de `SECCIONES_POR_ROL` como en la `018`.

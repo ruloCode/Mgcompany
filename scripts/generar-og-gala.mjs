@@ -1,6 +1,10 @@
 /**
  * Genera public/og/og-gala.jpg (1200x630).
  *
+ * La foto de fondo es la misma del hero (public/gala/gala-crowd.jpg),
+ * tratada en duotono rojo: la marca no tiene ámbar ni cian y una foto sin
+ * tratar en un feed rompe el sistema más que ayudarlo.
+ *
  * Mismo sistema que las demas tarjetas OG (marca arriba, kicker entre
  * corchetes, titulo en Bebas, pie con el dominio y la barra roja), con dos
  * cosas propias del evento:
@@ -178,7 +182,7 @@ const html = `<!doctype html>
     <div class="datos">
       <div class="col dia">
         <div class="et">FECHA</div>
-        <div class="va">11 <em>OCT</em></div>
+        <div class="va">VIE 11 <em>SEP</em></div>
       </div>
       <div class="col">
         <div class="et">HORA</div>

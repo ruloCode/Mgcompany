@@ -5,6 +5,13 @@ import AnimatedCounter from "@/components/mg1/animated-counter"
 import { GALA_CUPO } from "@/lib/gala"
 
 /* Cuánto queda del aforo.
+
+   HOY NO SE MONTA EN NINGUNA PÁGINA. Se quitó del hero de /gala por decisión
+   del equipo: enseñar el contador en vivo con la lista todavía corta juega en
+   contra —"quedan 80 de 80" se lee como que no va nadie— y el aforo real ya lo
+   impone la base de datos, que es donde importa. Se conserva entero para
+   volver a montarlo cuando la lista esté llena y el número empuje en lugar de
+   frenar: basta con importarlo y pasarle `ocupados`.
    No es un contador de urgencia inventado: el salón cabe 80 y ese número lo
    impone la base de datos. Cuando llega a cero el formulario no se cierra —
    pasa a lista de espera— y el medidor lo dice con esas palabras. */
@@ -57,7 +64,7 @@ export default function MedidorCupo({ ocupados }: { ocupados: number }) {
         ) : (
           <>
             Registrarte no es entrar: el equipo confirma uno por uno y el{" "}
-            <b className="text-white">QR llega por WhatsApp</b>.
+            <b className="text-white">QR llega por correo</b>.
           </>
         )}
       </p>
