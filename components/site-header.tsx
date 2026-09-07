@@ -13,6 +13,7 @@ const navItems = [
   { href: "/mg-flow", label: "MG Flow" },
   { href: "/galeria", label: "Galeria" },
   { href: "/mg1/convocatoria", label: "Convocatoria" },
+  { href: "/gala", label: "Gala MG" },
   { href: "/contacto", label: "Contacto" },
 ]
 

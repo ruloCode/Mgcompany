@@ -170,6 +170,7 @@ devuelve 204 cuando RLS filtra la fila, lo que parece éxito y no lo es. Usa
 | `mg_avisos` | Bandeja por persona. |
 | `mg_bitacora` | Quién cambió qué. Append-only. |
 | `mg1_inscripciones` | Buzón público de la convocatoria; el staff lo lee y cura. |
+| `gala_registros` | Buzón público de la Gala MG. El cupo (80) y el pase QR los deciden triggers, no la app. |
 
 ### Dos ejes que se confunden fácil
 

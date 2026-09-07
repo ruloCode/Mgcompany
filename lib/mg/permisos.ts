@@ -63,6 +63,12 @@ export const PERMISOS_EXTRA = [
     desc: "Anota la disponibilidad y las notas de cada inscripción. No cambia el estado de la curaduría.",
     seccion: "mg1",
   },
+  {
+    clave: "gala:acreditar",
+    label: "Acreditar en la puerta de la Gala",
+    desc: "Marca quién entró y anota en la lista la noche del evento. No decide admisiones.",
+    seccion: "gala",
+  },
 ] as const
 
 export type PermisoExtra = (typeof PERMISOS_EXTRA)[number]["clave"]
@@ -123,6 +129,7 @@ export const SECCIONES = [
   { slug: "redes",       label: "Redes",               icon: "◐", color: "var(--c-publicacion)",   grupo: "Catálogo" },
   { slug: "radar",       label: "Radar",               icon: "◎", color: "var(--c-seguimiento)",   grupo: "Catálogo" },
   { slug: "mg1",         label: "Convocatoria MG1",    icon: "◇", color: "var(--c-hito)",          grupo: "Catálogo" },
+  { slug: "gala",        label: "Gala MG",             icon: "◆", color: "var(--c-fiesta)",        grupo: "Catálogo" },
   { slug: "plan",        label: "Plan y reglas",       icon: "⚙", color: "var(--c-hito)",          grupo: "Administración" },
   { slug: "equipo",      label: "Equipo y accesos",    icon: "◑", color: "var(--muted)",           grupo: "Administración", permiso: "equipo" as Permiso },
   { slug: "datos",       label: "Datos y bitácora",    icon: "◌", color: "var(--muted)",           grupo: "Administración" },

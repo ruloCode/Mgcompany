@@ -180,3 +180,33 @@ export async function cargarInscripcionesMG1(): Promise<InscripcionMG1[]> {
     .order("created_at", { ascending: false })
   return (data ?? []) as InscripcionMG1[]
 }
+
+export interface RegistroGala {
+  id: string
+  edicion: string
+  nombre_completo: string
+  email: string
+  celular: string
+  nombre_artistico: string | null
+  tipo_asistente: string
+  instagram: string | null
+  tiktok: string | null
+  rango_edad: string
+  estado: string
+  notas: string | null
+  /** Solo existe cuando el estado es 'confirmed'. Lo emite la base. */
+  codigo: string | null
+  confirmado_at: string | null
+  /** Marca de entrada la noche del evento. null = todavia no ha llegado. */
+  ingreso_at: string | null
+  created_at: string
+}
+
+export async function cargarRegistrosGala(): Promise<RegistroGala[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from("gala_registros")
+    .select("*")
+    .order("created_at", { ascending: true })
+  return (data ?? []) as RegistroGala[]
+}

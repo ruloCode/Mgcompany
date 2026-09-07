@@ -1,16 +1,9 @@
-import RegistrationForm from "@/components/registration-form"
+import { redirect } from "next/navigation"
 
-export const metadata = {
-  title: "Registro | MG Company Group",
-  description: "Registrate para los eventos de MG Company Group.",
-}
-
+/* /registro era un formulario de maqueta: no guardaba nada, simulaba el envío
+   con un setTimeout y prometía un QR que nadie generaba. El registro de
+   eventos vive ahora en /gala, con su tabla, su cupo y su pase de verdad.
+   Se deja la ruta viva porque está impresa en piezas y enlaces antiguos. */
 export default function RegistroPage() {
-  return (
-    <section className="container mx-auto px-4 py-12 md:py-16">
-      <div className="max-w-2xl mx-auto">
-        <RegistrationForm />
-      </div>
-    </section>
-  )
+  redirect("/gala")
 }

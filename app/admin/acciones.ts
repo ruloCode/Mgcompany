@@ -1329,3 +1329,58 @@ export async function verComo(rol: string): Promise<Resultado> {
   refrescar()
   return OK
 }
+
+/* ============================================================
+   Gala MG
+   ============================================================ */
+
+/** Quien opera decide admisiones; quien está en la puerta solo acredita.
+ *  Espejo de proteger_admision_gala() en la migración 019. */
+const acreditaGala = (p: Perfil) =>
+  puede(p.rol, "operar") || tieneExtra(p, "gala:acreditar")
+
+/**
+ * Curar un registro de la Gala.
+ *
+ * Confirmar es lo único que emite el pase: el código QR lo genera el trigger
+ * `gala_emitir_pase` al pasar a 'confirmed', no esta función. Aquí no se
+ * escribe `codigo` nunca — si algún día hiciera falta reemitirlo, es una
+ * decisión de la base, no de la interfaz.
+ *
+ * El aforo tampoco se comprueba aquí a propósito: subir a alguien de la lista
+ * de espera por encima de 80 es una decisión del equipo (alguien avisó que no
+ * viene), y la interfaz muestra el conteo para que sea consciente.
+ */
+export async function actualizarRegistroGala(
+  id: string,
+  campos: { estado?: string; notas?: string; ingreso?: boolean },
+) {
+  return mutar(acreditaGala, async (perfil) => {
+    if (campos.estado !== undefined && !puede(perfil.rol, "operar")) {
+      throw new Error("Admitir o rechazar es de la coordinación. Tú puedes marcar ingresos y anotar.")
+    }
+
+    const supabase = await createClient()
+
+    const { ingreso, ...resto } = campos
+    const parche: Record<string, unknown> = { ...resto }
+    if (ingreso !== undefined) parche.ingreso_at = ingreso ? new Date().toISOString() : null
+
+    if (Object.keys(parche).length === 0) return null
+
+    const { data, error } = await supabase
+      .from("gala_registros")
+      .update(parche)
+      .eq("id", id)
+      .select("nombre_completo, estado, codigo")
+      .single()
+    if (error) throw new Error(error.message)
+
+    const quien = data?.nombre_completo ?? "un registro"
+
+    if (campos.estado === "confirmed") return `🎟 Gala: ${quien} confirmado — pase ${data?.codigo ?? "emitido"}.`
+    if (campos.estado) return `🎟 Gala: ${quien} pasó a ${campos.estado}.`
+    if (ingreso !== undefined) return `🚪 Gala: ${quien} ${ingreso ? "entró" : "salió de la lista de ingresos"}.`
+    return null
+  })
+}

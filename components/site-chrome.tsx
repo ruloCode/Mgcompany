@@ -14,6 +14,9 @@ const STANDALONE_PREFIXES = [
   // Vistas imprimibles: son laminas de tamano fijo, el header y el footer del
   // sitio no pintan nada dentro de un PDF.
   "/artistas/karen-dayanna/press-kit",
+  // El pase de la Gala se abre en la puerta, a pulso y con prisa: lo unico que
+  // tiene que caber en pantalla es el QR. El menu del sitio ahi solo estorba.
+  "/gala/pase",
 ]
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {

@@ -114,7 +114,9 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg-flow` | Shows listing (Netflix-style carousels) |
 | `/mg-flow/[slug]` | Show detail with episode list |
 | `/galeria` | Photo/video gallery with category filters |
-| `/registro` | Event registration with QR code generation |
+| `/registro` | Redirect a `/gala` (era una maqueta que no guardaba nada) |
+| `/gala` | Landing y registro de la **Gala MG** (11 oct, 5–9 p.m., aforo 80) |
+| `/gala/pase/[codigo]` | Pase de entrada con QR. Solo existe si el registro está `confirmed` |
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
@@ -135,12 +137,14 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/admin/redes` | Calendario de contenido (8 sub-vistas + composer) |
 | `/admin/radar` | Scouting del ecosistema con puntaje por rol |
 | `/admin/mg1` | Curaduria de las inscripciones de la convocatoria |
+| `/admin/gala` | Admisiones y acreditación de la Gala MG |
 | `/admin/plan` | Reglas del motor de fechas y capacidad de estudio |
 | `/admin/equipo` | Miembros, roles y activacion de cuentas (owner/admin) |
 | `/admin/datos` | Respaldos y bitacora completa |
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
-header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria` y `/admin`.
+header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/admin` y
+`/gala/pase` (el pase se abre en la puerta: solo tiene que caber el QR).
 
 ## Panel administrativo (`/admin`)
 
@@ -339,6 +343,7 @@ Sin credenciales de Supabase, en desarrollo el route handler cae a
 | `mg_avisos` | Bandeja por persona. Privada: ni un owner ve la ajena. |
 | `mg_bitacora` | Append-only: quien cambio que. Sin policy de UPDATE/DELETE. |
 | `mg_accesos_previstos` | Correo → rol, escrito por un admin ANTES de que la persona se registre. Solo `es_admin()`. |
+| `gala_registros` | Registros a la Gala MG. El cupo y el pase QR los decide la base, no la app. |
 
 `mg_comentarios` admite `entidad_tipo = 'area'`, con el `entidad_id` igual al
 nombre del area (`'produccion'`). Asi el canal general de un area reutiliza
@@ -354,6 +359,36 @@ inscribio a un concurso, no del equipo, asi que la ve **quien ve la seccion**
 personal (`puede_ver_mg1()`). Produccion, audiovisual, contenido y artista no.
 Esa funcion es un espejo en SQL de `SECCIONES_POR_ROL`: si cambia la lista
 blanca de la seccion `mg1`, hay que tocar las dos.
+
+### `gala_registros` (migracion `019`)
+
+Registro publico a la **Gala MG** (11 de octubre, 5:00–9:00 p.m., privado, sin
+cover, aforo 80). Se escribe desde `app/api/gala/registro/route.ts` con
+`lib/supabase-admin.ts`; el modelo compartido cliente/servidor vive en
+`lib/gala.ts`.
+
+Tres reglas viven en Postgres y no en la aplicacion, a proposito:
+
+1. **Nadie se confirma solo.** `gala_asignar_cupo` (BEFORE INSERT) pisa el
+   `estado` que llegue: todos entran `pending`. Los estados son
+   `pending` | `confirmed` | `waitlist` | `rejected`.
+2. **El cupo lo reparte la base.** El mismo trigger toma
+   `pg_advisory_xact_lock` por edicion y manda a `waitlist` a partir del
+   registro 81. En el route handler dos envios simultaneos leerian el mismo
+   conteo y los dos entrarian como cupo principal.
+3. **El QR solo existe si estas confirmado.** `gala_emitir_pase`
+   (BEFORE UPDATE) genera `codigo` al pasar a `confirmed`, y un CHECK impide
+   que exista un codigo en cualquier otro estado. La landing lo promete y la
+   base lo cumple.
+
+RLS: INSERT para anon (el formulario), SELECT y UPDATE solo para quien ve la
+seccion — `puede_ver_gala()`, espejo de `SECCIONES_POR_ROL` como en la `018`.
+`proteger_admision_gala` recorta a quien solo tiene el permiso individual
+`gala:acreditar`: marca ingresos y anota, no decide admisiones. Sin policy de
+DELETE: un registro no se borra, se marca `rejected`.
+
+No se pide genero (se infiere del nombre en el analisis posterior) ni
+direccion.
 
 ### `registros`
 
@@ -383,3 +418,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Team photos -> `public/team/`
 - Gallery photos -> `public/gallery/`
 - MG Flow thumbnails -> `public/mg-flow/`
+- OG de la Gala -> `public/og/og-gala.jpg` (cae a `og-home.jpg` si no existe)
