@@ -17,14 +17,21 @@ export const GALA_EDICION = "gala-2026-09-11"
 
 /** ISO local. La etiqueta del día se deriva: escribirla a mano se desfasa. */
 export const GALA_FECHA = "2026-09-11"
-export const GALA_HORA_INICIO = "17:00"
+/* OJO: la hora que se publica es la de PUERTAS, las 6:00 p.m.
+   El montaje empieza a las 5:00, cuando llegan los emprendimientos, pero eso
+   es interno: nadie del público debe presentarse a esa hora. Si algún día hay
+   que mostrar el bloque de las 5:00, va en una vista para ellos, no aquí. */
+export const GALA_HORA_INICIO = "18:00"
 export const GALA_HORA_FIN = "21:00"
 
 /** Las de arriba son para calcular (la cuenta regresiva); estas para mostrar.
- *  Nadie en Bogotá dice "de 17:00 a 21:00". */
-export const GALA_HORA_INICIO_TXT = "5:00 p.m."
+ *  Nadie en Bogotá dice "de 18:00 a 21:00". */
+export const GALA_HORA_INICIO_TXT = "6:00 p.m."
 export const GALA_HORA_FIN_TXT = "9:00 p.m."
-export const GALA_HORARIO = "5:00 a 9:00 p.m."
+export const GALA_HORARIO = "6:00 a 9:00 p.m."
+
+/** Montaje: hora a la que llegan los emprendimientos. No se publica. */
+export const GALA_HORA_MONTAJE_TXT = "5:00 p.m."
 export const GALA_CIUDAD = "Bogotá"
 
 /** Aforo total del salón. Espejo de gala_cupo() en la migración 019. */
@@ -42,32 +49,37 @@ export const GALA_REPARTO = [
   { valor: 14, label: "Gremio", sub: "Managers y productores" },
 ] as const
 
-/** Cronograma de las cuatro horas. PENDIENTE de confirmar con producción:
- *  estos bloques son la estructura acordada (llegada → bienvenida → showcase
- *  → networking → cierre), no los horarios definitivos. Editar aquí. */
+/** Cronograma de la noche, de puertas a cierre.
+ *
+ *  PENDIENTE de confirmar con producción: la estructura es la acordada
+ *  (puertas → apertura → showcase → networking → cierre) pero los minutos
+ *  exactos no están cerrados. Editar aquí y ya.
+ *
+ *  Empieza a las 6:00 a propósito: las 5:00 son para recibir a los
+ *  emprendimientos y ese bloque no se publica (ver GALA_HORA_MONTAJE_TXT). */
 export const GALA_CRONOGRAMA = [
   {
-    hora: "5:00 p.m.",
-    titulo: "Acreditación",
-    desc: "Llegada, registro con tu QR y bienvenida en la puerta.",
+    hora: "6:00 p.m.",
+    titulo: "Puertas abiertas",
+    desc: "Llegada, acreditación con tu QR y bienvenida en la puerta.",
   },
   {
-    hora: "5:30 p.m.",
+    hora: "6:30 p.m.",
     titulo: "Apertura MG",
     desc: "El equipo abre la noche: qué es MG y hacia dónde va la comunidad.",
   },
   {
-    hora: "6:00 p.m.",
+    hora: "7:00 p.m.",
     titulo: "Showcase de artistas",
     desc: "Presentaciones en vivo del roster y de los artistas de la comunidad.",
   },
   {
-    hora: "7:30 p.m.",
+    hora: "8:00 p.m.",
     titulo: "Networking",
     desc: "Artistas, managers y productores en la misma sala. A eso venimos.",
   },
   {
-    hora: "8:30 p.m.",
+    hora: "8:40 p.m.",
     titulo: "Cierre",
     desc: "Foto de familia, anuncios de lo que viene y despedida.",
   },

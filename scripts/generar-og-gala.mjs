@@ -186,7 +186,7 @@ const html = `<!doctype html>
       </div>
       <div class="col">
         <div class="et">HORA</div>
-        <div class="va">5:00 – 9:00 P.M.</div>
+        <div class="va">6:00 – 9:00 P.M.</div>
       </div>
       <div class="col">
         <div class="et">CIUDAD</div>

@@ -115,7 +115,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg-flow/[slug]` | Show detail with episode list |
 | `/galeria` | Photo/video gallery with category filters |
 | `/registro` | Redirect a `/gala` (era una maqueta que no guardaba nada) |
-| `/gala` | Landing y registro de la **Gala MG** (vie 11 sep, 5–9 p.m., aforo 80) |
+| `/gala` | Landing y registro de la **Gala MG** (vie 11 sep, 6–9 p.m., aforo 80) |
 | `/gala/pase/[codigo]` | Pase de entrada con QR. Solo existe si el registro está `confirmed` |
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
@@ -362,7 +362,7 @@ blanca de la seccion `mg1`, hay que tocar las dos.
 
 ### `gala_registros` (migracion `019`)
 
-Registro publico a la **Gala MG** (viernes 11 de septiembre, 5:00–9:00 p.m., privado, sin
+Registro publico a la **Gala MG** (viernes 11 de septiembre, 6:00–9:00 p.m., privado, sin
 cover, aforo 80). Se escribe desde `app/api/gala/registro/route.ts` con
 `lib/supabase-admin.ts`; el modelo compartido cliente/servidor vive en
 `lib/gala.ts`.
@@ -384,6 +384,10 @@ Tres reglas viven en Postgres y no en la aplicacion, a proposito:
 La `020` corrigio la fecha: la edicion se llama `gala-2026-09-11` y el DEFAULT
 de la columna se movio con ella, porque ese texto es la clave por la que el
 trigger del aforo cuenta y por la que agrupa el indice unico de correo.
+
+La hora que se publica es la de PUERTAS (6:00 p.m.). El montaje empieza a las
+5:00, cuando llegan los emprendimientos, pero eso es interno y no aparece en
+la landing: nadie del publico debe presentarse a esa hora.
 
 La confirmacion y el QR se envian por **correo**, no por WhatsApp. Hoy ese
 envio es manual: `/admin/gala` arma el mensaje y lo abre en el cliente de

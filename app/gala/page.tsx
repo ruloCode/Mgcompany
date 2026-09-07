@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 const OG_TITLE = "Gala MG · Primer encuentro de la comunidad"
 const OG_DESCRIPTION =
-  "Viernes 11 de septiembre, 5:00 a 9:00 p.m. El primer evento presencial de la comunidad MG: 80 lugares, sin cover, solo con registro confirmado."
+  "Viernes 11 de septiembre, 6:00 a 9:00 p.m. El primer evento presencial de la comunidad MG: 80 lugares, sin cover, solo con registro confirmado."
 
 /* La tarjeta OG se referencia directo, sin comprobar que el archivo exista.
    El truco de existsSync que usan las páginas estáticas no sirve aquí: esta
@@ -186,8 +186,8 @@ export default function GalaPage() {
               title="Cronograma"
               subtitle={
                 <>
-                  Cuatro horas, de {GALA_HORARIO} Llega temprano: la
-                  acreditación con QR toma unos minutos y el showcase empieza puntual.
+                  Tres horas, de {GALA_HORARIO} Llega temprano: la acreditación con QR
+                  toma unos minutos y el showcase empieza puntual.
                 </>
               }
             />
