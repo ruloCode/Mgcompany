@@ -199,6 +199,8 @@ export interface RegistroGala {
   confirmado_at: string | null
   /** Marca de entrada la noche del evento. null = todavia no ha llegado. */
   ingreso_at: string | null
+  /** Ultimo envio del correo con el pase. null = confirmado pero no lo sabe. */
+  correo_enviado_at: string | null
   created_at: string
 }
 

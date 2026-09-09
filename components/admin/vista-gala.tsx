@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react"
 import { fmt } from "@/lib/mg/fechas"
 import type { RegistroGala } from "@/lib/mg/datos"
-import { actualizarRegistroGala } from "@/app/admin/acciones"
+import { actualizarRegistroGala, enviarPaseGala, enviarPasesGalaPendientes } from "@/app/admin/acciones"
 import { whatsapp } from "@/lib/mg/telefono"
 import {
   ESTADOS_GALA,
@@ -42,14 +42,14 @@ function enlaceCorreo(r: RegistroGala, urlPase: string | null): string {
 
   const asunto =
     r.estado === "confirmed"
-      ? "Estás confirmado para la Gala MG · tu pase de entrada"
+      ? "Tu pase para la Gala MG · estás dentro"
       : r.estado === "waitlist"
         ? "Gala MG · quedaste en lista de espera"
         : "Recibimos tu registro a la Gala MG"
 
   const cuerpo =
     r.estado === "confirmed" && urlPase
-      ? `Hola ${nombre},\n\nQuedaste confirmado para la Gala MG.\n\nCuándo: ${cuando}\nDónde: Bogotá (te compartimos la dirección exacta por este medio)\n\nEste es tu pase de entrada:\n${urlPase}\n\nEs único e intransferible: preséntalo en la puerta desde tu celular. Nos vemos.\n\nEquipo MG Company`
+      ? `Hola ${nombre},\n\nTu registro quedó confirmado para la Gala MG.\n\nCuándo: ${cuando}\nDónde: Bogotá (te compartimos la dirección exacta por este medio)\n\nEste es tu pase de entrada:\n${urlPase}\n\nEs único e intransferible: preséntalo en la puerta desde tu celular. Nos vemos.\n\nEquipo MG Company`
       : r.estado === "waitlist"
         ? `Hola ${nombre},\n\nRecibimos tu registro a la Gala MG. El cupo ya está lleno, así que quedaste en lista de espera: si se abre un espacio te escribimos por este mismo medio, en orden de llegada.\n\nGracias por querer estar.\n\nEquipo MG Company`
         : r.estado === "rejected"
@@ -65,7 +65,7 @@ function mensajeWhatsApp(r: RegistroGala, urlPase: string | null): string {
   const cuando = `${fechaLarga()}, ${GALA_HORARIO}`
 
   if (r.estado === "confirmed" && urlPase) {
-    return `¡Hola ${nombre}! Quedaste confirmado para la Gala MG — ${cuando}. Este es tu pase de entrada: ${urlPase} Es único e intransferible, preséntalo en la puerta. Nos vemos.`
+    return `¡Hola ${nombre}! Tu registro quedó confirmado para la Gala MG — ${cuando}. Este es tu pase de entrada: ${urlPase} Es único e intransferible, preséntalo en la puerta. Nos vemos.`
   }
   if (r.estado === "waitlist") {
     return `¡Hola ${nombre}! Recibimos tu registro para la Gala MG. El cupo ya está lleno, así que quedaste en lista de espera: si se abre un espacio te escribimos por aquí de una.`
@@ -90,6 +90,8 @@ export default function VistaGala({
   const [busca, setBusca] = useState("")
   const [soloSinEntrar, setSoloSinEntrar] = useState(false)
   const [detalle, setDetalle] = useState<RegistroGala | null>(null)
+  const [aviso, setAviso] = useState<{ ok: boolean; msg: string } | null>(null)
+  const [enviando, setEnviando] = useState<string | null>(null)
   const [, arrancar] = useTransition()
 
   // El origen sale del navegador porque el pase se comparte por WhatsApp y
@@ -125,6 +127,29 @@ export default function VistaGala({
 
   const alternarIngreso = (r: RegistroGala) =>
     arrancar(async () => { await actualizarRegistroGala(r.id, { ingreso: !r.ingreso_at }) })
+
+  const enviarUno = async (r: RegistroGala) => {
+    setAviso(null)
+    setEnviando(r.id)
+    const res = await enviarPaseGala(r.id)
+    setEnviando(null)
+    setAviso(res.ok
+      ? { ok: true, msg: `Pase enviado a ${r.email}.` }
+      : { ok: false, msg: res.error ?? "No se pudo enviar." })
+  }
+
+  const enviarTodos = async () => {
+    setAviso(null)
+    setEnviando("todos")
+    const res = await enviarPasesGalaPendientes()
+    setEnviando(null)
+    setAviso(res.ok
+      ? { ok: true, msg: `Listo: los pases pendientes salieron por correo.` }
+      : { ok: false, msg: res.error ?? "No se pudo enviar." })
+  }
+
+  /** Confirmados a los que todavía no les ha llegado el pase. */
+  const sinCorreo = registros.filter((r) => r.estado === "confirmed" && !r.correo_enviado_at).length
 
   return (
     <>
@@ -166,6 +191,33 @@ export default function VistaGala({
           de ahí es una decisión de ustedes, la base no lo impide.
         </p>
       </div>
+
+      {puedeAdmitir ? (
+        <div className="card">
+          <h2>Correos del pase</h2>
+          <p className="small muted">
+            Confirmar emite el pase; esto lo entrega. Se envía solo a quien está
+            confirmado y todavía no lo ha recibido, así que apretar dos veces no
+            duplica correos.
+          </p>
+          <div className="acciones" style={{ marginTop: 10 }}>
+            <button className="btn primary" onClick={enviarTodos}
+              disabled={enviando !== null || sinCorreo === 0}>
+              {enviando === "todos"
+                ? "Enviando…"
+                : sinCorreo === 0
+                  ? "Todos los pases enviados"
+                  : `Enviar ${sinCorreo} ${sinCorreo === 1 ? "pase pendiente" : "pases pendientes"}`}
+            </button>
+          </div>
+          {aviso ? (
+            <p className={aviso.ok ? "small" : "small"} role="status"
+              style={{ marginTop: 10, color: aviso.ok ? "var(--good)" : "var(--bad)" }}>
+              {aviso.msg}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="card" style={{ padding: "10px 14px" }}>
         <div className="frow" style={{ margin: 0 }}>
@@ -234,6 +286,12 @@ export default function VistaGala({
                         </a>
                       ) : null}
                       <span className="muted mono">{fmt(r.created_at.slice(0, 10))}</span>
+                      {r.estado === "confirmed" ? (
+                        <span className={r.correo_enviado_at ? "muted" : undefined}
+                          style={r.correo_enviado_at ? undefined : { color: "var(--warn, #eda100)" }}>
+                          {r.correo_enviado_at ? "✉ pase enviado" : "✉ sin enviar"}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
@@ -259,8 +317,18 @@ export default function VistaGala({
                       </button>
                     ) : null}
 
-                    <a className="btn sm" href={enlaceCorreo(r, url)}
-                      title={`Escribirle a ${r.email}`}>Correo ↗</a>
+                    {puedeAdmitir && r.estado === "confirmed" ? (
+                      <button className="btn sm" onClick={() => enviarUno(r)}
+                        disabled={enviando !== null}
+                        title={r.correo_enviado_at
+                          ? `Reenviar el pase a ${r.email}`
+                          : `Enviar el pase a ${r.email}`}>
+                        {enviando === r.id ? "Enviando…" : r.correo_enviado_at ? "Reenviar" : "Enviar pase"}
+                      </button>
+                    ) : null}
+
+                    <a className="btn sm ghost" href={enlaceCorreo(r, url)}
+                      title={`Escribirle a mano a ${r.email}`}>Correo ↗</a>
 
                     <button className="btn sm ghost" onClick={() => setDetalle(r)}>Ficha</button>
                   </div>

@@ -9,6 +9,8 @@ import { PERMISOS_EXTRA, SECCIONES, puede, tieneExtra, type Permiso } from "@/li
 import { D, evitarFestivos, fmt, hoy, masDias } from "@/lib/mg/fechas"
 import type { EstadoProyecto, FichaRadar, Perfil, Publicacion, TipoEvento } from "@/lib/mg/tipos"
 import { sanearDisponibilidad, type Disponibilidad } from "@/lib/mg1-disponibilidad"
+import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
+import { asuntoPase, htmlPase, textoPase } from "@/lib/gala-correo"
 
 export interface Resultado {
   ok: boolean
@@ -1382,5 +1384,113 @@ export async function actualizarRegistroGala(
     if (campos.estado) return `🎟 Gala: ${quien} pasó a ${campos.estado}.`
     if (ingreso !== undefined) return `🚪 Gala: ${quien} ${ingreso ? "entró" : "salió de la lista de ingresos"}.`
     return null
+  })
+}
+
+
+/* ------------------------------------------------------------
+   El correo con el pase
+   ------------------------------------------------------------
+   Emitir el pase y entregarlo son cosas distintas: el trigger emite al
+   confirmar, esto entrega. Se separa a propósito — reenviar el correo a
+   alguien que perdió el suyo no debe tocar su estado.
+
+   Enviar es de la coordinación (`operar`), no de quien acredita en la puerta:
+   quien recibe el correo entra, así que mandarlo es admitir de hecho. */
+
+const SITIO = process.env.NEXT_PUBLIC_SITIO ?? "https://mgcompany.co"
+
+/** Manda un pase y deja el rastro. Devuelve el error legible o null. */
+async function mandarPase(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  r: { id: string; nombre_completo: string; nombre_artistico: string | null; email: string; estado: string; codigo: string | null },
+): Promise<string | null> {
+  if (r.estado !== "confirmed" || !r.codigo) {
+    return `${r.nombre_completo} no está confirmado todavía: sin confirmar no hay pase que enviar.`
+  }
+
+  const resend = getResend()
+  if (!resend) return "Falta RESEND_API_KEY: el envío de correo no está configurado."
+
+  const urlPase = `${SITIO}/gala/pase/${r.codigo}`
+  const datos = { nombre_completo: r.nombre_completo, nombre_artistico: r.nombre_artistico, codigo: r.codigo }
+
+  const { error } = await resend.emails.send({
+    from: CORREO_DE,
+    to: r.email,
+    replyTo: CORREO_RESPONDER_A,
+    subject: asuntoPase(),
+    html: htmlPase(datos, urlPase),
+    text: textoPase(datos, urlPase),
+  })
+  if (error) return `${r.email}: ${error.message}`
+
+  // El sello se intenta después del envío, nunca antes: si la columna todavía
+  // no existe o la escritura falla, el correo ya salió y decir lo contrario
+  // sería peor que no saber cuándo se mandó.
+  await supabase
+    .from("gala_registros")
+    .update({ correo_enviado_at: new Date().toISOString() })
+    .eq("id", r.id)
+
+  return null
+}
+
+const CAMPOS_PASE = "id, nombre_completo, nombre_artistico, email, estado, codigo"
+
+/** Enviar (o reenviar) el pase de una persona. */
+export async function enviarPaseGala(id: string): Promise<Resultado> {
+  return mutar("operar", async () => {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("gala_registros").select(CAMPOS_PASE).eq("id", id).single()
+    if (error) throw new Error(error.message)
+
+    const fallo = await mandarPase(supabase, data)
+    if (fallo) throw new Error(fallo)
+
+    return `📧 Gala: pase enviado a ${data.nombre_completo} (${data.email}).`
+  })
+}
+
+/**
+ * Enviar el pase a todos los confirmados que aún no lo han recibido.
+ *
+ * En serie y con una pausa: el plan gratuito de Resend admite 2 envíos por
+ * segundo, y una ráfaga de 80 en paralelo se corta a la mitad. Con 80 personas
+ * son unos 40 segundos — cabe de sobra en una Server Action.
+ */
+export async function enviarPasesGalaPendientes(): Promise<Resultado> {
+  return mutar("operar", async () => {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("gala_registros")
+      .select(CAMPOS_PASE)
+      .eq("estado", "confirmed")
+      .is("correo_enviado_at", null)
+      .order("created_at")
+    if (error) throw new Error(error.message)
+
+    const pendientes = data ?? []
+    if (pendientes.length === 0) {
+      throw new Error("No hay confirmados sin correo: todos los pases ya salieron.")
+    }
+
+    const fallos: string[] = []
+    for (const r of pendientes) {
+      const fallo = await mandarPase(supabase, r)
+      if (fallo) fallos.push(fallo)
+      await new Promise((listo) => setTimeout(listo, 600))
+    }
+
+    const enviados = pendientes.length - fallos.length
+    if (fallos.length) {
+      throw new Error(
+        `Salieron ${enviados} de ${pendientes.length}. Falló: ${fallos.slice(0, 3).join(" · ")}` +
+          (fallos.length > 3 ? ` y ${fallos.length - 3} más.` : ""),
+      )
+    }
+
+    return `📧 Gala: ${enviados} ${enviados === 1 ? "pase enviado" : "pases enviados"} por correo.`
   })
 }
