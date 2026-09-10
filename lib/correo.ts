@@ -22,9 +22,14 @@ export function getResend(): Resend | null {
 
 export const correoConfigurado = () => Boolean(process.env.RESEND_API_KEY)
 
-/* El remitente vive en un subdominio propio (send.mgcompany.co) a propósito:
-   mgcompany.co ya tiene MX y SPF de Zoho para el correo humano del equipo, y
-   verificar el dominio raíz en Resend obligaría a mezclar las dos cosas. Con un
-   subdominio, el correo transaccional y el de las personas no se estorban. */
-export const CORREO_DE = process.env.GALA_CORREO_DE ?? "Gala MG <gala@send.mgcompany.co>"
-export const CORREO_RESPONDER_A = process.env.GALA_CORREO_RESPONDER_A ?? "admin@mgcompany.co"
+/* Se envía desde el dominio raíz, que es el que está verificado en Resend.
+   No estorba al correo humano del equipo: Zoho conserva el MX y el SPF de la
+   raíz, y Resend firma con su propia DKIM (resend._domainkey) y usa
+   send.mgcompany.co solo como remite de rebotes. Las dos cosas conviven
+   porque viven en registros distintos.
+
+   Ojo con RESPONDER_A: el correo invita a responder ("si ya no puedes venir,
+   respóndenos"), así que tiene que ser un buzón que alguien lea de verdad en
+   Zoho. Si no existe, esas respuestas rebotan. */
+export const CORREO_DE = process.env.GALA_CORREO_DE ?? "Gala MG <gala@mgcompany.co>"
+export const CORREO_RESPONDER_A = process.env.GALA_CORREO_RESPONDER_A ?? "gala@mgcompany.co"
