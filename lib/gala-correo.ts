@@ -54,7 +54,7 @@ export function htmlPase(r: DatosPase, urlPase: string): string {
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>${asuntoPase()}</title></head>
 <body style="margin:0;padding:0;background:#0a0a0a;">
-  <span style="display:none;font-size:1px;color:#0a0a0a;">Tu pase para la Gala MG — ${fechaLarga()}, puertas ${GALA_HORA_INICIO_TXT}.</span>
+  <span style="display:none;font-size:1px;color:#0a0a0a;">Tu pase para la Gala MG — ${fechaLarga()}, puertas ${GALA_HORA_INICIO_TXT}</span>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:24px 12px;">
     <tr><td align="center">
