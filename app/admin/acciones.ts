@@ -9,6 +9,7 @@ import { PERMISOS_EXTRA, SECCIONES, puede, tieneExtra, type Permiso } from "@/li
 import { D, evitarFestivos, fmt, hoy, masDias } from "@/lib/mg/fechas"
 import type { EstadoProyecto, FichaRadar, Perfil, Publicacion, TipoEvento } from "@/lib/mg/tipos"
 import { sanearDisponibilidad, type Disponibilidad } from "@/lib/mg1-disponibilidad"
+import { codigoDeLoEscaneado } from "@/lib/gala"
 import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
 import { asuntoPase, htmlPase, textoPase } from "@/lib/gala-correo"
 
@@ -1493,4 +1494,110 @@ export async function enviarPasesGalaPendientes(): Promise<Resultado> {
 
     return `📧 Gala: ${enviados} ${enviados === 1 ? "pase enviado" : "pases enviados"} por correo.`
   })
+}
+
+
+/* ------------------------------------------------------------
+   Modo puerta: acreditar escaneando
+   ------------------------------------------------------------
+   La noche del evento el trabajo no es curar, es dejar entrar rápido. Esta
+   acción existe aparte de `actualizarRegistroGala` porque responde otra
+   pregunta: no "cambia este registro" sino "¿esta persona entra, sí o no?",
+   y quien está en la puerta necesita esa respuesta en la mano, con el nombre,
+   en menos de un segundo.
+
+   Es idempotente a propósito: escanear dos veces no vuelve a marcar la
+   entrada, avisa que ya había entrado y a qué hora. En una puerta, el mismo
+   QR se lee dos veces todo el tiempo — el teléfono enfoca, dispara, y la
+   persona todavía no ha guardado el celular. */
+
+export type VeredictoPuerta =
+  | "entra"           // confirmado y es su primera entrada
+  | "repetido"        // ya había entrado antes
+  | "no_confirmado"   // el registro existe pero no está confirmado
+  | "desconocido"     // ningún pase con ese código
+  | "sin_permiso"
+  | "error"
+
+export interface ResultadoPuerta {
+  veredicto: VeredictoPuerta
+  mensaje: string
+  registro?: {
+    nombre_completo: string
+    nombre_artistico: string | null
+    tipo_asistente: string
+    codigo: string | null
+    ingreso_at: string | null
+  }
+}
+
+export async function acreditarPorCodigo(bruto: string): Promise<ResultadoPuerta> {
+  const perfil = await perfilActual()
+  if (!perfil) redirect("/admin/login")
+  if (!acreditaGala(perfil)) {
+    return { veredicto: "sin_permiso", mensaje: "Tu rol no puede acreditar en la puerta." }
+  }
+
+  const codigo = codigoDeLoEscaneado(bruto)
+  if (!codigo) {
+    return { veredicto: "desconocido", mensaje: "Eso no es un pase de la Gala." }
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("gala_registros")
+    .select("id, nombre_completo, nombre_artistico, tipo_asistente, estado, codigo, ingreso_at")
+    .eq("codigo", codigo)
+    .maybeSingle()
+
+  if (error) return { veredicto: "error", mensaje: error.message }
+  if (!data) {
+    return { veredicto: "desconocido", mensaje: `No existe ningún pase ${codigo}.` }
+  }
+
+  const registro = {
+    nombre_completo: data.nombre_completo,
+    nombre_artistico: data.nombre_artistico,
+    tipo_asistente: data.tipo_asistente,
+    codigo: data.codigo,
+    ingreso_at: data.ingreso_at,
+  }
+
+  if (data.estado !== "confirmed") {
+    return {
+      veredicto: "no_confirmado",
+      mensaje: "Este pase ya no es válido: el registro no está confirmado.",
+      registro,
+    }
+  }
+
+  if (data.ingreso_at) {
+    return {
+      veredicto: "repetido",
+      mensaje: `Ya había entrado a las ${new Date(data.ingreso_at).toLocaleTimeString("es-CO", {
+        hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota",
+      })}`,
+      registro,
+    }
+  }
+
+  const ahora = new Date().toISOString()
+  const { error: fallo } = await supabase
+    .from("gala_registros")
+    .update({ ingreso_at: ahora })
+    .eq("id", data.id)
+  if (fallo) return { veredicto: "error", mensaje: fallo.message, registro }
+
+  await bitacora(`🚪 Gala: entró ${data.nombre_completo} (${codigo}).`)
+  revalidatePath("/admin/gala")
+
+  // El título ya dice ADELANTE: repetirlo aquí gasta la línea. Se usa para
+  // decir algo que el título no dice — a qué hora quedó marcada la entrada.
+  return {
+    veredicto: "entra",
+    mensaje: `Entrada marcada a las ${new Date(ahora).toLocaleTimeString("es-CO", {
+      hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota",
+    })}`,
+    registro: { ...registro, ingreso_at: ahora },
+  }
 }

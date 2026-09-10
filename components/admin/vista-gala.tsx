@@ -192,6 +192,19 @@ export default function VistaGala({
         </p>
       </div>
 
+      {puedeAcreditar ? (
+        <div className="card puerta-atajo">
+          <div>
+            <h2 style={{ marginBottom: 4 }}>Modo puerta</h2>
+            <p className="small muted" style={{ margin: 0 }}>
+              Abre la cámara y escanea el QR de cada invitado. Pensado para el
+              celular: marca la entrada y avisa si alguien ya pasó.
+            </p>
+          </div>
+          <a className="btn primary" href="/admin/gala/puerta">Escanear pases →</a>
+        </div>
+      ) : null}
+
       {puedeAdmitir ? (
         <div className="card">
           <h2>Correos del pase</h2>

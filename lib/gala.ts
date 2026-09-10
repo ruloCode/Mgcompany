@@ -191,3 +191,20 @@ export function fechaLarga(iso: string = GALA_FECHA): string {
   }).format(fecha)
   return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
+
+/** El QR del pase lleva la URL completa, no el código suelto: hay que sacarlo
+ *  de ahí. También se acepta el código escrito a mano, que es el plan B de la
+ *  puerta cuando la cámara no coopera.
+ *
+ *  Vive aquí y no en las Server Actions porque un módulo "use server" solo
+ *  puede exportar funciones async, y esto es una comprobación pura que además
+ *  el cliente quiere para no mandar basura al servidor. */
+export function codigoDeLoEscaneado(bruto: string): string | null {
+  const limpio = bruto.trim()
+  if (!limpio) return null
+
+  const desdeUrl = limpio.match(/\/gala\/pase\/([A-Za-z0-9-]+)/)
+  const candidato = (desdeUrl ? desdeUrl[1] : limpio).toUpperCase()
+
+  return /^MG-[A-Z0-9]{6,12}$/.test(candidato) ? candidato : null
+}

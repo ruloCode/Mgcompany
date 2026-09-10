@@ -1254,3 +1254,144 @@
   /* Objetivo táctil real: en la puerta se marca ingreso con el pulgar. */
   .gala-fila .btn, .gala-fila select { min-height: 40px; }
 }
+
+/* ============================================================
+   Modo puerta (/admin/gala/puerta)
+   ============================================================
+   Pantalla de pie: el visor ocupa lo que puede, los objetivos son grandes y
+   el veredicto tapa la cámara entera. Nadie va a leer una etiqueta pequeña
+   con una fila esperando. */
+
+.puerta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.puerta-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.puerta-cuenta {
+  font-size: 13px;
+  color: var(--muted);
+}
+.puerta-cuenta b {
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.puerta-visor {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #000;
+  border: 1px solid var(--ring);
+}
+@media (min-width: 640px) {
+  .puerta-visor { aspect-ratio: 4 / 3; }
+}
+
+.puerta-visor video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.puerta-visor video.vivo { opacity: 1; }
+
+/* La mira no recorta nada: jsQR lee el cuadro entero. Está para que la
+   persona sepa dónde poner el teléfono, que es la mitad de la velocidad. */
+.puerta-mira {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 62%;
+  aspect-ratio: 1;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45);
+}
+
+.puerta-encima {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: var(--surface);
+}
+
+.puerta-veredicto {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  background: var(--surface);
+  border: 6px solid var(--c);
+}
+.puerta-veredicto .titulo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--c);
+  margin: 0;
+}
+.puerta-veredicto .quien {
+  font-size: clamp(24px, 7vw, 36px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 6px 0 0;
+}
+.puerta-veredicto .btn {
+  margin-top: 18px;
+  min-height: 52px;
+  padding-inline: 34px;
+}
+
+.puerta-pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.puerta-pie .btn { min-height: 48px; }
+
+.puerta-manual {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 220px;
+}
+.puerta-manual input {
+  flex: 1;
+  min-height: 48px;
+  /* 16px o iOS hace zoom al enfocar y descuadra la pantalla. */
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.puerta-atajo {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
