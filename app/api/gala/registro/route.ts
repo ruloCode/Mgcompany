@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSupabaseAdmin } from "@/lib/supabase-admin"
+import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
+import { asuntoPase, htmlPase, textoPase } from "@/lib/gala-correo"
 import { GALA_CUPO, GALA_EDICION, registroGalaSchema } from "@/lib/gala"
 
 export const runtime = "nodejs"
@@ -14,6 +16,21 @@ const PG_UNIQUE_VIOLATION = "23505"
  * reparto vive en el trigger `gala_asignar_cupo` (migracion 019) porque dos
  * envios simultaneos leerian aqui el mismo conteo y los dos entrarian como
  * cupo principal. Aqui solo se traduce el veredicto a un mensaje.
+ *
+ * CAMBIO DE POLITICA (11 sep): quien alcanza cupo queda confirmado al
+ * instante y recibe su pase por correo sin que nadie lo revise. Antes todos
+ * entraban `pending` y el equipo admitia a mano, para cuidar el derecho de
+ * admision; ese filtro se levanto.
+ *
+ * La invariante de la base NO cambio, y eso importa: `gala_asignar_cupo`
+ * sigue pisando el estado en el INSERT, asi que el formulario publico no
+ * puede confirmarse a si mismo aunque mande `estado: confirmed`. Quien
+ * promueve es este endpoint, con la service_role, despues de que Postgres
+ * decidio que habia silla. La regla de seguridad sigue en pie —solo el
+ * servidor confirma—; lo que cambio es que el servidor ya no espera a nadie.
+ *
+ * Quien cae en lista de espera NO se promueve ni recibe pase: no hay silla
+ * que darle.
  */
 export async function POST(request: Request) {
   let body: unknown
@@ -70,7 +87,7 @@ export async function POST(request: Request) {
   const { data: creado, error } = await supabase
     .from("gala_registros")
     .insert(row)
-    .select("estado")
+    .select("id, estado")
     .single()
 
   if (error) {
@@ -87,6 +104,19 @@ export async function POST(request: Request) {
     )
   }
 
+  // Con silla: confirmar y mandar el pase. El correo nunca hace fallar el
+  // registro — la persona ya esta dentro y decirle lo contrario porque Resend
+  // tuvo un mal minuto seria mentirle. Si falla, queda en el log y el panel
+  // permite reenviar.
+  const entro = creado?.estado !== "waitlist"
+  if (entro && creado?.id) {
+    try {
+      await confirmarYAvisar(supabase, creado.id)
+    } catch (e) {
+      console.error("[gala/registro] No se pudo enviar el pase:", { email: row.email, e })
+    }
+  }
+
   const { count } = await supabase
     .from("gala_registros")
     .select("id", { count: "exact", head: true })
@@ -95,9 +125,50 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    estado: creado?.estado === "waitlist" ? "waitlist" : "pending",
+    estado: entro ? "confirmed" : "waitlist",
     restantes: Math.max(0, GALA_CUPO - (count ?? 0)),
   })
+}
+
+/**
+ * Confirma el registro y le manda su pase.
+ *
+ * El UPDATE es lo que emite el codigo: lo hace el trigger `gala_emitir_pase`,
+ * no esta funcion. Por eso se confirma primero y se lee el codigo de vuelta,
+ * en vez de inventarlo aqui.
+ */
+async function confirmarYAvisar(
+  supabase: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  id: string,
+) {
+  const { data, error } = await supabase
+    .from("gala_registros")
+    .update({ estado: "confirmed" })
+    .eq("id", id)
+    .select("nombre_completo, nombre_artistico, email, codigo")
+    .single()
+  if (error) throw new Error(error.message)
+  if (!data?.codigo) throw new Error("La base no emitio codigo al confirmar")
+
+  const resend = getResend()
+  if (!resend) throw new Error("Falta RESEND_API_KEY")
+
+  const urlPase = `https://mgcompany.co/gala/pase/${data.codigo}`
+  const datos = {
+    nombre_completo: data.nombre_completo,
+    nombre_artistico: data.nombre_artistico,
+    codigo: data.codigo,
+  }
+
+  const { error: fallo } = await resend.emails.send({
+    from: CORREO_DE,
+    to: data.email,
+    replyTo: CORREO_RESPONDER_A,
+    subject: asuntoPase(),
+    html: htmlPase(datos, urlPase),
+    text: textoPase(datos, urlPase),
+  })
+  if (fallo) throw new Error(`${fallo.name}: ${fallo.message}`)
 }
 
 /** Cuantas sillas quedan. La landing lo pinta sin exponer un solo dato personal. */

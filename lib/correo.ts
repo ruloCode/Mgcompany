@@ -31,5 +31,8 @@ export const correoConfigurado = () => Boolean(process.env.RESEND_API_KEY)
    Ojo con RESPONDER_A: el correo invita a responder ("si ya no puedes venir,
    respóndenos"), así que tiene que ser un buzón que alguien lea de verdad en
    Zoho. Si no existe, esas respuestas rebotan. */
-export const CORREO_DE = process.env.GALA_CORREO_DE ?? "Gala MG <gala@mgcompany.co>"
+/* Nombre de persona, no de marca: "Gala MG" se lee como remitente de campaña
+   y Gmail lo clasifica como tal. Un nombre propio con la empresa detrás es lo
+   que hace la gente cuando escribe de verdad. */
+export const CORREO_DE = process.env.GALA_CORREO_DE ?? "Rulo · MG Company <gala@mgcompany.co>"
 export const CORREO_RESPONDER_A = process.env.GALA_CORREO_RESPONDER_A ?? "gala@mgcompany.co"

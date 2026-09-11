@@ -6,8 +6,11 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import DiagonalArrow from "@/components/diagonal-arrow"
 import {
+  GALA_BARRIO,
   GALA_CIUDAD,
   GALA_CUPO,
+  GALA_DIRECCION,
+  GALA_MAPS,
   GALA_FECHA,
   GALA_HORA_FIN_TXT,
   GALA_HORA_INICIO_TXT,
@@ -355,7 +358,7 @@ export default function RegistroGalaForm() {
 
 /* --- Estados de salida ---------------------------------------------------
    Dos desenlaces, y la diferencia importa: quedar dentro del aforo no es
-   estar confirmado (eso lo decide el equipo), y quedar en lista de espera no
+   estar en lista de espera, y quedar en lista de espera no
    es un rechazo. Cada uno con su copy y lo que la persona tiene que hacer
    después — que en los dos casos es lo mismo: mirar el correo.
 
@@ -426,7 +429,7 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
         </motion.span>
 
         <h3 className="mt-6 font-heading text-3xl uppercase leading-none tracking-wide md:text-4xl">
-          {espera ? "Quedaste en lista de espera" : "Registro recibido"}
+          {espera ? "Quedaste en lista de espera" : "Estás dentro"}
         </h3>
 
         <p className="mt-4 text-[15px] leading-relaxed text-zinc-700">
@@ -438,9 +441,10 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
             </>
           ) : (
             <>
-              Estás en la lista. El equipo MG revisa cada registro a mano y confirma por
-              correo: <b className="text-mg-black">cuando quedes confirmado te llega tu código QR</b>,
-              que es lo único que abre la puerta. Es único e intransferible.
+              Tu lugar está confirmado y{" "}
+              <b className="text-mg-black">tu pase con el código QR va en camino a tu correo</b>{" "}
+              — revisa también la carpeta de promociones. Ese QR es lo único que abre
+              la puerta: es único e intransferible.
             </>
           )}
         </p>
@@ -451,10 +455,26 @@ function Confirmacion({ resultado }: { resultado: RespuestaRegistro }) {
             {fechaLarga()} · {GALA_HORA_INICIO_TXT} – {GALA_HORA_FIN_TXT}
           </dd>
           <dt className="text-black/45">Dónde:</dt>
-          <dd className="text-mg-black">{GALA_CIUDAD} · dirección en el correo</dd>
+          <dd className="text-mg-black">
+            {espera ? (
+              <>{GALA_CIUDAD} · dirección en el correo</>
+            ) : (
+              <>
+                {GALA_DIRECCION} · {GALA_BARRIO}
+                <a
+                  href={GALA_MAPS}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 underline decoration-mg-red underline-offset-2 hover:text-mg-red"
+                >
+                  Cómo llegar
+                </a>
+              </>
+            )}
+          </dd>
           <dt className="text-black/45">Estado:</dt>
           <dd className={espera ? "text-black/70" : "text-mg-red"}>
-            {espera ? "En lista de espera" : "Por confirmar"}
+            {espera ? "En lista de espera" : "Confirmado"}
           </dd>
         </dl>
 

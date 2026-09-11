@@ -34,6 +34,12 @@ export const GALA_HORARIO = "6:00 a 9:00 p.m."
 export const GALA_HORA_MONTAJE_TXT = "5:00 p.m."
 export const GALA_CIUDAD = "Bogotá"
 
+/* La dirección se mantuvo fuera de la landing a propósito —es un evento
+   privado— y solo viaja en el correo de quien ya está confirmado. */
+export const GALA_DIRECCION = "Cl. 4 # 31-24"
+export const GALA_BARRIO = "Puente Aranda, Bogotá"
+export const GALA_MAPS = "https://maps.app.goo.gl/9VnNyiv1pvaoZJaY6"
+
 /** Aforo total del salón. Espejo de gala_cupo() en la migración 019. */
 export const GALA_CUPO = 80
 
@@ -167,7 +173,7 @@ export type RegistroGalaInput = z.infer<typeof registroGalaSchema>
 /** Lo que devuelve el endpoint: la UI necesita distinguir cupo de lista de espera. */
 export interface RespuestaRegistro {
   ok: true
-  estado: Extract<EstadoGala, "pending" | "waitlist">
+  estado: Extract<EstadoGala, "confirmed" | "pending" | "waitlist">
   restantes: number
 }
 

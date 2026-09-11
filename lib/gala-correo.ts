@@ -1,7 +1,11 @@
 import {
+  GALA_BARRIO,
   GALA_CIUDAD,
+  GALA_DIRECCION,
   GALA_HORARIO,
+  GALA_HORA_FIN_TXT,
   GALA_HORA_INICIO_TXT,
+  GALA_MAPS,
   fechaLarga,
 } from "./gala"
 
@@ -78,7 +82,7 @@ export function htmlPase(r: DatosPase, urlPase: string): string {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 ${fila("Cuándo", `${fechaLarga()}`)}
                 ${fila("Puertas", `${GALA_HORARIO}`)}
-                ${fila("Dónde", `${GALA_CIUDAD} · te enviamos la dirección exacta por este medio`)}
+                ${fila("Dónde", `<b>${GALA_DIRECCION}</b> — ${GALA_BARRIO}<br><a href="${GALA_MAPS}" style="color:${ROJO};">Abrir en Google Maps</a>`)}
                 ${fila("Cover", "Sin costo")}
               </table>
             </td></tr>
@@ -136,7 +140,8 @@ export function textoPase(r: DatosPase, urlPase: string): string {
     ``,
     `Cuándo: ${fechaLarga()}`,
     `Puertas: ${GALA_HORARIO}`,
-    `Dónde: ${GALA_CIUDAD} — te enviamos la dirección exacta por este medio`,
+    `Dónde: ${GALA_DIRECCION} — ${GALA_BARRIO}`,
+    `Abrir en Google Maps: ${GALA_MAPS}`,
     `Cover: sin costo`,
     ``,
     `Tu pase de entrada:`,
@@ -150,5 +155,123 @@ export function textoPase(r: DatosPase, urlPase: string): string {
     `Si ya no puedes venir, responde este correo: hay gente en lista de espera.`,
     ``,
     `Equipo MG Company`,
+  ].join("\n")
+}
+
+/* ============================================================
+   El recordatorio del día del evento
+   ============================================================
+   La primera versión de este correo era una tarjeta con cabecera roja a sangre
+   y dos botones de ancho completo. Se veía bien y cayó en la pestaña de
+   Promociones de Gmail.
+
+   No es casualidad: Gmail clasifica por señales de "campaña", y las más
+   fuertes son justo esas — bloques de color a sangre, botones grandes con
+   relleno, varias llamadas a la acción, mucho HTML de maquetación. Un correo
+   que parece un boletín se archiva como boletín.
+
+   Así que esta versión renuncia a la tarjeta. Es una carta: alineada a la
+   izquierda, con enlaces de texto en vez de botones, un solo color de acento,
+   poca maquetación y firma de una persona. Menos vistosa y con más
+   probabilidad de que la lean, que es lo único que importa hoy.
+
+   Honestidad sobre el alcance: nadie garantiza la bandeja principal. Gmail
+   pesa también la reputación del remitente y el historial de cada
+   destinatario, y el dominio empezó a enviar ayer. Esto mejora las
+   probabilidades; no las compra.
+
+   Qué se mantiene del aprendizaje de las apps de tiquetes: la dirección va
+   arriba y con su enlace a Maps a un toque, porque nadie copia una dirección
+   a mano. Solo que ahora es un enlace, no un botón. */
+
+export function asuntoRecordatorio(): string {
+  return `Hoy nos vemos · ${GALA_DIRECCION}, ${GALA_BARRIO} · puertas ${GALA_HORA_INICIO_TXT}`
+}
+
+export function htmlRecordatorio(r: DatosPase, urlPase: string): string {
+  const nombre = primerNombre(r)
+  const cuerpo = "font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a1a;"
+  const enlace = `color:${ROJO};text-decoration:underline;`
+
+  return `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>${asuntoRecordatorio()}</title></head>
+<body style="margin:0;padding:0;background:#ffffff;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
+    <tr><td align="left" style="padding:28px 20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:520px;">
+
+        <tr><td style="${cuerpo}">
+          <p style="margin:0 0 16px;">Hola ${nombre},</p>
+
+          <p style="margin:0 0 16px;">
+            Hoy es la Gala MG. Te paso la dirección, que por ser un evento
+            privado no está publicada en ningún lado:
+          </p>
+
+          <p style="margin:0 0 16px;">
+            <b>${GALA_DIRECCION}</b> — ${GALA_BARRIO}<br>
+            <a href="${GALA_MAPS}" style="${enlace}">Abrir en Google Maps</a>
+          </p>
+
+          <p style="margin:0 0 16px;">
+            Puertas a las <b>${GALA_HORA_INICIO_TXT}</b> y cerramos a las ${GALA_HORA_FIN_TXT}.
+            Llega con tiempo: la acreditación toma unos minutos y el showcase
+            empieza puntual.
+          </p>
+
+          <p style="margin:0 0 16px;">
+            En la puerta te leemos el QR desde el celular. Tu pase es
+            <b>${r.codigo}</b> y lo abres aquí:<br>
+            <a href="${urlPase}" style="${enlace}">${urlPase}</a>
+          </p>
+
+          <p style="margin:0 0 16px;">
+            Ábrelo antes de llegar, por si la señal falla. Es único e
+            intransferible y sirve una sola vez.
+          </p>
+
+          <p style="margin:0 0 16px;">
+            Si al final no puedes venir, respóndeme este correo — hay gente
+            esperando ese lugar.
+          </p>
+
+          <p style="margin:0 0 4px;">Nos vemos esta tarde,</p>
+          <p style="margin:0;">Rulo<br>
+            <span style="color:#6b665e;font-size:14px;">MG Company Group</span>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`
+}
+
+export function textoRecordatorio(r: DatosPase, urlPase: string): string {
+  return [
+    `Hola ${primerNombre(r)},`,
+    ``,
+    `Hoy es la Gala MG. Te paso la dirección, que por ser un evento privado no`,
+    `está publicada en ningún lado:`,
+    ``,
+    `${GALA_DIRECCION} — ${GALA_BARRIO}`,
+    `Abrir en Google Maps: ${GALA_MAPS}`,
+    ``,
+    `Puertas a las ${GALA_HORA_INICIO_TXT} y cerramos a las ${GALA_HORA_FIN_TXT}. Llega con tiempo:`,
+    `la acreditación toma unos minutos y el showcase empieza puntual.`,
+    ``,
+    `En la puerta te leemos el QR desde el celular. Tu pase es ${r.codigo} y lo`,
+    `abres aquí: ${urlPase}`,
+    ``,
+    `Ábrelo antes de llegar, por si la señal falla. Es único e intransferible y`,
+    `sirve una sola vez.`,
+    ``,
+    `Si al final no puedes venir, respóndeme este correo — hay gente esperando`,
+    `ese lugar.`,
+    ``,
+    `Nos vemos esta tarde,`,
+    `Rulo`,
+    `MG Company Group`,
   ].join("\n")
 }
