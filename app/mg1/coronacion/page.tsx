@@ -56,7 +56,7 @@ export function generateMetadata(): Metadata {
 
 const hl = "text-mg-red-bright font-semibold"
 
-const WA = "573150589998"
+const WA = "573189025388"
 const waUrl = (texto: string) => `https://wa.me/${WA}?text=${encodeURIComponent(texto)}`
 
 const HERO_META = [

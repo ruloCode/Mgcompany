@@ -56,8 +56,7 @@ export function generateMetadata(): Metadata {
 
 const hl = "text-mg-red-bright font-semibold"
 
-const WA = "573150589998"
-const CORREO = "oficialmgmusic@gmail.com"
+const WA = "573189025388"
 const waUrl = (texto: string) => `https://wa.me/${WA}?text=${encodeURIComponent(texto)}`
 
 const HERO_META = [
@@ -580,21 +579,6 @@ export default function MG1EstudioPage() {
               >
                 <span className="font-mono text-xs font-medium uppercase tracking-[0.25em] md:text-sm">
                   Escribir por WhatsApp
-                </span>
-                <DiagonalArrow
-                  size={22}
-                  strokeWidth={1.75}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </a>
-              <a
-                href={`mailto:${CORREO}?subject=${encodeURIComponent(
-                  "Nuestro estudio quiere ser el set de MG1",
-                )}`}
-                className="group inline-flex items-center gap-4 border-2 border-white bg-white px-6 py-4 text-mg-black transition-colors duration-300 hover:bg-transparent hover:text-white md:px-8 md:py-5"
-              >
-                <span className="font-mono text-xs font-medium uppercase tracking-[0.25em] md:text-sm">
-                  Enviar un correo
                 </span>
                 <DiagonalArrow
                   size={22}
