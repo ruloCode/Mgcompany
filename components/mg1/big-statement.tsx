@@ -23,11 +23,18 @@ interface BigStatementProps {
   text: string
   /** Cierre de la frase, en rojo — lo que queremos que se quede */
   accent?: string
+  /** El cierre arranca en su propia línea, para no partir la frase a mitad */
+  accentEnBloque?: boolean
   className?: string
 }
 
 /** Frase grande palabra por palabra: la misma entrada que usa `Statement` en MG1. */
-export default function BigStatement({ text, accent, className }: BigStatementProps) {
+export default function BigStatement({
+  text,
+  accent,
+  accentEnBloque,
+  className,
+}: BigStatementProps) {
   return (
     <motion.p
       variants={container}
@@ -40,21 +47,23 @@ export default function BigStatement({ text, accent, className }: BigStatementPr
       )}
     >
       {text.split(" ").map((w, i) => (
-        <motion.span key={`t-${i}`} variants={word} className="inline-block">
+        <motion.span key={`t-${i}`} variants={word} className="inline-block align-top">
           {w}&nbsp;
         </motion.span>
       ))}
-      {accent
-        ?.split(" ")
-        .map((w, i) => (
-          <motion.span
-            key={`a-${i}`}
-            variants={word}
-            className="inline-block text-mg-red"
-          >
-            {w}&nbsp;
-          </motion.span>
-        ))}
+      {accent && (
+        <span className={accentEnBloque ? "block" : undefined}>
+          {accent.split(" ").map((w, i) => (
+            <motion.span
+              key={`a-${i}`}
+              variants={word}
+              className="inline-block align-top text-mg-red"
+            >
+              {w}&nbsp;
+            </motion.span>
+          ))}
+        </span>
+      )}
     </motion.p>
   )
 }

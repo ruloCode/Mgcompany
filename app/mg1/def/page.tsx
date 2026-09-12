@@ -16,7 +16,6 @@ import MetricRow from "@/components/mg1/metric-row"
 import Parallax from "@/components/mg1/parallax"
 import PopIn from "@/components/mg1/pop-in"
 import RazonRow from "@/components/mg1/razon-row"
-import Tachon from "@/components/mg1/tachon"
 
 const OG_TITLE = "Propuesta DEF · Su noche + La Coronación MG1"
 const OG_DESCRIPTION =
@@ -65,13 +64,10 @@ const waUrl = (texto: string) => `https://wa.me/${WA}?text=${encodeURIComponent(
 const HERO_META = [
   { label: "Formato:", value: "Coproducción" },
   { label: "Fecha:", value: "30 o 31 de octubre" },
-  { label: "Franja:", value: "6:00 – 9:00 p.m." },
+  { label: "Lugar:", value: "DEF · Soacha" },
 ]
 
-const FECHAS = [
-  { dia: "Vie 30 de octubre", hora: "6:00 – 9:00 p.m." },
-  { dia: "Sáb 31 de octubre", hora: "6:00 – 9:00 p.m." },
-]
+const FECHAS = ["Vie 30 de octubre", "Sáb 31 de octubre"]
 
 const MARQUEE_ITEMS = [
   "AQUÍ NO SE IMPROVISA, AQUÍ SE ESCRIBE",
@@ -293,7 +289,7 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     title: "Su noche empieza llena",
     desc: (
       <>
-        Nuestra franja va de 6:00 a 9:00 p.m. y DEF abre viernes y sábado{" "}
+        El show va de 6:00 a 9:00 p.m. y DEF abre viernes y sábado{" "}
         <b className={hl}>hasta la 1:00 a.m.</b> A las 9 entra su cartel con la sala y la
         terraza ya llenas. No les quitamos la rumba — <b className={hl}>se la prendemos</b>.
       </>
@@ -445,29 +441,25 @@ export default function MG1DefPage() {
 
                 <div className="mt-8 flex flex-wrap gap-3" role="list">
                   {FECHAS.map((fecha, i) => (
-                    <PopIn key={fecha.dia} delay={0.2 + i * 0.1} rotate={i === 0 ? -2 : 2}>
+                    <PopIn key={fecha} delay={0.2 + i * 0.1} rotate={i === 0 ? -2 : 2}>
                       <div
                         role="listitem"
-                        className={`min-w-[13rem] border-2 px-5 py-4 ${
+                        className={`border-2 px-6 py-4 ${
                           i === 0
                             ? "border-mg-red bg-mg-red"
                             : "border-white bg-white text-mg-black"
                         }`}
                       >
-                        <p className="font-heading text-2xl uppercase leading-none tracking-wide">
-                          {fecha.dia}
-                        </p>
-                        <p
-                          className={`mt-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.18em] ${
-                            i === 0 ? "text-white/80" : "text-mg-red"
-                          }`}
-                        >
-                          {fecha.hora}
+                        <p className="font-heading text-2xl uppercase leading-none tracking-wide md:text-3xl">
+                          {fecha}
                         </p>
                       </div>
                     </PopIn>
                   ))}
                 </div>
+                <p className="mt-3 font-mono text-[10px] font-medium uppercase tracking-[0.25em] text-zinc-400 md:text-[11px]">
+                  La fecha la eligen ustedes
+                </p>
 
                 <a
                   href={waUrl(
@@ -515,28 +507,23 @@ export default function MG1DefPage() {
           <SectionHeading
             index="01"
             kicker="La propuesta"
-            title="No es un alquiler. Es una coproducción."
+            title="Su noche, con nuestro cierre"
           />
         </ScrollReveal>
 
         <div className="mt-10 max-w-4xl md:mt-12">
-          <p className="font-heading uppercase leading-[0.95] tracking-tight text-[clamp(1.75rem,5vw,3.4rem)]">
-            <Tachon>Préstennos el bar esa noche.</Tachon>
-          </p>
-          <div className="mt-4">
-            <BigStatement
-              text="Hagamos"
-              accent="una sola noche, juntos."
-              className="text-[clamp(1.9rem,5.4vw,3.6rem)]"
-            />
-          </div>
+          <BigStatement
+            text="El 30 o el 31 DEF abre con su cartel."
+            accent="Nosotros lo hacemos más grande."
+            accentEnBloque
+          />
           <ScrollReveal direction="up" delay={0.2}>
-            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-zinc-300 md:text-lg">
-              Ustedes ya van a abrir el 30 o el 31 con su programación.{" "}
-              <b className={hl}>Nosotros no venimos a reemplazarla: venimos a engordarla</b>{" "}
-              — con siete artistas más en el cartel, una campaña de cinco semanas que ya
-              está andando y el cierre de un reality que se estrena en YouTube esa misma
-              noche, en vivo, desde su tarima.
+            <p className="mt-7 max-w-[62ch] text-base leading-relaxed text-zinc-300 md:text-lg">
+              La propuesta es simple: una sola noche, coproducida.{" "}
+              <b className={hl}>Su programación no se toca</b> — se le suman siete
+              artistas al cartel, una campaña de cinco semanas que ya está andando y el
+              cierre de un reality que se estrena en YouTube esa misma noche, en vivo,
+              desde su tarima.
             </p>
           </ScrollReveal>
         </div>
@@ -981,17 +968,19 @@ export default function MG1DefPage() {
 
           <PopIn delay={0.1}>
             <h2 className="font-heading uppercase leading-[0.95] tracking-tight text-[clamp(2.25rem,6vw,5rem)]">
-              La fecha es de ustedes.
+              Veinte años de tarima.
               <br />
-              La noche la armamos entre los dos.
+              Falta una coronación.
             </h2>
           </PopIn>
 
           <ScrollReveal direction="up" delay={0.25}>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white md:text-lg">
+              Miramos toda la ciudad para cerrar la primera edición de MG1 y hay un
+              solo sitio que lo reúne todo: <b>la casa que lleva veinte años dándole
+              tarima al que empieza</b>, en el barrio donde ya vive nuestro público.
               Díganos cuál de las dos fechas les sirve y nos sentamos{" "}
-              <b>20 minutos en DEF</b>: les mostramos las métricas completas, el plan de
-              la noche y cerramos los términos. La campaña ya está corriendo —{" "}
+              <b>20 minutos en DEF</b>. La campaña ya está corriendo —{" "}
               <b>el nombre de la sede es lo único que falta anunciar</b>.
             </p>
 
