@@ -82,7 +82,7 @@ const SOPORTE = [
   { nombre: "Miguelacho TF", rol: "Cantante y productor, jurado de MG1" },
 ]
 
-const TERCEROS = ["Lee Fonse", "MC Troka", "Pyrio", "Nikory", "+ Invitados"]
+const TERCEROS = ["Lefoams", "MC Trocka", "Pyro", "Nikory", "+ Invitados"]
 
 const METRICAS: {
   concepto: React.ReactNode
