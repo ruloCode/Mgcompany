@@ -10,6 +10,7 @@ import ScrollReveal from "@/components/scroll-reveal"
 import SectionHeading from "@/components/section-heading"
 import SpecMeta from "@/components/spec-meta"
 import BigStatement from "@/components/mg1/big-statement"
+import FotoCartel from "@/components/mg1/foto-cartel"
 import HeroDisc from "@/components/mg1/hero-disc"
 import MetricRow from "@/components/mg1/metric-row"
 import Parallax from "@/components/mg1/parallax"
@@ -63,6 +64,24 @@ const HERO_META = [
   { label: "Formato:", value: "4 capítulos · YouTube" },
   { label: "Rodaje:", value: "2 jornadas de 6 a 10 horas" },
   { label: "Ciudad:", value: "Bogotá" },
+]
+
+const JURADOS = [
+  {
+    nombre: "Queens Tafari",
+    rol: "Dúo jurado · 120.000 en Instagram · 149.600 en TikTok",
+    foto: "/mg1/jurado-queens-tafari.jpg",
+  },
+  {
+    nombre: "Jony Roy",
+    rol: "DJ y productor de los más respetados de la escena urbana",
+    foto: "/mg1/jurado-jony-roy.jpg",
+  },
+  {
+    nombre: "Miguelacho TF",
+    rol: "Cantante y productor · jurado de MG1",
+    foto: "/mg1/jurado-miguelacho-tf.jpg",
+  },
 ]
 
 const MARQUEE_ITEMS = [
@@ -376,6 +395,32 @@ export default function MG1EstudioPage() {
             </p>
           </ScrollReveal>
         </div>
+
+        {/* La mesa de jurados */}
+        <div className="mt-14 md:mt-20">
+          <ScrollReveal direction="up">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-mg-red-bright md:text-xs">
+                La mesa que va a grabar en tu estudio
+              </span>
+              <span className="h-px flex-1 bg-mg-red/30" />
+            </div>
+          </ScrollReveal>
+
+          <div className="mt-8 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-8">
+            {JURADOS.map((jurado, i) => (
+              <ScrollReveal key={jurado.nombre} direction="up" delay={i * 0.1}>
+                <FotoCartel
+                  src={jurado.foto}
+                  alt={`${jurado.nombre}, jurado del Concurso MG1`}
+                  nombre={jurado.nombre}
+                  rol={jurado.rol}
+                  sizes="(max-width: 640px) 90vw, 30vw"
+                />
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 02 · El set */}
@@ -403,6 +448,21 @@ export default function MG1EstudioPage() {
               ciclorama y tu espacio funcionando en un show real. No es una pauta que se
               acaba: <b className={hl}>los capítulos quedan en YouTube para siempre</b>.
             </p>
+          </ScrollReveal>
+
+          <ScrollReveal direction="up" delay={0.15}>
+            <div className="mt-12 md:mt-16">
+              <FotoCartel
+                src="/mg1/jurados-todos.jpg"
+                alt="La mesa de jurados de MG1 completa"
+                ratio="aspect-[4/5] sm:aspect-[16/10]"
+                encuadre="object-[50%_22%]"
+                sizes="(max-width: 1024px) 100vw, 66rem"
+              />
+              <p className="mt-5 max-w-2xl font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-zinc-400 md:text-[11px]">
+                Los tres jurados — dos jornadas completas grabando dentro de tu espacio
+              </p>
+            </div>
           </ScrollReveal>
         </div>
       </section>

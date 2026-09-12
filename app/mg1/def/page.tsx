@@ -11,6 +11,7 @@ import SectionHeading from "@/components/section-heading"
 import SpecMeta from "@/components/spec-meta"
 import BigStatement from "@/components/mg1/big-statement"
 import CountUp from "@/components/mg1/count-up"
+import FotoCartel from "@/components/mg1/foto-cartel"
 import HeroDisc from "@/components/mg1/hero-disc"
 import MetricRow from "@/components/mg1/metric-row"
 import Parallax from "@/components/mg1/parallax"
@@ -179,8 +180,16 @@ const APORTES: { quien: string; titulo: string; items: string[]; destacado?: boo
 ]
 
 const SOPORTE = [
-  { nombre: "Jony Roy", rol: "DJ y productor de los más respetados de la escena urbana" },
-  { nombre: "Miguelacho TF", rol: "Cantante y productor, jurado de MG1" },
+  {
+    nombre: "Jony Roy",
+    rol: "DJ y productor de los más respetados de la escena urbana",
+    foto: "/mg1/jurado-jony-roy.jpg",
+  },
+  {
+    nombre: "Miguelacho TF",
+    rol: "Cantante y productor · jurado de MG1",
+    foto: "/mg1/jurado-miguelacho-tf.jpg",
+  },
 ]
 
 const TERCEROS = ["Lifoams", "MC Trocka", "Pyro", "Nikory", "+ Invitados"]
@@ -656,41 +665,40 @@ export default function MG1DefPage() {
             </p>
           </ScrollReveal>
 
-          <PopIn delay={0.1}>
-            <p className="mt-12 font-heading uppercase leading-[0.95] tracking-tight text-mg-red text-[clamp(2.5rem,10vw,5.5rem)] [filter:drop-shadow(0_0_26px_rgba(232,32,12,0.45))]">
-              Queens Tafari
-            </p>
-          </PopIn>
-          <ScrollReveal direction="up" delay={0.15}>
-            <p className="mt-3 text-sm font-semibold text-white md:text-base">
-              120.000 seguidores en Instagram · 149.600 en TikTok
-            </p>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-400 md:text-xs">
-              Dúo jurado de MG1 · show en vivo
-            </p>
+          <ScrollReveal direction="up" delay={0.1}>
+            <div className="mx-auto mt-12 max-w-md [&_figcaption]:text-center">
+              <FotoCartel
+                src="/mg1/jurado-queens-tafari.jpg"
+                alt="Queens Tafari, dúo jurado de MG1"
+                nombre="Queens Tafari"
+                rol="Dúo jurado de MG1 · show en vivo · 120.000 en Instagram · 149.600 en TikTok"
+                sizes="(max-width: 768px) 90vw, 28rem"
+                destacado
+              />
+            </div>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.1}>
             <span
               aria-hidden="true"
-              className="mx-auto my-10 block h-1 w-28 bg-mg-red md:my-12"
+              className="mx-auto my-10 block h-1 w-28 bg-mg-red md:my-14"
             />
           </ScrollReveal>
 
-          <div className="flex flex-wrap items-baseline justify-center gap-x-10 gap-y-2">
+          <div className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2 sm:gap-10">
             {SOPORTE.map((artista, i) => (
-              <PopIn key={artista.nombre} delay={i * 0.1}>
-                <p className="font-heading uppercase leading-tight tracking-tight text-[clamp(1.6rem,5vw,2.75rem)]">
-                  {artista.nombre}
-                </p>
-              </PopIn>
+              <ScrollReveal key={artista.nombre} direction="up" delay={i * 0.1}>
+                <FotoCartel
+                  src={artista.foto}
+                  alt={`${artista.nombre}, del cartel de La Coronación MG1`}
+                  nombre={artista.nombre}
+                  rol={artista.rol}
+                  sizes="(max-width: 640px) 90vw, 22rem"
+                  className="[&_figcaption]:text-center"
+                />
+              </ScrollReveal>
             ))}
           </div>
-          <ScrollReveal direction="up" delay={0.15}>
-            <p className="mx-auto mt-3 max-w-2xl text-xs text-zinc-400 md:text-sm">
-              {SOPORTE.map((a) => a.rol).join(" · ")}
-            </p>
-          </ScrollReveal>
 
           <div className="mt-10 flex flex-wrap items-baseline justify-center gap-x-8 gap-y-2">
             {TERCEROS.map((nombre, i) => (
@@ -706,6 +714,22 @@ export default function MG1DefPage() {
               Junto a los 12 concursantes de MG1, cada uno moviendo a su propio público
               hacia la puerta de DEF esa noche.
             </p>
+          </ScrollReveal>
+
+          <ScrollReveal direction="up" delay={0.1}>
+            <div className="mt-14 md:mt-20">
+              <FotoCartel
+                src="/mg1/jurados-todos.jpg"
+                alt="La mesa de jurados de MG1 completa"
+                ratio="aspect-[4/5] sm:aspect-[16/10]"
+                encuadre="object-[50%_22%]"
+                sizes="(max-width: 1024px) 100vw, 62rem"
+                className="mx-auto max-w-5xl"
+              />
+              <p className="mx-auto mt-5 max-w-2xl font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-zinc-400 md:text-[11px]">
+                La mesa completa — la misma que corona al campeón esa noche en DEF
+              </p>
+            </div>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.2}>
