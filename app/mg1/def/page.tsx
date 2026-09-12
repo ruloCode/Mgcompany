@@ -14,6 +14,7 @@ import HeroDisc from "@/components/mg1/hero-disc"
 import MetricRow from "@/components/mg1/metric-row"
 import Parallax from "@/components/mg1/parallax"
 import PopIn from "@/components/mg1/pop-in"
+import RazonRow from "@/components/mg1/razon-row"
 
 const OG_TITLE = "Propuesta DEF · La Coronación MG1"
 const OG_DESCRIPTION =
@@ -77,53 +78,65 @@ const MARQUEE_ITEMS = [
   "SOACHA · OCTUBRE 2026",
 ]
 
-// Por que DEF y no cualquier bar: lo que encontramos de su propia historia
-const POR_QUE_DEF: { title: string; desc: React.ReactNode }[] = [
+// Por que DEF y no cualquier bar: cada razon cuelga de una cifra suya
+const RAZONES: {
+  value: number
+  decimals?: number
+  suffix?: string
+  agrupar?: boolean
+  unidad: string
+  titulo: string
+  desc: React.ReactNode
+}[] = [
   {
-    title: "Llevan 20 años haciendo esto",
+    value: 2006,
+    agrupar: false,
+    unidad: "año de apertura",
+    titulo: "Veinte años abriendo",
     desc: (
       <>
-        DEF abrió en <b className={hl}>2006</b> en la zona rosa de Soacha, de la mano de
-        Mike Style, su hermana Magda y un grupo de amigos que querían un lugar para el
-        reggae, el hip hop y el dancehall cuando no había ninguno al sur.{" "}
-        <b className={hl}>Veinte años después sigue en pie</b>. Nosotros vamos por la
-        primera edición de MG1: queremos estrenarla en una casa con historia, no en un
+        Mike Style, su hermana Magda y unos amigos abrieron DEF en la zona rosa de Soacha
+        cuando no había dónde sonar reggae al sur.{" "}
+        <b className={hl}>Queremos estrenar MG1 en una casa con historia</b>, no en un
         salón alquilado.
       </>
     ),
   },
   {
-    title: "Son la primera tarima de los que empiezan",
+    value: 1000,
+    unidad: "artistas (aprox.)",
+    titulo: "La primera tarima",
     desc: (
       <>
-        Por esa tarima han pasado <b className={hl}>cerca de mil artistas</b> —
-        Aterciopelados, La Pestilencia, Superlitio, The Mills, Systema Solar, La 33,
-        LosPetitFellas, Kevin Flórez, Kafu Bantón— y también los que nadie conocía
-        todavía. Eso es <b className={hl}>exactamente MG1</b>: 12 artistas emergentes de
-        la escena a los que les estamos dando su primera producción de verdad.
+        De Aterciopelados y Systema Solar a los que nadie conocía todavía. Ese oficio —
+        darle tarima al que empieza— <b className={hl}>es literalmente MG1</b>: 12
+        emergentes y su primera producción de verdad.
       </>
     ),
   },
   {
-    title: "Soacha no es un detalle: es el dato",
+    value: 65.6,
+    decimals: 1,
+    suffix: "%",
+    unidad: "Bogotá y Soacha",
+    titulo: "El público ya vive al lado",
     desc: (
       <>
-        El <b className={hl}>65,6 % de la interacción de nuestra campaña viene de Bogotá y
-        Soacha</b>. La gente que lleva un mes votando, comentando y compartiendo MG1{" "}
-        <b className={hl}>ya vive a la vuelta de DEF</b>. No hay que traerla de la otra
-        punta de la ciudad: solo hay que decirle dónde.
+        Es la porción de la interacción de nuestra campaña que sale de aquí. La gente que
+        lleva un mes votando MG1 <b className={hl}>no hay que traerla</b>: hay que decirle
+        dónde.
       </>
     ),
   },
   {
-    title: "Dos pisos que funcionan como un solo evento",
+    value: 2,
+    unidad: "pisos",
+    titulo: "Show arriba, llegada abajo",
     desc: (
       <>
-        La <b className={hl}>sala de conciertos del segundo piso</b> es donde pasa la
-        coronación; la <b className={hl}>terraza con la barra de 360°</b> es donde la
-        gente llega, se registra, come y se queda hablando. Un evento con público,
-        prensa y 12 artistas necesita justo eso: un sitio para el show y otro para el
-        resto.
+        La <b className={hl}>sala del segundo piso</b> para la coronación; la{" "}
+        <b className={hl}>terraza de 360°</b> para el registro, la prensa y la barra. Un
+        evento con 12 artistas necesita justo eso.
       </>
     ),
   },
@@ -480,40 +493,37 @@ export default function MG1DefPage() {
             title="Esta propuesta es solo para DEF"
             subtitle={
               <>
-                No estamos mandando la misma página a diez bares a ver quién contesta. Nos
-                sentamos a mirar dónde tenía sentido cerrar MG1 y{" "}
-                <b className={hl}>hay cuatro razones por las que da DEF</b>.
+                No la estamos mandando a diez bares a ver quién contesta:{" "}
+                <b className={hl}>hay cuatro razones para escoger a DEF</b>.
               </>
             }
           />
         </ScrollReveal>
 
-        <div className="mt-10 grid gap-6 md:mt-14 md:grid-cols-2">
-          {POR_QUE_DEF.map((item, i) => (
-            <ScrollReveal key={item.title} direction="up" delay={(i % 2) * 0.1}>
-              <div className="h-full border-t-4 border-mg-red bg-white/[0.03] p-6 transition-transform duration-300 hover:-translate-y-1 md:p-8">
-                <h3 className="font-heading text-2xl uppercase leading-tight tracking-wide text-mg-red">
-                  {item.title}
-                </h3>
-                <p className="mt-4 text-sm leading-relaxed text-zinc-300 md:text-[15px]">
-                  {item.desc}
-                </p>
-              </div>
-            </ScrollReveal>
+        <ul className="mt-12 border-t-2 border-mg-red md:mt-16">
+          {RAZONES.map((razon, i) => (
+            <RazonRow
+              key={razon.titulo}
+              index={i}
+              value={razon.value}
+              decimals={razon.decimals}
+              suffix={razon.suffix}
+              agrupar={razon.agrupar}
+              unidad={razon.unidad}
+              titulo={razon.titulo}
+            >
+              {razon.desc}
+            </RazonRow>
           ))}
-        </div>
+        </ul>
 
         <ScrollReveal direction="up" delay={0.15}>
-          <p className="mt-10 max-w-[68ch] border-l-4 border-mg-red pl-6 text-base leading-relaxed text-zinc-300 md:text-lg">
-            <b className={hl}>MG1 es un reality de música urbana hecho aquí:</b> 12
-            artistas seleccionados en convocatoria abierta escriben y graban su canción
-            sobre un mismo beat, frente a una mesa de jurados de la escena. Son{" "}
-            <b className={hl}>cuatro capítulos con estreno semanal en YouTube desde el 9
-            de octubre</b>, el campeón lo elige el público con votaciones abiertas, y todo
-            termina en una sola noche: la coronación. El capítulo final se estrena{" "}
-            <b className={hl}>en el momento exacto en que se corona al campeón</b> — nadie
-            conoce el resultado hasta ese instante, y la única forma de vivirlo primero es
-            estar ahí.
+          <p className="mt-10 max-w-[58ch] border-l-4 border-mg-red pl-6 text-sm leading-relaxed text-zinc-300 md:mt-12 md:text-base">
+            <b className={hl}>MG1 en una línea:</b> 12 artistas emergentes, un mismo beat,
+            cuatro capítulos con estreno semanal en YouTube desde el 9 de octubre y un
+            campeón que corona el público. El final se estrena{" "}
+            <b className={hl}>en el instante mismo de la coronación</b> — la única forma
+            de verlo primero es estar ahí.
           </p>
         </ScrollReveal>
       </section>

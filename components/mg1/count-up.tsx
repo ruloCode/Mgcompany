@@ -11,6 +11,8 @@ interface CountUpProps {
   prefix?: string
   suffix?: string
   duration?: number
+  /** false para años y codigos: 2006, no 2.006 */
+  agrupar?: boolean
   className?: string
   affixClassName?: string
 }
@@ -26,6 +28,7 @@ export default function CountUp({
   prefix,
   suffix,
   duration = 1.6,
+  agrupar = true,
   className,
   affixClassName,
 }: CountUpProps) {
@@ -38,8 +41,9 @@ export default function CountUp({
       new Intl.NumberFormat("es-CO", {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
+        useGrouping: agrupar,
       }),
-    [decimals],
+    [decimals, agrupar],
   )
 
   useEffect(() => {
