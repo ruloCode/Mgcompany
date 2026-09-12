@@ -61,7 +61,7 @@ const waUrl = (texto: string) => `https://wa.me/${WA}?text=${encodeURIComponent(
 
 const HERO_META = [
   { label: "Formato:", value: "4 capítulos · YouTube" },
-  { label: "Rodaje:", value: "2 jornadas de 6 a 10 h" },
+  { label: "Rodaje:", value: "2 jornadas de 6 a 10 horas" },
   { label: "Ciudad:", value: "Bogotá" },
 ]
 
