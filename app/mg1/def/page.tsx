@@ -161,7 +161,7 @@ const APORTES: { quien: string; titulo: string; items: string[]; destacado?: boo
       "Los 12 del reality y sus públicos",
       "Cinco semanas de campaña andando",
       "Equipo audiovisual toda la noche",
-      "Registro y control de puerta con QR",
+      "Boletería con QR y base de asistentes",
     ],
   },
   {
@@ -252,8 +252,8 @@ const MINUTO_A_MINUTO: { hora: string; que: string; desc: React.ReactNode }[] = 
     que: "Puertas",
     desc: (
       <>
-        Abre con registro por <b className={hl}>QR</b> — nosotros ponemos el sistema y el
-        personal. Sube la barra desde el primer minuto.
+        Entra con <b className={hl}>boleta QR</b> — el sistema lo ponemos nosotros y se
+        escanea desde un celular. La barra trabaja desde el primer minuto.
       </>
     ),
   },
@@ -286,12 +286,13 @@ const MINUTO_A_MINUTO: { hora: string; que: string; desc: React.ReactNode }[] = 
 
 const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
   {
-    title: "Su noche empieza llena",
+    title: "La casa se llena temprano",
     desc: (
       <>
-        El show va de 6:00 a 9:00 p.m. y DEF abre viernes y sábado{" "}
-        <b className={hl}>hasta la 1:00 a.m.</b> A las 9 entra su cartel con la sala y la
-        terraza ya llenas. No les quitamos la rumba — <b className={hl}>se la prendemos</b>.
+        Un show con 12 artistas y sus públicos no llega a medianoche:{" "}
+        <b className={hl}>llega desde el principio</b>. Cuando el reality cierra, la gente
+        ya está adentro y la barra lleva horas trabajando — la noche sigue, con su cartel
+        y <b className={hl}>la casa llena</b>.
       </>
     ),
   },
@@ -299,7 +300,7 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     title: "Si es el 31, es la antesala de Halloween",
     desc: (
       <>
-        El sábado 31 la ciudad sale disfrazada. Cerrar a las 9 significa llegar a su{" "}
+        El sábado 31 la ciudad sale disfrazada. Cerrar temprano significa llegar a la{" "}
         <b className={hl}>noche de Halloween con la casa llena</b> y 12 artistas adentro.
         Si prefieren dejar el 31 para lo suyo,{" "}
         <b className={hl}>el viernes 30 nos sirve igual</b>.
@@ -317,7 +318,7 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     ),
   },
   {
-    title: "Contenido profesional de su noche",
+    title: "Contenido profesional de la noche",
     desc: (
       <>
         Nuestro equipo cubre el evento completo. Les entregamos{" "}
@@ -339,12 +340,14 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     ),
   },
   {
-    title: "La puerta la operamos nosotros",
+    title: "Boletería con QR, y la lista de quién vino",
     desc: (
       <>
-        Registro con QR, lista, acreditación y personal de apoyo van por nuestra cuenta —{" "}
-        <b className={hl}>ya lo hicimos en la Gala del 11 de septiembre</b>. Su equipo se
-        dedica a la barra.
+        Montamos la boletería digital: cada asistente entra con{" "}
+        <b className={hl}>su QR individual</b>, que su equipo escanea desde un celular. Al
+        final queda <b className={hl}>la base de quién estuvo</b> — público real y
+        localizado, para llenar la siguiente. Ya lo corrimos en la Gala del 11 de
+        septiembre.
       </>
     ),
   },
@@ -352,8 +355,9 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
 
 const TERMINOS: React.ReactNode[] = [
   <>
-    <b className="text-white">La fecha:</b> viernes 30 o sábado 31 de octubre. La eligen
-    ustedes; nosotros ajustamos la campaña al día que digan.
+    <b className="text-white">La fecha y el horario:</b> viernes 30 o sábado 31 de
+    octubre, y a qué hora arranca y cierra el show. Lo cuadramos con ustedes y ajustamos
+    la campaña a lo que digan.
   </>,
   <>
     <b className="text-white">El cartel:</b> cómo se integran sus headliners y sus DJs con
@@ -812,9 +816,8 @@ export default function MG1DefPage() {
             title="Qué gana DEF"
             subtitle={
               <>
-                Tres horas que terminan justo cuando su noche arranca, público local de 18
-                a 34, su nombre dentro del show y{" "}
-                <b className={hl}>contenido profesional</b> que les queda.
+                La casa llena desde temprano, público local de 18 a 34, su nombre dentro
+                del show y <b className={hl}>contenido profesional</b> que les queda.
               </>
             }
           />
@@ -846,9 +849,9 @@ export default function MG1DefPage() {
               title="Cómo se ve la noche en DEF"
               subtitle={
                 <>
-                  Tres horas cerradas, montadas sobre cómo ya funciona la casa: la sala
-                  arriba, la terraza abajo y{" "}
-                  <b className={hl}>la barra abierta todo el tiempo</b>.
+                  Así la vemos, montada sobre cómo ya funciona la casa: la sala arriba, la
+                  terraza abajo y <b className={hl}>la barra abierta todo el tiempo</b>.
+                  Las horas son una propuesta — <b className={hl}>se cuadran con ustedes</b>.
                 </>
               }
             />
