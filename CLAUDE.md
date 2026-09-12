@@ -122,6 +122,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
 | `/mg1/coronacion` | Propuesta privada a un bar para ser la sede de la noche final (vie 30 / sab 31 de octubre) |
 | `/mg1/estudio` | Propuesta privada a un estudio audiovisual para ser el set del rodaje (24-30 de septiembre) |
+| `/mg1/def` | La misma propuesta de `/mg1/coronacion`, personalizada para **Def Jamaica Club** (Soacha) |
 | `/admin/login` | Acceso al panel (entrar / crear cuenta) |
 | `/admin/mi-trabajo` | Lo asignado a ti: atrasado / hoy / esta semana / despues |
 | `/admin/bandeja` | Avisos: asignaciones, menciones, proyectos en riesgo |
@@ -146,11 +147,11 @@ middleware.ts                     # Auth middleware for /admin routes
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
 header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/mg1/coronacion`,
-`/mg1/estudio`, `/admin` y `/gala/pase` (el pase se abre en la puerta: solo tiene que
+`/mg1/estudio`, `/mg1/def`, `/admin` y `/gala/pase` (el pase se abre en la puerta: solo tiene que
 caber el QR).
 
-Las tres piezas de `/mg1` que se mandan por enlace a una persona concreta —jurado,
-bar y estudio— llevan `robots: { index: false }`: son propuestas, no paginas del
+Las piezas de `/mg1` que se mandan por enlace a una persona o a un lugar concreto
+—jurado, bar, estudio y DEF— llevan `robots: { index: false }`: son propuestas, no paginas del
 sitio. Comparten el lenguaje visual de `/mg1/convocatoria` (hero a pantalla completa
 con el Disco Ruby, marquesina, secciones numeradas y cierre rojo) y sus animaciones
 salen de `components/mg1`: `Parallax`, `PopIn`, `ScrollReveal`, `CountUp` /

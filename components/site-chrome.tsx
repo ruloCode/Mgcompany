@@ -13,6 +13,7 @@ const STANDALONE_PREFIXES = [
   // Propuestas de alianza: cada una es una pieza cerrada con su propio cierre
   "/mg1/coronacion",
   "/mg1/estudio",
+  "/mg1/def",
   "/admin",
   // Vistas imprimibles: son laminas de tamano fijo, el header y el footer del
   // sitio no pintan nada dentro de un PDF.
