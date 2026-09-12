@@ -9,16 +9,18 @@ import ScrollProgress from "@/components/scroll-progress"
 import ScrollReveal from "@/components/scroll-reveal"
 import SectionHeading from "@/components/section-heading"
 import SpecMeta from "@/components/spec-meta"
+import BigStatement from "@/components/mg1/big-statement"
 import CountUp from "@/components/mg1/count-up"
 import HeroDisc from "@/components/mg1/hero-disc"
 import MetricRow from "@/components/mg1/metric-row"
 import Parallax from "@/components/mg1/parallax"
 import PopIn from "@/components/mg1/pop-in"
 import RazonRow from "@/components/mg1/razon-row"
+import Tachon from "@/components/mg1/tachon"
 
-const OG_TITLE = "Propuesta DEF · La Coronación MG1"
+const OG_TITLE = "Propuesta DEF · Su noche + La Coronación MG1"
 const OG_DESCRIPTION =
-  "Def Jamaica Club como la casa de la noche final del Concurso MG1. Viernes 30 o sábado 31 de octubre, 6–9 p.m."
+  "Coproducción para el 30 o el 31 de octubre: MG suma artistas, campaña y equipo a la noche que DEF ya tiene programada, y la cierra con la coronación del Concurso MG1."
 
 export function generateMetadata(): Metadata {
   const custom = "/og/og-mg1-def.jpg"
@@ -42,7 +44,7 @@ export function generateMetadata(): Metadata {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "La Coronación MG1 — propuesta para Def Jamaica Club, Soacha",
+          alt: "La Coronación MG1 — propuesta de coproducción con Def Jamaica Club, Soacha",
         },
       ],
     },
@@ -61,9 +63,9 @@ const WA = "573189025388"
 const waUrl = (texto: string) => `https://wa.me/${WA}?text=${encodeURIComponent(texto)}`
 
 const HERO_META = [
-  { label: "Evento:", value: "Noche final en vivo" },
-  { label: "Horario:", value: "6:00 – 9:00 p.m." },
-  { label: "Lugar:", value: "DEF · Soacha" },
+  { label: "Formato:", value: "Coproducción" },
+  { label: "Fecha:", value: "30 o 31 de octubre" },
+  { label: "Franja:", value: "6:00 – 9:00 p.m." },
 ]
 
 const FECHAS = [
@@ -142,48 +144,41 @@ const RAZONES: {
   },
 ]
 
-// La noche, hora por hora, montada sobre como abre DEF
-const MINUTO_A_MINUTO: { hora: string; que: string; desc: React.ReactNode }[] = [
+// El trato en tres columnas: nadie llega con las manos vacias
+const APORTES: { quien: string; titulo: string; items: string[]; destacado?: boolean }[] = [
   {
-    hora: "5:00 p.m.",
-    que: "Montaje",
-    desc: <>Entra nuestro equipo audiovisual, luces y el punto de registro en la terraza.</>,
+    quien: "Pone DEF",
+    titulo: "La noche que ya tienen",
+    items: [
+      "La fecha y la casa",
+      "Su cartel: headliners y DJs",
+      "Sonido, luces, tarima y camerinos",
+      "Su público de siempre",
+      "La barra, que trabaja normal",
+    ],
   },
   {
-    hora: "6:00 p.m.",
-    que: "Puertas",
-    desc: (
-      <>
-        Abre con registro por <b className={hl}>QR</b> — nosotros ponemos el sistema y el
-        personal. Sube la barra desde el primer minuto.
-      </>
-    ),
+    quien: "Pone MG",
+    titulo: "Lo que le sumamos",
+    items: [
+      "7 artistas más al cartel",
+      "Los 12 del reality y sus públicos",
+      "Cinco semanas de campaña andando",
+      "Equipo audiovisual toda la noche",
+      "Registro y control de puerta con QR",
+    ],
   },
   {
-    hora: "6:30 p.m.",
-    que: "Arranca el show",
-    desc: <>Los 12 concursantes, los jurados y el cartel en la sala del segundo piso.</>,
-  },
-  {
-    hora: "8:30 p.m.",
-    que: "La coronación",
-    desc: (
-      <>
-        Se anuncia al campeón y <b className={hl}>el capítulo final se estrena en YouTube
-        en ese mismo instante</b>. Nadie sabe el resultado hasta ahí.
-      </>
-    ),
-  },
-  {
-    hora: "9:00 p.m.",
-    que: "La noche es de DEF",
-    desc: (
-      <>
-        Nos bajamos de la tarima y les queda{" "}
-        <b className={hl}>la casa llena de público joven</b> con toda la noche por
-        delante — la de ustedes, con su música y su programación.
-      </>
-    ),
+    quien: "Sale",
+    titulo: "Una sola noche",
+    destacado: true,
+    items: [
+      "Su lineup, más grande",
+      "Cierre con la coronación en vivo",
+      "Estreno en YouTube desde su tarima",
+      "Contenido profesional para los dos",
+      "La casa llena a las 9, no a las 12",
+    ],
   },
 ]
 
@@ -240,26 +235,67 @@ const METRICAS: {
     value: 83,
     suffix: "%",
   },
+]
+
+// La Gala del 11 de septiembre: la prueba de que la puerta la sabemos operar
+const GALA = [
+  { value: 62, unidad: "inscritos", nota: "en una lista privada, sin pauta" },
+  { value: 80, unidad: "de aforo", nota: "cupo cerrado y lista de espera" },
+  { value: 100, suffix: "%", unidad: "con pase QR", nota: "acreditación en la puerta" },
+]
+
+// La noche, hora por hora, montada sobre como abre la casa
+const MINUTO_A_MINUTO: { hora: string; que: string; desc: React.ReactNode }[] = [
   {
-    concepto: (
+    hora: "5:00 p.m.",
+    que: "Montaje",
+    desc: <>Entra nuestro equipo audiovisual, luces y el punto de registro en la terraza.</>,
+  },
+  {
+    hora: "6:00 p.m.",
+    que: "Puertas",
+    desc: (
       <>
-        Personas se inscribieron solo al evento de cierre de convocatoria, que reunió
-        influencers, modelos, bailarines, managers y productores de la escena
+        Abre con registro por <b className={hl}>QR</b> — nosotros ponemos el sistema y el
+        personal. Sube la barra desde el primer minuto.
       </>
     ),
-    value: 62,
+  },
+  {
+    hora: "6:30 p.m.",
+    que: "Arranca el show",
+    desc: <>Los 12 concursantes, los jurados y el cartel en la sala del segundo piso.</>,
+  },
+  {
+    hora: "8:30 p.m.",
+    que: "La coronación",
+    desc: (
+      <>
+        Se anuncia al campeón y <b className={hl}>el capítulo final se estrena en YouTube
+        en ese mismo instante</b>. Nadie sabe el resultado hasta ahí.
+      </>
+    ),
+  },
+  {
+    hora: "9:00 p.m.",
+    que: "Entra su cartel",
+    desc: (
+      <>
+        Nos bajamos de la tarima y <b className={hl}>la noche sigue siendo de DEF</b>: sus
+        headliners, sus DJs y la casa ya llena.
+      </>
+    ),
   },
 ]
 
 const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
   {
-    title: "La noche empieza llena, no termina",
+    title: "Su noche empieza llena",
     desc: (
       <>
-        El evento va de 6:00 a 9:00 p.m. DEF abre viernes y sábado{" "}
-        <b className={hl}>hasta la 1:00 a.m.</b>: a las 9 les entregamos la sala y la
-        terraza llenas, con la noche apenas arrancando. No les quitamos la rumba —{" "}
-        <b className={hl}>se la prendemos</b>.
+        Nuestra franja va de 6:00 a 9:00 p.m. y DEF abre viernes y sábado{" "}
+        <b className={hl}>hasta la 1:00 a.m.</b> A las 9 entra su cartel con la sala y la
+        terraza ya llenas. No les quitamos la rumba — <b className={hl}>se la prendemos</b>.
       </>
     ),
   },
@@ -267,9 +303,9 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     title: "Si es el 31, es la antesala de Halloween",
     desc: (
       <>
-        El sábado 31 la ciudad entera sale disfrazada. Terminar el show a las 9 significa
-        que DEF llega a su <b className={hl}>noche de Halloween con la casa ya llena</b> y
-        con 12 artistas y sus públicos adentro. Si prefieren dejar el 31 libre,{" "}
+        El sábado 31 la ciudad sale disfrazada. Cerrar a las 9 significa llegar a su{" "}
+        <b className={hl}>noche de Halloween con la casa llena</b> y 12 artistas adentro.
+        Si prefieren dejar el 31 para lo suyo,{" "}
         <b className={hl}>el viernes 30 nos sirve igual</b>.
       </>
     ),
@@ -279,17 +315,16 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     desc: (
       <>
         DEF aparece como <b className={hl}>sede oficial de La Coronación</b>: mencionado
-        dentro de los capítulos del reality, en el afiche del cartel y etiquetado en todo
-        el contenido de la campaña. Cada estreno semanal cierra invitando a la final{" "}
-        <b className={hl}>en DEF</b>.
+        en los capítulos, en el afiche del cartel y etiquetado en toda la campaña. Cada
+        estreno semanal cierra invitando <b className={hl}>a su casa</b>.
       </>
     ),
   },
   {
-    title: "Contenido profesional de su casa llena",
+    title: "Contenido profesional de su noche",
     desc: (
       <>
-        Nuestro equipo audiovisual cubre la noche completa. Les entregamos{" "}
+        Nuestro equipo cubre el evento completo. Les entregamos{" "}
         <b className={hl}>fotos y video editado de DEF lleno</b>, listos para{" "}
         <b className={hl}>@defjamaicaclub</b>. Eso solo, cotizado aparte, ya vale la
         noche.
@@ -308,38 +343,33 @@ const BENEFICIOS: { title: string; desc: React.ReactNode }[] = [
     ),
   },
   {
-    title: "El evento lo operamos nosotros",
+    title: "La puerta la operamos nosotros",
     desc: (
       <>
-        MG pone el{" "}
-        <b className={hl}>equipo audiovisual, el registro de entrada con QR y el personal
-        de apoyo</b>. DEF pone lo que ya tiene: el espacio, el sonido, la tarima y los
-        camerinos — y vende su barra.
+        Registro con QR, lista, acreditación y personal de apoyo van por nuestra cuenta —{" "}
+        <b className={hl}>ya lo hicimos en la Gala del 11 de septiembre</b>. Su equipo se
+        dedica a la barra.
       </>
     ),
   },
 ]
 
-const PEDIMOS: React.ReactNode[] = [
+const TERMINOS: React.ReactNode[] = [
   <>
-    <b className="text-white">La sala del segundo piso</b> el viernes 30 o el sábado 31 de
-    octubre, de 6:00 a 9:00 p.m., con montaje desde las 5:00.
+    <b className="text-white">La fecha:</b> viernes 30 o sábado 31 de octubre. La eligen
+    ustedes; nosotros ajustamos la campaña al día que digan.
   </>,
   <>
-    <b className="text-white">La terraza como zona de llegada</b>: registro con QR, prensa
-    y el público que va subiendo. La barra trabaja normal todo el tiempo.
+    <b className="text-white">El cartel:</b> cómo se integran sus headliners y sus DJs con
+    nuestros artistas, y en qué orden entra cada uno.
   </>,
   <>
-    <b className="text-white">El sonido, las luces y la tarima de DEF</b> — lo que ya usan
-    cada fin de semana para música en vivo.
+    <b className="text-white">El modelo:</b> consumo mínimo, taquilla, barra o el que a
+    DEF le funcione. Vamos con la mente abierta.
   </>,
   <>
-    <b className="text-white">Permiso de grabación</b> dentro del club para los capítulos
-    y el contenido de campaña.
-  </>,
-  <>
-    <b className="text-white">Una conversación</b> para acordar los términos: consumo
-    mínimo, taquilla, barra o el modelo que a DEF le funcione. Vamos con la mente abierta.
+    <b className="text-white">El anuncio:</b> cómo y cuándo se comunica, y qué piezas
+    publica cada uno.
   </>,
 ]
 
@@ -348,8 +378,8 @@ const PLAN: { title: string; desc: React.ReactNode }[] = [
     title: "Anuncio de la sede",
     desc: (
       <>
-        Reel presentando a DEF como la casa de La Coronación, en collab con los jurados y
-        con <b className={hl}>@defjamaicaclub</b>.
+        Reel presentando la noche conjunta, en collab con los jurados y con{" "}
+        <b className={hl}>@defjamaicaclub</b>.
       </>
     ),
   },
@@ -357,31 +387,25 @@ const PLAN: { title: string; desc: React.ReactNode }[] = [
     title: "Estreno de capítulos",
     desc: (
       <>
-        9, 16 y 23 de octubre — y el día se acomoda al de DEF: si eligen viernes, los
-        estrenos van en viernes; si eligen sábado, en sábado. Cada capítulo cierra
-        invitando a la final en DEF.
+        9, 16 y 23 de octubre — y el día se acomoda al de DEF. Cada capítulo cierra
+        invitando a la final en su casa.
       </>
     ),
   },
   {
     title: "Cartel del lineup",
-    desc: <>Piezas del cartel con DEF en el afiche, compartidas por todos los artistas.</>,
+    desc: <>El afiche conjunto, compartido por todos los artistas de los dos lados.</>,
   },
   {
     title: "Cuenta regresiva",
-    desc: (
-      <>
-        Historias diarias con el mapa a la Cra. 7, el evento de Facebook y el registro con
-        QR.
-      </>
-    ),
+    desc: <>Historias diarias con el mapa a la Cra. 7, el evento y el registro con QR.</>,
   },
   {
-    title: "La noche",
+    title: "La noche y lo que queda",
     desc: (
       <>
-        El capítulo final se estrena en YouTube en el instante de la coronación, y nuestro
-        equipo cubre el evento completo para redes — con material que también es de DEF.
+        Cobertura completa y, después, el material editado en manos de los dos —{" "}
+        <b className={hl}>el video sigue trabajando cuando la noche ya pasó</b>.
       </>
     ),
   },
@@ -401,21 +425,22 @@ export default function MG1DefPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-xl leading-none text-mg-red">&#10022;</span>
                   <span className="font-mono text-[10px] font-medium uppercase tracking-[0.3em] text-mg-red-bright md:text-xs">
-                    [ MG Company · Propuesta para Def Jamaica Club ]
+                    [ MG Company · Propuesta de coproducción · DEF ]
                   </span>
                   <span className="h-px flex-1 bg-mg-red/40" />
                 </div>
 
                 <h1 className="mt-6 font-heading uppercase leading-[0.9] tracking-tight text-[clamp(2.75rem,9vw,7rem)]">
-                  <span className="block text-stroke">La Coronación</span>
-                  <span className="block text-mg-red">MG1</span>
-                  <span className="block">se corona en DEF.</span>
+                  <span className="block text-stroke">Su noche.</span>
+                  <span className="block text-mg-red">Nuestra coronación.</span>
+                  <span className="block">Un solo evento.</span>
                 </h1>
 
                 <p className="mt-6 max-w-xl text-base leading-relaxed text-zinc-300 md:text-lg">
-                  La noche final del <b className={hl}>primer reality musical</b> de la
-                  escena urbana de Bogotá y Soacha. Buscamos una casa para esa noche y{" "}
-                  <b className={hl}>solo estamos escribiéndole a una</b>.
+                  El 30 o el 31 de octubre DEF va a estar abierto con su cartel. Les
+                  proponemos <b className={hl}>sumar a esa misma noche</b> el cierre del
+                  primer reality musical de Soacha y Bogotá: nuestros artistas, nuestra
+                  campaña y nuestro equipo, sobre su tarima.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3" role="list">
@@ -446,7 +471,7 @@ export default function MG1DefPage() {
 
                 <a
                   href={waUrl(
-                    "Hola MG, somos DEF. Vimos la propuesta de La Coronación MG1 y queremos hablar.",
+                    "Hola MG, somos DEF. Vimos la propuesta de coproducción de La Coronación MG1 y queremos hablar.",
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -484,63 +509,159 @@ export default function MG1DefPage() {
 
       <BrandMarquee items={MARQUEE_ITEMS} variant="red" />
 
-      {/* 01 · Por qué DEF */}
+      {/* 01 · La propuesta */}
       <section className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
         <ScrollReveal direction="up" className="[&_.font-mono]:text-mg-red-bright">
           <SectionHeading
             index="01"
-            kicker="Por qué ustedes"
-            title="Esta propuesta es solo para DEF"
-            subtitle={
-              <>
-                No la estamos mandando a diez bares a ver quién contesta:{" "}
-                <b className={hl}>hay cuatro razones para escoger a DEF</b>.
-              </>
-            }
+            kicker="La propuesta"
+            title="No es un alquiler. Es una coproducción."
           />
         </ScrollReveal>
 
-        <ul className="mt-12 border-t-2 border-mg-red md:mt-16">
-          {RAZONES.map((razon, i) => (
-            <RazonRow
-              key={razon.titulo}
-              index={i}
-              value={razon.value}
-              decimals={razon.decimals}
-              suffix={razon.suffix}
-              agrupar={razon.agrupar}
-              unidad={razon.unidad}
-              titulo={razon.titulo}
-            >
-              {razon.desc}
-            </RazonRow>
-          ))}
-        </ul>
-
-        <ScrollReveal direction="up" delay={0.15}>
-          <p className="mt-10 max-w-[58ch] border-l-4 border-mg-red pl-6 text-sm leading-relaxed text-zinc-300 md:mt-12 md:text-base">
-            <b className={hl}>MG1 en una línea:</b> 12 artistas emergentes, un mismo beat,
-            cuatro capítulos con estreno semanal en YouTube desde el 9 de octubre y un
-            campeón que corona el público. El final se estrena{" "}
-            <b className={hl}>en el instante mismo de la coronación</b> — la única forma
-            de verlo primero es estar ahí.
+        <div className="mt-10 max-w-4xl md:mt-12">
+          <p className="font-heading uppercase leading-[0.95] tracking-tight text-[clamp(1.75rem,5vw,3.4rem)]">
+            <Tachon>Préstennos el bar esa noche.</Tachon>
           </p>
-        </ScrollReveal>
+          <div className="mt-4">
+            <BigStatement
+              text="Hagamos"
+              accent="una sola noche, juntos."
+              className="text-[clamp(1.9rem,5.4vw,3.6rem)]"
+            />
+          </div>
+          <ScrollReveal direction="up" delay={0.2}>
+            <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-zinc-300 md:text-lg">
+              Ustedes ya van a abrir el 30 o el 31 con su programación.{" "}
+              <b className={hl}>Nosotros no venimos a reemplazarla: venimos a engordarla</b>{" "}
+              — con siete artistas más en el cartel, una campaña de cinco semanas que ya
+              está andando y el cierre de un reality que se estrena en YouTube esa misma
+              noche, en vivo, desde su tarima.
+            </p>
+          </ScrollReveal>
+        </div>
+
+        {/* Las tres columnas del trato */}
+        <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-3 md:gap-5 lg:gap-6">
+          {APORTES.map((col, i) => (
+            <ScrollReveal key={col.quien} direction="up" delay={i * 0.12}>
+              <div
+                className={`relative h-full border-t-4 p-6 transition-transform duration-300 hover:-translate-y-1 md:p-7 ${
+                  col.destacado
+                    ? "border-mg-red bg-mg-red/10 [box-shadow:inset_0_0_0_1px_rgba(232,32,12,0.35)]"
+                    : "border-white/25 bg-white/[0.03]"
+                }`}
+              >
+                <span
+                  className={`font-mono text-[10px] font-medium uppercase tracking-[0.28em] ${
+                    col.destacado ? "text-mg-red-bright" : "text-white/45"
+                  }`}
+                >
+                  {col.quien}
+                </span>
+                <h3 className="mt-2 font-heading text-2xl uppercase leading-tight tracking-wide">
+                  {col.titulo}
+                </h3>
+                <ul className="mt-5 space-y-2.5">
+                  {col.items.map((item, j) => (
+                    <li
+                      key={item}
+                      className="flex gap-3 text-sm leading-relaxed text-zinc-300 md:text-[15px]"
+                    >
+                      <PopIn delay={i * 0.12 + j * 0.05}>
+                        <span
+                          aria-hidden="true"
+                          className={`mt-[0.45rem] block h-2 w-2 shrink-0 ${
+                            col.destacado ? "bg-mg-red" : "bg-white/40"
+                          }`}
+                        />
+                      </PopIn>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* El signo que une las columnas en desktop */}
+                {i < APORTES.length - 1 && (
+                  <PopIn
+                    delay={0.3 + i * 0.12}
+                    rotate={-90}
+                    className="absolute -right-[1.35rem] top-1/2 z-10 hidden -translate-y-1/2 md:block lg:-right-[1.6rem]"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 items-center justify-center bg-mg-black font-heading text-2xl text-mg-red"
+                    >
+                      {i === 0 ? "+" : "="}
+                    </span>
+                  </PopIn>
+                )}
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
       </section>
 
-      {/* 02 · El cartel */}
+      {/* 02 · Por qué DEF */}
       <section className="border-t border-white/10 bg-white/[0.02]">
+        <div className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
+          <ScrollReveal direction="up" className="[&_.font-mono]:text-mg-red-bright">
+            <SectionHeading
+              index="02"
+              kicker="Por qué ustedes"
+              title="Esta propuesta es solo para DEF"
+              subtitle={
+                <>
+                  No la estamos mandando a diez bares a ver quién contesta:{" "}
+                  <b className={hl}>hay cuatro razones para escoger a DEF</b>.
+                </>
+              }
+            />
+          </ScrollReveal>
+
+          <ul className="mt-12 border-t-2 border-mg-red md:mt-16">
+            {RAZONES.map((razon, i) => (
+              <RazonRow
+                key={razon.titulo}
+                index={i}
+                value={razon.value}
+                decimals={razon.decimals}
+                suffix={razon.suffix}
+                agrupar={razon.agrupar}
+                unidad={razon.unidad}
+                titulo={razon.titulo}
+              >
+                {razon.desc}
+              </RazonRow>
+            ))}
+          </ul>
+
+          <ScrollReveal direction="up" delay={0.15}>
+            <p className="mt-10 max-w-[58ch] border-l-4 border-mg-red pl-6 text-sm leading-relaxed text-zinc-300 md:mt-12 md:text-base">
+              <b className={hl}>MG1 en una línea:</b> 12 artistas emergentes, un mismo
+              beat, cuatro capítulos con estreno semanal en YouTube desde el 9 de octubre
+              y un campeón que corona el público. El final se estrena{" "}
+              <b className={hl}>en el instante mismo de la coronación</b> — la única forma
+              de verlo primero es estar ahí.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 03 · Lo que sumamos al cartel */}
+      <section className="bg-mg-black">
         <div className="container mx-auto px-4 py-16 text-center md:px-6 md:py-24 lg:px-10">
           <ScrollReveal direction="up">
             <p className="font-mono text-[11px] font-medium uppercase tracking-[0.3em] text-mg-red-bright md:text-xs">
-              [ 02 / El show de esa noche ]
+              [ 03 / El cartel ]
             </p>
             <h2 className="mt-4 font-heading uppercase leading-[0.9] tracking-tight text-[clamp(2.5rem,7vw,5rem)]">
-              El cartel
+              Lo que le sumamos
+              <br />a su lineup
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-zinc-400 md:text-base">
-              Todos confirmados. Cada uno mueve a su propia audiencia hacia la tarima de
-              DEF.
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-400 md:text-base">
+              Todos confirmados y todos <b className="text-zinc-200">encima</b> de los
+              headliners y DJs que ustedes ya tengan programados para esa noche.
             </p>
           </ScrollReveal>
 
@@ -591,16 +712,15 @@ export default function MG1DefPage() {
           </div>
           <ScrollReveal direction="up" delay={0.15}>
             <p className="mx-auto mt-4 max-w-2xl text-xs leading-relaxed text-zinc-400 md:text-sm">
-              Artistas que llevan años construyendo la escena desde la tarima, la calle y
-              el estudio — junto a los 12 concursantes de MG1, cada uno con su público
-              detrás.
+              Junto a los 12 concursantes de MG1, cada uno moviendo a su propio público
+              hacia la puerta de DEF esa noche.
             </p>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={0.2}>
             <div className="mt-12 inline-flex flex-wrap items-baseline justify-center gap-x-4 gap-y-1 border-2 border-white px-6 py-4 md:px-8">
               <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-300 md:text-xs">
-                Alcance combinado del cartel
+                Alcance que entra al cartel
               </span>
               <CountUp
                 value={285_000}
@@ -615,18 +735,18 @@ export default function MG1DefPage() {
         </div>
       </section>
 
-      {/* 03 · Los números */}
-      <section className="bg-mg-black">
+      {/* 04 · Los números */}
+      <section className="border-t border-white/10 bg-white/[0.02]">
         <div className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
           <ScrollReveal direction="up" className="[&_.font-mono]:text-mg-red-bright">
             <SectionHeading
-              index="03"
-              kicker="Los números"
+              index="04"
+              kicker="La tracción"
               title="La campaña ya está andando"
               subtitle={
                 <>
-                  Esto no es una promesa de publicidad futura: es una máquina que lleva{" "}
-                  <b className={hl}>cinco semanas moviéndose</b>, medida y{" "}
+                  No es una promesa de publicidad futura: es una máquina de{" "}
+                  <b className={hl}>cinco semanas</b>, medida y{" "}
                   <b className={hl}>sin un peso de pauta</b>. DEF no entra a levantar una
                   campaña: entra a una que ya va rodando.
                 </>
@@ -651,21 +771,61 @@ export default function MG1DefPage() {
             Fuente: métricas de Instagram y TikTok de MG Company, agosto–septiembre de
             2026. Con gusto las mostramos en la reunión.
           </p>
+
+          {/* La Gala como prueba operativa */}
+          <div className="mt-14 border-2 border-mg-red p-6 md:mt-20 md:p-10">
+            <ScrollReveal direction="up">
+              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.3em] text-mg-red-bright md:text-xs">
+                [ La prueba · 11 de septiembre de 2026 ]
+              </p>
+              <h3 className="mt-3 font-heading uppercase leading-[0.95] tracking-tight text-[clamp(1.75rem,4.5vw,3rem)]">
+                Ya operamos una puerta hace cinco semanas
+              </h3>
+              <p className="mt-4 max-w-[62ch] text-sm leading-relaxed text-zinc-300 md:text-base">
+                La <b className={hl}>Gala MG</b> fue nuestro evento de cierre de
+                convocatoria: lista privada, aforo cerrado y{" "}
+                <b className={hl}>pase con QR</b> para entrar. Reunió a influencers,
+                modelos, bailarines, managers y productores de la escena — y{" "}
+                <b className={hl}>hoy sigue rodando en nuestras historias</b>. La misma
+                operación es la que traemos a DEF.
+              </p>
+            </ScrollReveal>
+
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+              {GALA.map((dato, i) => (
+                <ScrollReveal key={dato.unidad} direction="up" delay={i * 0.1}>
+                  <div className="border-l-4 border-mg-red pl-4">
+                    <CountUp
+                      value={dato.value}
+                      suffix={dato.suffix}
+                      className="font-heading leading-none tracking-tight text-[clamp(2.25rem,6vw,3.25rem)]"
+                    />
+                    <p className="mt-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-mg-red-bright md:text-[11px]">
+                      {dato.unidad}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-zinc-400 md:text-sm">
+                      {dato.nota}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       <BrandMarquee items={MARQUEE_ITEMS} variant="outline" />
 
-      {/* 04 · Qué gana DEF */}
+      {/* 05 · Qué gana DEF */}
       <section className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
         <ScrollReveal direction="up" className="[&_.font-mono]:text-mg-red-bright">
           <SectionHeading
-            index="04"
+            index="05"
             kicker="El beneficio"
             title="Qué gana DEF"
             subtitle={
               <>
-                Tres horas que terminan justo cuando su noche empieza, público local de 18
+                Tres horas que terminan justo cuando su noche arranca, público local de 18
                 a 34, su nombre dentro del show y{" "}
                 <b className={hl}>contenido profesional</b> que les queda.
               </>
@@ -689,19 +849,19 @@ export default function MG1DefPage() {
         </div>
       </section>
 
-      {/* 05 · La noche, hora por hora */}
+      {/* 06 · La noche, hora por hora */}
       <section className="border-t border-white/10 bg-white/[0.02]">
         <div className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
           <ScrollReveal direction="up" className="[&_.font-mono]:text-mg-red-bright">
             <SectionHeading
-              index="05"
+              index="06"
               kicker="La operación"
               title="Cómo se ve la noche en DEF"
               subtitle={
                 <>
                   Tres horas cerradas, montadas sobre cómo ya funciona la casa: la sala
-                  arriba, la terraza abajo y <b className={hl}>la barra abierta todo el
-                  tiempo</b>.
+                  arriba, la terraza abajo y{" "}
+                  <b className={hl}>la barra abierta todo el tiempo</b>.
                 </>
               }
             />
@@ -710,11 +870,11 @@ export default function MG1DefPage() {
           <ol className="mt-12 border-t border-white/10 md:mt-16">
             {MINUTO_A_MINUTO.map((paso, i) => (
               <ScrollReveal key={paso.hora} direction="up" delay={i * 0.07}>
-                <li className="grid grid-cols-12 items-baseline gap-x-4 gap-y-1 border-b border-white/10 py-5 md:py-6">
+                <li className="group grid grid-cols-12 items-baseline gap-x-4 gap-y-1 border-b border-white/10 py-5 transition-colors duration-300 md:py-6 md:hover:bg-white/[0.03]">
                   <p className="col-span-12 font-mono text-xs font-medium uppercase tracking-[0.2em] text-mg-red-bright md:col-span-2 md:text-sm">
                     {paso.hora}
                   </p>
-                  <p className="col-span-12 font-heading text-xl uppercase tracking-wide md:col-span-3 md:text-2xl">
+                  <p className="col-span-12 font-heading text-xl uppercase tracking-wide transition-colors duration-300 group-hover:text-mg-red md:col-span-3 md:text-2xl">
                     {paso.que}
                   </p>
                   <p className="col-span-12 text-sm leading-relaxed text-zinc-300 md:col-span-7 md:text-[15px]">
@@ -727,7 +887,7 @@ export default function MG1DefPage() {
         </div>
       </section>
 
-      {/* 06 · Qué pedimos + el plan */}
+      {/* 07 · Los términos + la campaña */}
       <section className="container mx-auto px-4 py-16 md:px-6 md:py-24 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
@@ -735,10 +895,20 @@ export default function MG1DefPage() {
               direction="up"
               className="[&_.font-mono]:text-mg-red-bright [&_h2]:text-[clamp(2rem,4vw,3.25rem)]"
             >
-              <SectionHeading index="06" kicker="El trato" title="Qué pedimos" />
+              <SectionHeading
+                index="07"
+                kicker="La mesa"
+                title="Lo que se sienta a negociar"
+                subtitle={
+                  <>
+                    Nada de esto viene decidido. Si la idea les suena,{" "}
+                    <b className={hl}>nos sentamos y lo cerramos punto por punto</b>.
+                  </>
+                }
+              />
             </ScrollReveal>
             <ul className="mt-8 border-t border-white/10">
-              {PEDIMOS.map((item, i) => (
+              {TERMINOS.map((item, i) => (
                 <ScrollReveal key={i} direction="up" delay={i * 0.08}>
                   <li className="relative border-b border-white/10 py-4 pl-8 text-sm leading-relaxed text-zinc-300 md:text-[15px]">
                     <span
@@ -757,7 +927,17 @@ export default function MG1DefPage() {
               direction="up"
               className="[&_.font-mono]:text-mg-red-bright [&_h2]:text-[clamp(2rem,4vw,3.25rem)]"
             >
-              <SectionHeading index="07" kicker="La campaña" title="El mes y medio de bombo" />
+              <SectionHeading
+                index="08"
+                kicker="La campaña"
+                title="El mes y medio de bombo"
+                subtitle={
+                  <>
+                    Todo esto corre <b className={hl}>antes</b> de la noche, y DEF va
+                    adentro desde la primera pieza.
+                  </>
+                }
+              />
             </ScrollReveal>
             <ol className="mt-8 border-t border-white/10">
               {PLAN.map((paso, i) => (
@@ -801,17 +981,18 @@ export default function MG1DefPage() {
 
           <PopIn delay={0.1}>
             <h2 className="font-heading uppercase leading-[0.95] tracking-tight text-[clamp(2.25rem,6vw,5rem)]">
-              Veinte años de tarima.
+              La fecha es de ustedes.
               <br />
-              Falta una coronación.
+              La noche la armamos entre los dos.
             </h2>
           </PopIn>
 
           <ScrollReveal direction="up" delay={0.25}>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white md:text-lg">
-              Escríbannos y en una <b>reunión de 20 minutos</b> —en DEF, si quieren— les
-              mostramos las métricas completas, el plan del evento y cerramos los términos
-              que le sirvan a la casa.
+              Díganos cuál de las dos fechas les sirve y nos sentamos{" "}
+              <b>20 minutos en DEF</b>: les mostramos las métricas completas, el plan de
+              la noche y cerramos los términos. La campaña ya está corriendo —{" "}
+              <b>el nombre de la sede es lo único que falta anunciar</b>.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
