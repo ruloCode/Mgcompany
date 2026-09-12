@@ -120,6 +120,8 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
+| `/mg1/coronacion` | Propuesta privada a un bar para ser la sede de la noche final (vie 30 / sab 31 de octubre) |
+| `/mg1/estudio` | Propuesta privada a un estudio audiovisual para ser el set del rodaje (24-30 de septiembre) |
 | `/admin/login` | Acceso al panel (entrar / crear cuenta) |
 | `/admin/mi-trabajo` | Lo asignado a ti: atrasado / hoy / esta semana / despues |
 | `/admin/bandeja` | Avisos: asignaciones, menciones, proyectos en riesgo |
@@ -143,8 +145,17 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/admin/datos` | Respaldos y bitacora completa |
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
-header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/admin` y
-`/gala/pase` (el pase se abre en la puerta: solo tiene que caber el QR).
+header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/mg1/coronacion`,
+`/mg1/estudio`, `/admin` y `/gala/pase` (el pase se abre en la puerta: solo tiene que
+caber el QR).
+
+Las tres piezas de `/mg1` que se mandan por enlace a una persona concreta —jurado,
+bar y estudio— llevan `robots: { index: false }`: son propuestas, no paginas del
+sitio. Comparten el lenguaje visual de `/mg1/convocatoria` (hero a pantalla completa
+con el Disco Ruby, marquesina, secciones numeradas y cierre rojo) y sus animaciones
+salen de `components/mg1`: `Parallax`, `PopIn`, `ScrollReveal`, `CountUp` /
+`MetricRow` para las cifras y `BigStatement` para la frase grande palabra por
+palabra.
 
 ## Panel administrativo (`/admin`)
 
