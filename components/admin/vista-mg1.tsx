@@ -19,6 +19,12 @@ import {
   type Disponibilidad,
   type Franja,
 } from "@/lib/mg1-disponibilidad"
+import {
+  JURADOS,
+  MG1_TOPE_JURADO,
+  nombreDeJurado,
+} from "@/lib/mg1-seleccion"
+import type { MesaJurado } from "@/lib/mg/datos"
 import { Copiar, Kpi, Modal, Tag, Vacio } from "./ui"
 
 const ESTADOS: Record<string, { label: string; color: string }> = {
@@ -37,9 +43,11 @@ const TODAS_LAS_FRANJAS = FRANJAS.map((f) => f.valor)
 type Aviso = { txt: string; error?: boolean }
 
 export default function VistaMg1({
-  inscripciones, puedeCurar, puedeContactar,
+  inscripciones, mesa, puedeCurar, puedeContactar,
 }: {
   inscripciones: InscripcionMG1[]
+  /** Lo que lleva votado el jurado en /mg1/seleccion. Solo se lee aqui. */
+  mesa: MesaJurado
   /** Decidir: mover el estado de una inscripción. Es de quien opera. */
   puedeCurar: boolean
   /** Acompañar: anotar disponibilidad y notas. Puede venir de una concesión
@@ -311,6 +319,8 @@ export default function VistaMg1({
         )}
       </div>
 
+      <MesaDelJurado mesa={mesa} inscripciones={inscripciones} />
+
       <ResumenFechas resumen={resumen} total={lista.length} />
 
       <div className="card">
@@ -533,5 +543,134 @@ function Ficha({
       <textarea rows={3} value={notas} disabled={!puedeEditar} style={{ width: "100%" }}
         placeholder="Lo que el jurado debe saber" onChange={(e) => setNotas(e.target.value)} />
     </Modal>
+  )
+}
+
+/* ============================================================
+   Mesa del jurado
+   ============================================================
+   El consolidado que los jurados NO ven entre si: quien marco a quien. Aqui
+   es donde se decide, porque aqui se ve el cruce. Esta pantalla solo LEE: los
+   votos se ponen desde el enlace privado de cada jurado, no desde el panel.
+*/
+
+function MesaDelJurado({
+  mesa, inscripciones,
+}: {
+  mesa: MesaJurado
+  inscripciones: InscripcionMG1[]
+}) {
+  const [origen, setOrigen] = useState("")
+  useEffect(() => setOrigen(window.location.origin), [])
+
+  const porJurado = useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const v of mesa.votos) m[v.jurado] = (m[v.jurado] ?? 0) + 1
+    return m
+  }, [mesa.votos])
+
+  const filas = useMemo(() => {
+    const votos: Record<string, string[]> = {}
+    for (const v of mesa.votos) (votos[v.inscripcion_id] ??= []).push(v.jurado)
+
+    const coment: Record<string, typeof mesa.comentarios> = {}
+    for (const c of mesa.comentarios) (coment[c.inscripcion_id] ??= []).push(c)
+
+    return inscripciones
+      .filter((i) => i.estado === "preseleccionado" || votos[i.id] !== undefined)
+      .map((i) => ({
+        inscripcion: i,
+        jurados: votos[i.id] ?? [],
+        comentarios: coment[i.id] ?? [],
+      }))
+      // Primero el consenso. Con el mismo numero de votos, alfabetico: no
+      // queremos que el orden de llegada pese en la decision.
+      .sort((a, b) =>
+        b.jurados.length - a.jurados.length ||
+        a.inscripcion.nombre_artistico.localeCompare(b.inscripcion.nombre_artistico))
+  }, [mesa, inscripciones])
+
+  const votaron = Object.keys(porJurado).length
+  const conVoto = filas.filter((f) => f.jurados.length > 0).length
+
+  return (
+    <div className="card">
+      <h2>Mesa del jurado</h2>
+      <p className="small muted">
+        Lo que lleva marcado cada jurado desde su enlace privado. Entre ellos no se ven los votos
+        —solo los comentarios—, para que el primero en votar no arrastre a los demás. Aquí sí está el
+        cruce completo.
+      </p>
+
+      <div className="kpis" style={{ marginBottom: 14 }}>
+        {JURADOS.map((j) => (
+          <Kpi
+            key={j.slug}
+            valor={`${porJurado[j.slug] ?? 0}/${MG1_TOPE_JURADO}`}
+            label={j.nombre}
+            ayuda={`${porJurado[j.slug] ?? 0} fichas marcadas de ${MG1_TOPE_JURADO}`}
+          />
+        ))}
+        <Kpi valor={conVoto} label="Con al menos un voto" />
+      </div>
+
+      <div className="frow">
+        {JURADOS.map((j) => (
+          <span className="dato small" key={j.slug}>
+            <span className="mono">/mg1/seleccion/{j.slug}</span>
+            <Copiar valor={`${origen}/mg1/seleccion/${j.slug}`} etiqueta={`el enlace de ${j.nombre}`} />
+          </span>
+        ))}
+      </div>
+
+      {votaron === 0 ? (
+        <Vacio titulo="Nadie ha votado todavía">
+          Pásale a cada jurado su enlace privado y aquí irá apareciendo lo que marque.
+        </Vacio>
+      ) : (
+        <div className="tabla-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style={{ width: 40 }}>#</th>
+                <th>Preseleccionado</th>
+                <th style={{ width: 70 }}>Votos</th>
+                <th>Quién lo marcó</th>
+                <th>Lo que dijo el jurado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map((f, k) => (
+                <tr key={f.inscripcion.id}>
+                  <td className="mono small">{String(k + 1).padStart(2, "0")}</td>
+                  <td>
+                    <b>{f.inscripcion.nombre_artistico}</b>
+                    <div className="small muted">{f.inscripcion.ciudad}</div>
+                  </td>
+                  <td className="mono"><b>{f.jurados.length}</b></td>
+                  <td className="small">
+                    {f.jurados.length
+                      ? f.jurados.map((j) => nombreDeJurado(j)).join(" · ")
+                      : <span className="muted">—</span>}
+                  </td>
+                  <td className="small">
+                    {f.comentarios.length ? (
+                      <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none" }}>
+                        {f.comentarios.map((c) => (
+                          <li key={c.jurado} style={{ marginBottom: 4 }}>
+                            <b>{nombreDeJurado(c.jurado)}:</b>{" "}
+                            <span style={{ whiteSpace: "pre-wrap" }}>{c.texto}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : <span className="muted">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   )
 }

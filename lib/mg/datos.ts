@@ -212,3 +212,39 @@ export async function cargarRegistrosGala(): Promise<RegistroGala[]> {
     .order("created_at", { ascending: true })
   return (data ?? []) as RegistroGala[]
 }
+
+/* ============================================================
+   Mesa del jurado de MG1
+   ============================================================
+   Lo que el panel SI ve y los jurados entre si no: quien marco a quien.
+   La policy de la 022 lo abre a `puede_ver_mg1()`, la misma que ya decide
+   quien lee las inscripciones. */
+
+export interface VotoJurado {
+  jurado: string
+  inscripcion_id: string
+}
+
+export interface ComentarioDeJurado {
+  jurado: string
+  inscripcion_id: string
+  texto: string
+  updated_at: string
+}
+
+export interface MesaJurado {
+  votos: VotoJurado[]
+  comentarios: ComentarioDeJurado[]
+}
+
+export async function cargarMesaJurado(): Promise<MesaJurado> {
+  const supabase = await createClient()
+  const [votos, comentarios] = await Promise.all([
+    supabase.from("mg1_jurado_votos").select("jurado,inscripcion_id"),
+    supabase.from("mg1_jurado_comentarios").select("jurado,inscripcion_id,texto,updated_at"),
+  ])
+  return {
+    votos: (votos.data ?? []) as VotoJurado[],
+    comentarios: (comentarios.data ?? []) as ComentarioDeJurado[],
+  }
+}

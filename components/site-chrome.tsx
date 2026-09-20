@@ -14,6 +14,9 @@ const STANDALONE_PREFIXES = [
   "/mg1/coronacion",
   "/mg1/estudio",
   "/mg1/def",
+  // La mesa del jurado es una herramienta, no una pagina del sitio: quien
+  // entra viene a escuchar y a votar, no a navegar el menu.
+  "/mg1/seleccion",
   "/admin",
   // Vistas imprimibles: son laminas de tamano fijo, el header y el footer del
   // sitio no pintan nada dentro de un PDF.

@@ -120,6 +120,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
+| `/mg1/seleccion/[jurado]` | **Mesa del jurado**: los 32 preseleccionados, con reproductor, voto de 12 y comentarios. Enlace privado por jurado |
 | `/mg1/coronacion` | Propuesta privada a un bar para ser la sede de la noche final (vie 30 / sab 31 de octubre) |
 | `/mg1/estudio` | Propuesta privada a un estudio audiovisual para ser el set del rodaje (24-30 de septiembre) |
 | `/mg1/def` | La misma propuesta de `/mg1/coronacion`, personalizada para **Def Jamaica Club** (Soacha) |
@@ -147,8 +148,8 @@ middleware.ts                     # Auth middleware for /admin routes
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
 header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/mg1/coronacion`,
-`/mg1/estudio`, `/mg1/def`, `/admin` y `/gala/pase` (el pase se abre en la puerta: solo tiene que
-caber el QR).
+`/mg1/estudio`, `/mg1/def`, `/mg1/seleccion`, `/admin` y `/gala/pase` (el pase se abre en la
+puerta: solo tiene que caber el QR).
 
 Las piezas de `/mg1` que se mandan por enlace a una persona o a un lugar concreto
 —jurado, bar, estudio y DEF— llevan `robots: { index: false }`: son propuestas, no paginas del
@@ -418,6 +419,50 @@ DELETE: un registro no se borra, se marca `rejected`.
 
 No se pide genero (se infiere del nombre en el analisis posterior) ni
 direccion.
+
+### `mg1_jurado_votos` y `mg1_jurado_comentarios` (migracion `022`)
+
+La **mesa del jurado**: `/mg1/seleccion/<jurado>`. De los 32 preseleccionados
+el jurado saca 12, cada uno desde un enlace privado, sin login.
+
+Cuatro decisiones que explican las dos tablas:
+
+1. **El tope de 12 lo impone la base.** Misma leccion del aforo de la Gala: si
+   vive en el route handler, dos pestañas leen 11 y las dos escriben.
+   `mg1_tope_del_jurado` toma `pg_advisory_xact_lock` por `(edicion, jurado)` y
+   levanta excepcion en el voto 13; el handler la traduce a un 409 con
+   `tope: true`, que es lo que abre el cuadro de cambio en pantalla.
+2. **El voto es una fila, no una columna.** Marcar es INSERT, desmarcar es
+   DELETE; el tope es un COUNT y nadie toca las filas de otro.
+3. **El jurado es un TEXT, no un `auth.users`.** No tienen cuenta en el panel y
+   no la van a tener por tres semanas de curaduria. El slug del enlace ES la
+   identidad, igual que en `/mg1/jurado/<invitado>`; el catalogo valido vive en
+   `lib/mg1-seleccion.ts` y lo valida el servidor en cada escritura. Consecuencia
+   asumida: quien tenga el enlace vota como esa persona.
+4. **Los comentarios son comunes; los votos, no.** Un jurado lee lo que
+   escribieron los otros —para eso se escribe— pero no a quien marcaron, para
+   que el primero en votar no arrastre al resto. Ese recorte lo hace la consulta
+   del servidor; el consolidado completo (quien marco a quien) esta en
+   `/admin/mg1`, seccion *Mesa del jurado*.
+
+Los comentarios NO van en `mg_comentarios` (011) a proposito: alli el autor es
+un perfil con FK a `auth.users`, y un jurado invitado no tiene perfil.
+
+RLS: ninguna de las dos se abre a `anon`. Se escriben con `service_role` desde
+`app/api/mg1/seleccion/{voto,comentario}`, y las lee quien ya podia leer la
+seccion MG1 del panel (`puede_ver_mg1()`, espejo de la `018`).
+
+Al jurado NO le viaja el nombre completo, ni el correo, ni el celular, ni las
+notas internas de curaduria: solo nombre artistico, ciudad, musica y por que se
+inscribio. Es la regla de la `018` llevada a una pagina sin login.
+
+`lib/mg1-seleccion-datos.ts` exige `SUPABASE_SERVICE_ROLE_KEY` **explicitamente**
+antes de consultar. `getSupabaseAdmin()` cae a la publishable key cuando no la
+hay, y con esa key `mg1_inscripciones` no tiene policy de SELECT: la consulta no
+falla, devuelve cero filas. Una mesa vacia que parece "todavia no hay
+preseleccionados" manda al jurado a esperar algo que ya estaba ahi. Sin la key,
+en desarrollo corre contra `.data/mg1-seleccion-dev.json` con 32 fichas de
+mentira; en produccion dice que no esta disponible.
 
 ### `registros`
 
