@@ -143,9 +143,18 @@ export async function cargarMesa(juradoSlug: string): Promise<Mesa> {
       .eq("edicion", MG1_EDICION),
   ])
 
-  if (fichas.error) throw new MesaNoDisponible(fichas.error.message)
-  if (votos.error) throw new MesaNoDisponible(votos.error.message)
-  if (comentarios.error) throw new MesaNoDisponible(comentarios.error.message)
+  // Se registra el error COMPLETO y no solo .message: cuando PostgREST no
+  // encuentra una tabla (PGRST205) el `hint` trae la lista de las que si ve, y
+  // eso distingue en un vistazo una cache de esquema vieja de estar apuntando
+  // a otro proyecto. Con solo el mensaje, las dos se leen igual.
+  const fallo = (que: string, e: { message: string; code?: string; details?: string; hint?: string }) => {
+    console.error(`[mg1/seleccion] ${que}:`, JSON.stringify(e))
+    return new MesaNoDisponible(`${que}: ${e.message}`)
+  }
+
+  if (fichas.error) throw fallo("fichas", fichas.error)
+  if (votos.error) throw fallo("votos", votos.error)
+  if (comentarios.error) throw fallo("comentarios", comentarios.error)
 
   return {
     fichas: (fichas.data ?? []) as FichaJurado[],
