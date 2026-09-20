@@ -147,8 +147,17 @@ export async function cargarMesa(juradoSlug: string): Promise<Mesa> {
   // encuentra una tabla (PGRST205) el `hint` trae la lista de las que si ve, y
   // eso distingue en un vistazo una cache de esquema vieja de estar apuntando
   // a otro proyecto. Con solo el mensaje, las dos se leen igual.
+  // Ademas del error, CONTRA QUE PROYECTO se pregunto. Es la diferencia entre
+  // "la tabla no existe" y "la tabla no existe AQUI": con dos proyectos de
+  // Supabase en juego —uno en .env.local y otro en Vercel— el mensaje a secas
+  // manda a arreglar la base equivocada. El ref del proyecto es publico: viaja
+  // al navegador en NEXT_PUBLIC_SUPABASE_URL.
+  const proyecto = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+    .replace("https://", "")
+    .split(".")[0]
+
   const fallo = (que: string, e: { message: string; code?: string; details?: string; hint?: string }) => {
-    console.error(`[mg1/seleccion] ${que}:`, JSON.stringify(e))
+    console.error(`[mg1/seleccion] ${que} en proyecto ${proyecto}:`, JSON.stringify(e))
     return new MesaNoDisponible(`${que}: ${e.message}`)
   }
 
