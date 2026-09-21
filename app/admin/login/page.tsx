@@ -5,15 +5,19 @@ export const dynamic = "force-dynamic"
 
 export default function LoginPage() {
   return (
-    <main style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 24 }}>
-      <div style={{ width: "min(400px, 100%)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
-          <span className="brand-mark" aria-hidden>MG</span>
-          <span className="brand-txt">
-            <b style={{ fontSize: 15 }}>MG Company</b>
-            <span>Centro de operaciones</span>
-          </span>
+    <main className="acceso">
+      <div className="acceso-caja">
+        <div className="acceso-marca">
+          {/* El logo de verdad, no las iniciales: es el mismo archivo que la
+              portada y el que va en los correos. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mg.png" alt="MG Company Group" width={40} height={40} />
+          <div>
+            <span className="acceso-etiqueta">MG Company</span>
+            <h1 className="acceso-titulo">Centro de<br />operaciones</h1>
+          </div>
         </div>
+
         <Suspense fallback={null}>
           <FormularioAcceso />
         </Suspense>

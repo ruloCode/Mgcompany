@@ -11,7 +11,7 @@ export default function FormularioNuevaPassword({ correo }: { correo: string }) 
   return (
     <div className="card" style={{ marginBottom: 0 }}>
       <h2 style={{ marginTop: 0 }}>Nueva contraseña</h2>
-      <p className="small muted" style={{ marginTop: -6 }}>
+      <p className="small muted" style={{ marginTop: -6, marginBottom: 18 }}>
         Para <b>{correo}</b>. Al guardarla entras directo al panel.
       </p>
 
@@ -38,7 +38,7 @@ export default function FormularioNuevaPassword({ correo }: { correo: string }) 
           </div>
         ) : null}
 
-        <button className="btn brand" disabled={guardando} style={{ width: "100%", justifyContent: "center" }}>
+        <button className="btn brand" disabled={guardando}>
           {guardando ? "Guardando…" : "Guardar y entrar"}
         </button>
       </form>

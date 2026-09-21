@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation"
 import { iniciarSesion, pedirRecuperacion, registrarse, type Resultado } from "@/app/admin/acciones"
 import CampoContrasena from "./campo-contrasena"
 
+type Modo = "entrar" | "crear" | "olvide"
+
 export default function FormularioAcceso() {
   const params = useSearchParams()
   const volver = params.get("volver") ?? "/admin"
-  const [modo, setModo] = useState<"entrar" | "crear" | "olvide">("entrar")
+  const [modo, setModo] = useState<Modo>("entrar")
 
   const [entrarEstado, accionEntrar, entrando] = useActionState<Resultado | null, FormData>(iniciarSesion, null)
   const [crearEstado, accionCrear, creando] = useActionState<Resultado | null, FormData>(registrarse, null)
@@ -16,49 +18,63 @@ export default function FormularioAcceso() {
 
   const estado = modo === "entrar" ? entrarEstado : modo === "crear" ? crearEstado : olvideEstado
   const cargando = modo === "entrar" ? entrando : modo === "crear" ? creando : pidiendo
+  const accion = modo === "entrar" ? accionEntrar : modo === "crear" ? accionCrear : accionOlvide
   // registrarse() y pedirRecuperacion() devuelven ok:true con un mensaje
   // informativo (no es un error).
   const esAviso = estado?.ok === true && !!estado.error
 
-  const cambiar = (nuevo: typeof modo) => setModo(nuevo)
-
   return (
     <div className="card" style={{ marginBottom: 0 }}>
-      <div className="seg" style={{ marginBottom: 16, width: "100%" }}>
-        <button type="button" className={modo === "entrar" ? "on" : ""} onClick={() => cambiar("entrar")} style={{ flex: 1 }}>
+      <div className="seg" style={{ marginBottom: 18, width: "100%" }}>
+        <button type="button" className={modo === "entrar" ? "on" : ""} onClick={() => setModo("entrar")} style={{ flex: 1 }}>
           Entrar
         </button>
-        <button type="button" className={modo === "crear" ? "on" : ""} onClick={() => cambiar("crear")} style={{ flex: 1 }}>
+        <button type="button" className={modo === "crear" ? "on" : ""} onClick={() => setModo("crear")} style={{ flex: 1 }}>
           Crear cuenta
         </button>
       </div>
 
       {modo === "olvide" ? (
-        <p className="small muted" style={{ marginTop: -4, marginBottom: 14 }}>
+        <p className="small muted" style={{ marginTop: -6, marginBottom: 16 }}>
           Escribe tu correo y te mandamos un enlace para poner una contraseña nueva.
         </p>
       ) : null}
 
       {/* key por modo: al cambiar de pestaña el formulario se rehace desde
-          cero. Sin esto, la contraseña escrita para entrar sobreviviría al
-          salto a "crear cuenta" y se enviaría sin que nadie la mirase. */}
-      <form
-        key={modo}
-        action={modo === "entrar" ? accionEntrar : modo === "crear" ? accionCrear : accionOlvide}
-      >
+          cero. Sin esto, lo escrito para entrar sobreviviría al salto a "crear
+          cuenta" y se enviaría sin que nadie lo mirase. */}
+      <form key={modo} action={accion}>
         <input type="hidden" name="volver" value={volver} />
 
         {modo === "crear" ? (
-          <label style={{ display: "block", marginBottom: 12 }}>
-            <span className="small muted" style={{ display: "block", marginBottom: 4 }}>Nombre</span>
-            <input name="nombre" required autoComplete="name" style={{ width: "100%" }} placeholder="Cómo te ve el equipo" />
-          </label>
+          <div className="acceso-campo">
+            <div className="acceso-campo-cabeza">
+              <label htmlFor="acc-nombre" className="small muted">Nombre</label>
+            </div>
+            <input id="acc-nombre" name="nombre" required autoComplete="name" placeholder="Cómo te ve el equipo" />
+          </div>
         ) : null}
 
-        <label style={{ display: "block", marginBottom: 12 }}>
-          <span className="small muted" style={{ display: "block", marginBottom: 4 }}>Correo</span>
-          <input name="email" type="email" required autoComplete="email" style={{ width: "100%" }} placeholder="tu@mgcompany.co" />
-        </label>
+        <div className="acceso-campo">
+          <div className="acceso-campo-cabeza">
+            <label htmlFor="acc-email" className="small muted">Correo</label>
+          </div>
+          <input
+            id="acc-email"
+            name="email"
+            type="email"
+            required
+            autoFocus
+            // inputMode y autoCapitalize: en el celular abre el teclado con la
+            // arroba a mano y no pone mayúscula inicial en el correo.
+            inputMode="email"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="email"
+            placeholder="tu@mgcompany.co"
+          />
+        </div>
 
         <CampoContrasena
           nombre="password"
@@ -81,13 +97,13 @@ export default function FormularioAcceso() {
         ) : null}
 
         {estado?.error ? (
-          <div className={esAviso ? "alert good" : "alert critical"} style={{ marginBottom: 12, marginTop: 2 }} role="status">
+          <div className={esAviso ? "alert good" : "alert critical"} style={{ margin: "4px 0 14px" }} role="status">
             <span aria-hidden>{esAviso ? "✓" : "⚠"}</span>
             <span>{estado.error}</span>
           </div>
         ) : null}
 
-        <button className="btn brand" disabled={cargando} style={{ width: "100%", justifyContent: "center", marginTop: 2 }}>
+        <button className="btn brand" disabled={cargando}>
           {cargando
             ? "Un momento…"
             : modo === "entrar"
@@ -101,17 +117,14 @@ export default function FormularioAcceso() {
       {modo === "crear" ? null : (
         <button
           type="button"
-          className="btn"
-          onClick={() => cambiar(modo === "olvide" ? "entrar" : "olvide")}
-          style={{ width: "100%", justifyContent: "center", marginTop: 10, background: "transparent", border: "none" }}
+          className="acceso-secundario"
+          onClick={() => setModo(modo === "olvide" ? "entrar" : "olvide")}
         >
-          <span className="small muted">
-            {modo === "olvide" ? "← Volver a entrar" : "¿Olvidaste tu contraseña?"}
-          </span>
+          {modo === "olvide" ? "← Volver a entrar" : "¿Olvidaste tu contraseña?"}
         </button>
       )}
 
-      <p className="small muted" style={{ marginTop: 14, marginBottom: 0 }}>
+      <p className="acceso-pie">
         {modo === "entrar"
           ? "Acceso restringido al equipo de MG Company."
           : modo === "crear"

@@ -37,14 +37,15 @@ export default async function RecuperarPage({ searchParams }: Props) {
   const motivo = uno(params.error_description) ?? uno(params.error)
 
   return (
-    <main style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 24 }}>
-      <div style={{ width: "min(400px, 100%)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
-          <span className="brand-mark" aria-hidden>MG</span>
-          <span className="brand-txt">
-            <b style={{ fontSize: 15 }}>MG Company</b>
-            <span>Centro de operaciones</span>
-          </span>
+    <main className="acceso">
+      <div className="acceso-caja">
+        <div className="acceso-marca">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mg.png" alt="MG Company Group" width={40} height={40} />
+          <div>
+            <span className="acceso-etiqueta">MG Company</span>
+            <h1 className="acceso-titulo">Centro de<br />operaciones</h1>
+          </div>
         </div>
 
         {user ? (
@@ -63,7 +64,7 @@ export default async function RecuperarPage({ searchParams }: Props) {
             <p className="small muted">
               Pide uno nuevo desde la pantalla de acceso; llega al correo en un par de minutos.
             </p>
-            <a className="btn brand" href="/admin/login" style={{ width: "100%", justifyContent: "center" }}>
+            <a className="btn brand" href="/admin/login">
               Volver al acceso
             </a>
           </div>

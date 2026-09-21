@@ -1,0 +1,192 @@
+/* ============================================================
+   Las pantallas de acceso: entrar, crear cuenta, recuperar
+   ============================================================
+   Van aparte de panel.css a proposito. El panel es denso porque su trabajo es
+   caber: tablas, calendarios, filas de catorce columnas. Una pantalla de
+   acceso tiene un solo trabajo —dejar entrar a una persona que quiza esta en
+   el celular, en la calle, con prisa— y necesita lo contrario: campos
+   grandes, una jerarquia clara y la cara de la casa.
+
+   Todo cuelga de `.acceso` para no alterar ni una regla del panel. El tema
+   oscuro se hereda de `.panel[data-tema="dark"]`, que ya existia.
+*/
+
+.acceso {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 0 20px 48px;
+  background: var(--page);
+  position: relative;
+}
+
+/* La franja roja con la que abren todas las paginas del sitio. Es lo primero
+   que se ve y lo unico que hace falta para reconocer de quien es esta puerta. */
+.acceso::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #e8200c;
+}
+
+.acceso-caja {
+  width: min(400px, 100%);
+  padding-top: 56px;
+}
+
+/* ---------- cabecera de marca ---------- */
+
+.acceso-marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.acceso-marca img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.acceso-etiqueta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #e8200c;
+  display: block;
+}
+
+/* Doble clase a proposito: `.panel h1` fija font-family:inherit y
+   text-transform:none, y con una sola clase gana por especificidad. Es la
+   regla que impide que el titular salga en Bebas y en mayusculas. */
+.acceso .acceso-titulo {
+  font-family: var(--font-bebas), Impact, "Arial Black", sans-serif;
+  font-size: clamp(2.6rem, 11vw, 3.4rem);
+  line-height: 0.86;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0;
+}
+
+.acceso-sub {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ---------- campos ---------- */
+/* 16px no es capricho: por debajo de eso, Safari en iPhone hace zoom al tocar
+   el campo y descoloca la pantalla justo cuando la persona esta escribiendo
+   su contrasena. */
+
+/* Por exclusion y no por lista de tipos: un <input> sin atributo `type` es de
+   texto para el navegador, pero NO casa con input[type="text"], y salia con
+   otro ancho que los demas. */
+.acceso input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 13px;
+  background: var(--page);
+  border: 1px solid var(--grid);
+  border-radius: var(--r-sm);
+  transition: border-color 0.15s ease;
+}
+
+.acceso input:hover { border-color: var(--baseline); }
+
+.acceso input:focus,
+.acceso input:focus-visible {
+  outline: none;
+  border-color: #e8200c;
+  box-shadow: 0 0 0 3px rgba(232, 32, 12, 0.18);
+}
+
+.acceso-campo { display: block; margin-bottom: 14px; }
+
+.acceso-campo-cabeza {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.acceso-campo-cabeza .small { font-size: 12px; }
+
+/* El "ver / ocultar" es una ayuda, no una accion principal: se lee, no se
+   grita. Pero tiene area de toque suficiente para un pulgar. */
+.acceso-ver {
+  margin-left: auto;
+  background: none;
+  border: none;
+  padding: 2px 0 2px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.acceso-ver:hover { color: var(--ink); }
+
+/* ---------- boton principal ---------- */
+
+.acceso .btn.brand {
+  width: 100%;
+  justify-content: center;
+  padding: 14px 18px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: #e8200c;
+  border-color: #e8200c;
+  color: #fff;
+}
+.acceso .btn.brand:hover:not(:disabled) { background: #cf1c0b; border-color: #cf1c0b; }
+.acceso .btn.brand:disabled { opacity: 0.55; }
+
+/* ---------- enlace secundario ---------- */
+
+.acceso-secundario {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+}
+.acceso-secundario:hover { color: var(--ink); }
+
+/* ---------- pie ---------- */
+
+.acceso-pie {
+  margin: 20px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---------- aviso de bloq mayus ---------- */
+
+.acceso-mayus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--warning);
+}
