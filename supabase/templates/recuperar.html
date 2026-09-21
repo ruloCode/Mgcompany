@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>MG Company</title>
+</head>
+<body style="margin:0;padding:0;background-color:#111111;">
+
+<!-- Texto de vista previa: lo que se lee en la bandeja antes de abrir.
+     Va oculto para que no se repita dentro del correo. -->
+<div style="display:none;font-size:1px;color:#111111;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+  Un enlace para poner una contrase&ntilde;a nueva. Caduca en una hora.&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111;">
+  <tr>
+    <td align="center" style="padding:0;">
+
+      <!-- Franja roja superior: el borde que abre todas las paginas del sitio -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
+        <tr><td style="height:8px;background-color:#E8200C;line-height:8px;font-size:8px;">&nbsp;</td></tr>
+      </table>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background-color:#111111;">
+
+        <!-- Logo + etiqueta -->
+        <tr>
+          <td style="padding:34px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="padding-right:12px;" valign="middle">
+                  <img src="https://mgcompany.co/logo-mg.png" width="34" height="34" alt="MG"
+                       style="display:block;width:34px;height:34px;border:0;">
+                </td>
+                <td valign="middle">
+                  <span style="font-family:'Courier New',Courier,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#E8200C;">
+                    [ MG / Centro de operaciones ]
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Titular -->
+        <tr>
+          <td style="padding:26px 32px 0 32px;">
+            <h1 style="margin:0;font-family:'Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:900;font-size:36px;line-height:0.95;letter-spacing:-0.5px;text-transform:uppercase;color:#ffffff;">
+              Pon una<br>contrase&ntilde;a nueva
+            </h1>
+            <div style="margin-top:14px;width:48px;height:2px;background-color:#E8200C;line-height:2px;font-size:2px;">&nbsp;</div>
+          </td>
+        </tr>
+
+        <!-- Cuerpo -->
+        <tr>
+          <td style="padding:22px 32px 0 32px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;color:#b8b8b8;">
+            <p style="margin:0 0 14px 0;">Alguien &mdash;esperamos que t&uacute;&mdash; pidi&oacute; recuperar el acceso al panel de MG.</p>
+            <p style="margin:0;">Pulsa el bot&oacute;n y escribe tu contrase&ntilde;a nueva. Entras directo, sin pasar por nadie.</p>
+          </td>
+        </tr>
+
+        <!-- Boton -->
+        <tr>
+          <td style="padding:30px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td bgcolor="#E8200C" style="background-color:#E8200C;">
+                  <a href="{{ .ConfirmationURL }}"
+                     style="display:inline-block;padding:15px 30px;font-family:'Courier New',Courier,monospace;font-size:12px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+                    Poner contrase&ntilde;a nueva
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Enlace de respaldo: el boton no siempre se puede pulsar -->
+        <tr>
+          <td style="padding:26px 32px 0 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6e6e6e;">
+            Si el bot&oacute;n no funciona, copia y pega esta direcci&oacute;n en tu navegador:<br>
+            <a href="{{ .ConfirmationURL }}" style="color:#E8200C;text-decoration:underline;word-break:break-all;">{{ .ConfirmationURL }}</a>
+          </td>
+        </tr>
+
+        <!-- Pie -->
+        <tr>
+          <td style="padding:30px 32px 36px 32px;">
+            <div style="height:1px;background-color:#2a2a2a;line-height:1px;font-size:1px;margin-bottom:18px;">&nbsp;</div>
+            <p style="margin:0 0 10px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6e6e6e;">
+              El enlace caduca en una hora y solo se puede usar una vez. <strong style="color:#8a8a8a;">Si no fuiste t&uacute;, ignora este correo</strong>: tu contrase&ntilde;a sigue siendo la de siempre y nadie ha entrado.
+            </p>
+            <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#4a4a4a;">
+              MG Company Group &middot; Bogot&aacute;, Colombia
+            </p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+</body>
+</html>
