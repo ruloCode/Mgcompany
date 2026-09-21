@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Bebas_Neue, JetBrains_Mono, Cormorant_Garamond } from "next/font/google"
 import "./globals.css"
+import RescateRecuperacion from "@/components/admin/rescate-recuperacion"
 import SiteChrome from "@/components/site-chrome"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -57,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="scroll-smooth">
       <body className={`${inter.variable} ${bebasNeue.variable} ${jetbrainsMono.variable} ${cormorant.variable} font-body`}>
+        <RescateRecuperacion />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

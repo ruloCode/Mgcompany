@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 
 import FormularioNuevaPassword from "@/components/admin/formulario-nueva-password"
+import SesionDesdeFragmento from "@/components/admin/sesion-desde-fragmento"
 import { createClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
@@ -51,6 +52,7 @@ export default async function RecuperarPage({ searchParams }: Props) {
             <FormularioNuevaPassword correo={user.email ?? ""} />
           </Suspense>
         ) : (
+          <SesionDesdeFragmento>
           <div className="card" style={{ marginBottom: 0 }}>
             <h2 style={{ marginTop: 0 }}>Este enlace ya no sirve</h2>
             <p className="small muted">
@@ -65,6 +67,7 @@ export default async function RecuperarPage({ searchParams }: Props) {
               Volver al acceso
             </a>
           </div>
+          </SesionDesdeFragmento>
         )}
       </div>
     </main>
