@@ -3,6 +3,7 @@
 import { useActionState } from "react"
 
 import { establecerPassword, type Resultado } from "@/app/admin/acciones"
+import CampoContrasena from "./campo-contrasena"
 
 export default function FormularioNuevaPassword({ correo }: { correo: string }) {
   const [estado, accion, guardando] = useActionState<Resultado | null, FormData>(establecerPassword, null)
@@ -15,17 +16,20 @@ export default function FormularioNuevaPassword({ correo }: { correo: string }) 
       </p>
 
       <form action={accion}>
-        <label style={{ display: "block", marginBottom: 12 }}>
-          <span className="small muted" style={{ display: "block", marginBottom: 4 }}>Contraseña nueva</span>
-          <input name="password" type="password" required minLength={8}
-            autoComplete="new-password" style={{ width: "100%" }} placeholder="Mínimo 8 caracteres" />
-        </label>
+        <CampoContrasena
+          nombre="password"
+          etiqueta="Contraseña nueva"
+          minimo={8}
+          autoComplete="new-password"
+          placeholder="Mínimo 8 caracteres"
+        />
 
-        <label style={{ display: "block", marginBottom: 14 }}>
-          <span className="small muted" style={{ display: "block", marginBottom: 4 }}>Repítela</span>
-          <input name="password2" type="password" required minLength={8}
-            autoComplete="new-password" style={{ width: "100%" }} />
-        </label>
+        <CampoContrasena
+          nombre="password2"
+          etiqueta="Repítela"
+          minimo={8}
+          autoComplete="new-password"
+        />
 
         {estado?.error ? (
           <div className="alert critical" style={{ marginBottom: 12 }} role="alert">

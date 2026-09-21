@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { iniciarSesion, pedirRecuperacion, registrarse, type Resultado } from "@/app/admin/acciones"
+import CampoContrasena from "./campo-contrasena"
 
 export default function FormularioAcceso() {
   const params = useSearchParams()
@@ -19,13 +20,15 @@ export default function FormularioAcceso() {
   // informativo (no es un error).
   const esAviso = estado?.ok === true && !!estado.error
 
+  const cambiar = (nuevo: typeof modo) => setModo(nuevo)
+
   return (
     <div className="card" style={{ marginBottom: 0 }}>
       <div className="seg" style={{ marginBottom: 16, width: "100%" }}>
-        <button type="button" className={modo === "entrar" ? "on" : ""} onClick={() => setModo("entrar")} style={{ flex: 1 }}>
+        <button type="button" className={modo === "entrar" ? "on" : ""} onClick={() => cambiar("entrar")} style={{ flex: 1 }}>
           Entrar
         </button>
-        <button type="button" className={modo === "crear" ? "on" : ""} onClick={() => setModo("crear")} style={{ flex: 1 }}>
+        <button type="button" className={modo === "crear" ? "on" : ""} onClick={() => cambiar("crear")} style={{ flex: 1 }}>
           Crear cuenta
         </button>
       </div>
@@ -36,7 +39,13 @@ export default function FormularioAcceso() {
         </p>
       ) : null}
 
-      <form action={modo === "entrar" ? accionEntrar : modo === "crear" ? accionCrear : accionOlvide}>
+      {/* key por modo: al cambiar de pestaña el formulario se rehace desde
+          cero. Sin esto, la contraseña escrita para entrar sobreviviría al
+          salto a "crear cuenta" y se enviaría sin que nadie la mirase. */}
+      <form
+        key={modo}
+        action={modo === "entrar" ? accionEntrar : modo === "crear" ? accionCrear : accionOlvide}
+      >
         <input type="hidden" name="volver" value={volver} />
 
         {modo === "crear" ? (
@@ -51,27 +60,34 @@ export default function FormularioAcceso() {
           <input name="email" type="email" required autoComplete="email" style={{ width: "100%" }} placeholder="tu@mgcompany.co" />
         </label>
 
-        <label style={{ display: modo === "olvide" ? "none" : "block", marginBottom: 14 }}>
-          <span className="small muted" style={{ display: "block", marginBottom: 4 }}>Contraseña</span>
-          <input
-            name="password"
-            type="password"
-            required={modo !== "olvide"}
-            disabled={modo === "olvide"}
-            minLength={modo === "crear" ? 8 : undefined}
-            autoComplete={modo === "crear" ? "new-password" : "current-password"}
-            style={{ width: "100%" }}
+        <CampoContrasena
+          nombre="password"
+          etiqueta="Contraseña"
+          oculto={modo === "olvide"}
+          minimo={modo === "crear" ? 8 : undefined}
+          autoComplete={modo === "crear" ? "new-password" : "current-password"}
+          placeholder={modo === "crear" ? "Mínimo 8 caracteres" : undefined}
+        />
+
+        {/* La confirmación solo al crear: al entrar no hay nada que confirmar,
+            y en "olvidé" no se escribe contraseña. */}
+        {modo === "crear" ? (
+          <CampoContrasena
+            nombre="password2"
+            etiqueta="Repite la contraseña"
+            minimo={8}
+            autoComplete="new-password"
           />
-        </label>
+        ) : null}
 
         {estado?.error ? (
-          <div className={esAviso ? "alert good" : "alert critical"} style={{ marginBottom: 12 }} role="status">
+          <div className={esAviso ? "alert good" : "alert critical"} style={{ marginBottom: 12, marginTop: 2 }} role="status">
             <span aria-hidden>{esAviso ? "✓" : "⚠"}</span>
             <span>{estado.error}</span>
           </div>
         ) : null}
 
-        <button className="btn brand" disabled={cargando} style={{ width: "100%", justifyContent: "center" }}>
+        <button className="btn brand" disabled={cargando} style={{ width: "100%", justifyContent: "center", marginTop: 2 }}>
           {cargando
             ? "Un momento…"
             : modo === "entrar"
@@ -86,7 +102,7 @@ export default function FormularioAcceso() {
         <button
           type="button"
           className="btn"
-          onClick={() => setModo(modo === "olvide" ? "entrar" : "olvide")}
+          onClick={() => cambiar(modo === "olvide" ? "entrar" : "olvide")}
           style={{ width: "100%", justifyContent: "center", marginTop: 10, background: "transparent", border: "none" }}
         >
           <span className="small muted">
@@ -99,7 +115,7 @@ export default function FormularioAcceso() {
         {modo === "entrar"
           ? "Acceso restringido al equipo de MG Company."
           : modo === "crear"
-            ? "La primera cuenta que se cree queda como owner. Las siguientes necesitan que un admin las active."
+            ? "Tu cuenta queda inactiva hasta que un admin la active. Le avisamos en cuanto la crees."
             : "El enlace caduca en una hora y solo se puede usar una vez."}
       </p>
     </div>

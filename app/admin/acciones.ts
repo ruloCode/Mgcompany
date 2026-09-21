@@ -99,7 +99,12 @@ export async function registrarse(_prev: Resultado | null, formData: FormData): 
   const email = String(formData.get("email") ?? "").trim()
   const password = String(formData.get("password") ?? "")
   const nombre = String(formData.get("nombre") ?? "").trim()
+  const password2 = String(formData.get("password2") ?? "")
   if (password.length < 8) return { ok: false, error: "La contraseña necesita al menos 8 caracteres." }
+  // Se comprueba también aquí y no solo en el formulario: el navegador es de
+  // quien lo usa, y una cuenta creada con una contraseña que su dueño no sabe
+  // cuál es se convierte en un correo de recuperación y media hora perdida.
+  if (password !== password2) return { ok: false, error: "Las dos contraseñas no coinciden." }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signUp({
