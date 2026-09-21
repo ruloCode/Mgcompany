@@ -231,15 +231,35 @@ funciones SECURITY DEFINER (`es_staff()`, `puede_operar()`, `puede_publicar()`,
 directamente, porque una policy sobre `perfiles` que lea `perfiles` entra en
 recursion.
 
-Alta de usuarios: cada quien crea su cuenta en `/admin/login`. El trigger
-`handle_new_user` resuelve el alta en tres casos (migracion `014`):
+Alta de usuarios: cada quien crea su cuenta en `/admin/login`. Desde la
+migracion `023` la regla cabe en una frase: **toda cuenta nace inactiva salvo
+la primera de todas**. `handle_new_user` decide asi:
 
-1. **primer** usuario del sistema → `owner` activo;
-2. correo presente en `mg_accesos_previstos` → el rol previsto, **activo**;
-3. cualquier otro → `viewer` **inactivo**, a la espera de que un admin lo habilite.
+1. **primer** usuario del sistema → `owner` **activo** (no tiene quien lo apruebe);
+2. correo en `mg_accesos_previstos` → el rol previsto, pero **inactivo**;
+3. cualquier otro → `viewer` **inactivo**.
 
-Nadie consigue acceso solo por registrarse: el caso 2 exige que un admin haya
-escrito antes esa fila, y `mg_accesos_previstos` solo la toca `es_admin()`.
+La `014` activaba sola la cuenta del caso 2. Era comodo y rompia en silencio la
+regla que el equipo cree que rige: una fila escrita hace meses, en una tabla sin
+pantalla en el panel, daba acceso sin que nadie lo revisara ese dia.
+`mg_accesos_previstos` no pierde su gracia —sigue decidiendo con que ROL nace la
+cuenta, que es el trabajo aburrido—; lo unico que ya no hace es saltarse al humano.
+
+El alta ademas escribe un aviso de tipo `aprobacion` en la bandeja de cada owner
+y cada admin activos, y `registrarse()` les manda un correo (`lib/correos-panel.ts`).
+El aviso del panel solo lo ve quien entra al panel; el correo es lo que hace que
+alguien se entere hoy y no el martes. Al activar la cuenta, `cambiarEstadoCuenta`
+avisa por correo a la persona — solo al activar, y solo si de verdad cambio:
+a nadie se le notifica por correo que perdio el acceso.
+
+Recuperar contraseña: `/admin/login` → "¿Olvidaste tu contraseña?" manda el
+enlace y `/admin/recuperar` lo recibe. Esa ruta es publica en el middleware, y
+tiene que serlo: el enlace trae el `code` que CREA la sesion, asi que mandarlo
+al login se lo llevaria por delante. `RescateRecuperacion` (layout raiz) atrapa
+ademas los enlaces que Supabase manda al Site URL —los del boton del dashboard,
+que ignora el `redirectTo`— y los lleva a `/admin/recuperar` con el fragmento
+intacto; tiene que ser codigo de cliente porque `#access_token=…` no llega al
+servidor.
 
 ### Accesos individuales (migracion `017`)
 

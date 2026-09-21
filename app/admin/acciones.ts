@@ -11,6 +11,7 @@ import type { EstadoProyecto, FichaRadar, Perfil, Publicacion, TipoEvento } from
 import { sanearDisponibilidad, type Disponibilidad } from "@/lib/mg1-disponibilidad"
 import { codigoDeLoEscaneado } from "@/lib/gala"
 import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
+import { avisarAltaPendiente, avisarCuentaActivada } from "@/lib/correos-panel"
 import { asuntoPase, htmlPase, textoPase } from "@/lib/gala-correo"
 
 export interface Resultado {
@@ -108,9 +109,36 @@ export async function registrarse(_prev: Resultado | null, formData: FormData): 
   })
   if (error) return { ok: false, error: error.message }
 
-  // El trigger handle_new_user deja al primer usuario como owner activo y a
-  // todos los demas como viewer inactivo, a la espera de que un admin apruebe.
-  return { ok: true, error: "Cuenta creada. Si no eres la primera persona del equipo, un admin debe activarte antes de que puedas entrar." }
+  // El trigger handle_new_user (migración 023) deja al primer usuario del
+  // sistema como owner activo y a TODOS los demás inactivos, con el rol que
+  // tuvieran previsto, y escribe un aviso en la bandeja de cada admin.
+  //
+  // El aviso del panel solo lo ve quien entra al panel. El correo es lo que
+  // hace que alguien se entere hoy y no el martes: una persona esperando a
+  // que la activen no puede hacer nada más que esperar.
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("nombre, rol")
+    .eq("email", email.toLowerCase())
+    .maybeSingle()
+
+  const { data: admins } = await supabase
+    .from("perfiles")
+    .select("email")
+    .eq("activo", true)
+    .in("rol", ["owner", "admin"])
+
+  // A propósito sin await sobre el resultado del envío: que Resend tarde o
+  // falle no puede dejar a alguien mirando un botón de "creando cuenta…"
+  // cuando la cuenta YA está creada.
+  if (perfil) {
+    await avisarAltaPendiente(
+      (admins ?? []).map((a) => a.email as string).filter(Boolean),
+      { nombre: (perfil.nombre as string) || email, email, rol: perfil.rol as string },
+    ).catch((e) => console.error("[registrarse] aviso a admins:", e))
+  }
+
+  return { ok: true, error: "Cuenta creada. Un admin tiene que activarla antes de que puedas entrar; le acabamos de avisar." }
 }
 
 export async function cerrarSesion() {
@@ -652,11 +680,24 @@ export async function cambiarRol(perfilId: string, rol: string) {
 }
 
 export async function cambiarEstadoCuenta(perfilId: string, activo: boolean) {
-  return mutar("equipo", async () => {
+  return mutar("equipo", async (yo) => {
     const supabase = await createClient()
-    const { data: p } = await supabase.from("perfiles").select("nombre, email").eq("id", perfilId).single()
+    const { data: p } = await supabase
+      .from("perfiles").select("nombre, email, rol, activo").eq("id", perfilId).single()
     const { error } = await supabase.from("perfiles").update({ activo }).eq("id", perfilId)
     if (error) throw new Error(error.message)
+
+    // Solo al ACTIVAR, y solo si de verdad cambió. Activar dos veces no manda
+    // dos correos, y desactivar no manda ninguno: a nadie se le avisa por
+    // correo de que acaba de perder el acceso — eso se habla en persona.
+    if (activo && p && p.activo === false && p.email) {
+      await avisarCuentaActivada(p.email as string, {
+        nombre: (p.nombre as string) || (p.email as string),
+        rol: p.rol as string,
+        porQuien: yo.nombre || "Alguien del equipo",
+      }).catch((e) => console.error("[cambiarEstadoCuenta] aviso:", e))
+    }
+
     return `${activo ? "✅ Cuenta activada" : "🚫 Cuenta desactivada"}: ${p?.nombre || p?.email || perfilId}.`
   })
 }
