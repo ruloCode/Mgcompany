@@ -36,15 +36,20 @@ export async function actualizarSesion(request: NextRequest) {
 
   const { pathname } = request.nextUrl
   const esLogin = pathname.startsWith("/admin/login")
+  // Recuperar la contraseña tiene que ser accesible SIN sesión: el enlace del
+  // correo llega con un `code` en la URL y es justo lo que crea la sesión. Si
+  // el guardia lo mandara al login, se llevaría el code por delante y el
+  // enlace no serviría para nada.
+  const esRecuperar = pathname.startsWith("/admin/recuperar")
 
-  if (!user && !esLogin) {
+  if (!user && !esLogin && !esRecuperar) {
     const url = request.nextUrl.clone()
     url.pathname = "/admin/login"
     url.searchParams.set("volver", pathname)
     return NextResponse.redirect(url)
   }
 
-  if (user && esLogin) {
+  if (user && esLogin && !esRecuperar) {
     const url = request.nextUrl.clone()
     url.pathname = "/admin"
     url.search = ""

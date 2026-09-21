@@ -706,6 +706,69 @@ export async function guardarAccesoIndividual(
   })
 }
 
+/* ============================================================
+   Contraseña olvidada
+   ============================================================
+   El panel no tenía salida para esto: quien olvidaba su contraseña quedaba
+   esperando a que un owner entrara a Supabase por él. Son dos pasos: pedir el
+   correo y, con el enlace de ese correo, escribir la nueva.
+
+   Ninguno de los dos exige sesión — es el único sitio del panel donde eso es
+   correcto, porque justamente el problema es no poder entrar. */
+
+const RUTA_RECUPERAR = "/admin/recuperar"
+
+export async function pedirRecuperacion(
+  _prev: Resultado | null,
+  formData: FormData,
+): Promise<Resultado> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  if (!email) return { ok: false, error: "Escribe tu correo." }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${SITIO}${RUTA_RECUPERAR}`,
+  })
+
+  // Un "ese correo no existe" le diría a cualquiera qué direcciones tienen
+  // cuenta en el panel. La respuesta es la misma exista o no; quien sí la
+  // tiene recibe el correo, y quien no, no se entera de nada.
+  if (error) console.error("[admin/recuperar]", error.message)
+
+  return {
+    ok: true,
+    error: `Si ${email} tiene cuenta en el panel, le acabamos de enviar un enlace. Revisa también el correo no deseado.`,
+  }
+}
+
+export async function establecerPassword(
+  _prev: Resultado | null,
+  formData: FormData,
+): Promise<Resultado> {
+  const password = String(formData.get("password") ?? "")
+  const repetida = String(formData.get("password2") ?? "")
+
+  if (password.length < 8) return { ok: false, error: "La contraseña necesita al menos 8 caracteres." }
+  if (password !== repetida) return { ok: false, error: "Las dos contraseñas no coinciden." }
+
+  const supabase = await createClient()
+
+  // La sesión la creó el enlace del correo. Sin ella, updateUser cambiaría la
+  // contraseña de nadie: hay que decirlo y no fingir que funcionó.
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return {
+      ok: false,
+      error: "El enlace caducó o ya se usó. Pide uno nuevo desde la pantalla de acceso.",
+    }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) return { ok: false, error: error.message }
+
+  redirect("/admin")
+}
+
 export async function actualizarMiPerfil(nombre: string) {
   const perfil = await perfilActual()
   if (!perfil) redirect("/admin/login")
