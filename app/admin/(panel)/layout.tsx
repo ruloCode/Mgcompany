@@ -3,6 +3,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { puedeVerSeccion, seccionInicial } from "@/lib/mg/permisos"
 import "../panel.css"
+import "../acceso.css"
 import { createClient } from "@/lib/supabase/server"
 import { cargarAvisos, cargarSnapshot, perfilActual } from "@/lib/mg/datos"
 import { cerrarSesion } from "../acciones"
@@ -27,18 +28,38 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect("/admin/login")
 
+    // Mismo tema y misma cara que el login: quien llega aquí acaba de pasar
+    // por esa puerta, y aterrizar de golpe en una pantalla clara se lee como
+    // si se hubiera equivocado de sitio.
     return (
-      <div className="panel" style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 24 }}>
-        <div className="card" style={{ maxWidth: 460, marginBottom: 0 }}>
-          <h2>Tu cuenta todavía no está habilitada</h2>
-          <p className="small muted">
-            Creaste el acceso con <b>{user.email}</b>, pero alguien con rol owner o admin
-            tiene que activarla y asignarte un rol antes de que puedas entrar al panel.
-          </p>
-          <form action={cerrarSesion} className="acciones">
-            <button className="btn">Cerrar sesión</button>
-          </form>
-        </div>
+      <div className="panel" data-tema="dark">
+        <main className="acceso">
+          <div className="acceso-caja">
+            <div className="acceso-marca">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mg.png" alt="MG Company Group" width={40} height={40} />
+              <div>
+                <span className="acceso-etiqueta">MG Company</span>
+                <h1 className="acceso-titulo">Casi<br />adentro</h1>
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: 0 }}>
+              <h2 style={{ marginTop: 0 }}>Tu cuenta todavía no está habilitada</h2>
+              <p className="small muted">
+                Creaste el acceso con <b>{user.email}</b>, pero alguien con rol owner o admin
+                tiene que activarla y asignarte un rol antes de que puedas entrar al panel.
+              </p>
+              <p className="small muted">
+                Ya les avisamos. En cuanto te activen recibirás un correo y podrás entrar con
+                la misma contraseña.
+              </p>
+              <form action={cerrarSesion}>
+                <button className="btn brand">Cerrar sesión</button>
+              </form>
+            </div>
+          </div>
+        </main>
       </div>
     )
   }

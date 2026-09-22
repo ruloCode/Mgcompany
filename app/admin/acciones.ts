@@ -91,8 +91,24 @@ export async function iniciarSesion(_prev: Resultado | null, formData: FormData)
   const { data: { user } } = await supabase.auth.getUser()
   if (user) await supabase.from("perfiles").update({ ultimo_acceso: new Date().toISOString() }).eq("id", user.id)
 
-  const volver = String(formData.get("volver") ?? "/admin")
-  redirect(volver.startsWith("/admin") ? volver : "/admin")
+  redirect(destinoSeguro(String(formData.get("volver") ?? "/admin")))
+}
+
+/** A donde se puede volver despues de entrar.
+ *
+ *  `startsWith("/admin")` a secas no basta: "/admin/../../evil" lo cumple, y
+ *  el navegador lo normaliza a "/evil" — fuera del panel. Se normaliza aqui
+ *  ANTES de decidir, que es donde todavia se puede decir que no. La URL base
+ *  es inventada a proposito: solo sirve para que el parser normalice la ruta,
+ *  nunca se usa para navegar. */
+function destinoSeguro(volver: string): string {
+  if (!volver.startsWith("/admin")) return "/admin"
+  try {
+    const { pathname } = new URL(volver, "https://interno.invalid")
+    return pathname.startsWith("/admin") ? pathname : "/admin"
+  } catch {
+    return "/admin"
+  }
 }
 
 export async function registrarse(_prev: Resultado | null, formData: FormData): Promise<Resultado> {
@@ -107,12 +123,31 @@ export async function registrarse(_prev: Resultado | null, formData: FormData): 
   if (password !== password2) return { ok: false, error: "Las dos contraseñas no coinciden." }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({
+  const { data: alta, error } = await supabase.auth.signUp({
     email,
     password,
     options: { data: { nombre } },
   })
   if (error) return { ok: false, error: error.message }
+
+  // Supabase NO falla cuando el correo ya tiene cuenta: responde como si todo
+  // hubiera ido bien, para no confirmarle a un desconocido que esa dirección
+  // está registrada. La señal es que el usuario vuelve sin identidades.
+  //
+  // Hay que detectarlo, porque si no el código de abajo encuentra el perfil
+  // que YA existía y les manda a los admins un aviso de un alta que no
+  // ocurrió. Cualquiera que supiera un correo del equipo podría llenarles la
+  // bandeja repitiendo el formulario.
+  const yaExistia = (alta?.user?.identities?.length ?? 1) === 0
+  if (yaExistia) {
+    // El mensaje sirve para los dos casos sin confirmar cuál es: quien de
+    // verdad acaba de registrarse lee la primera mitad, y quien ya tenía
+    // cuenta encuentra en la segunda lo que necesita hacer.
+    return {
+      ok: true,
+      error: "Si el correo no estaba registrado, creamos la cuenta y avisamos a un admin para que la active. Si ya tenías cuenta, entra con tu contraseña o usa «¿Olvidaste tu contraseña?».",
+    }
+  }
 
   // El trigger handle_new_user (migración 023) deja al primer usuario del
   // sistema como owner activo y a TODOS los demás inactivos, con el rol que
