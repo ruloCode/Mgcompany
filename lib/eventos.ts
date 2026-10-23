@@ -99,6 +99,10 @@ export interface ContenidoEvento {
   bajada: string
   /** Lo que acompaña al link de invitación cuando se comparte por WhatsApp. */
   compartir: string
+  /** Cómo se entra, para la cabecera. NUNCA "gratis": a quien se le regala la
+   *  entrada a cambio de compartir, "gratis" le dice que no vale nada. Lo que
+   *  se nombra es el acceso restringido, que es lo que la hace valiosa. */
+  acceso: string
   /** La cifra grande de la cabecera: lo primero que se lee de la fiesta. */
   destacado?: { valor: string; texto: string }
   /** Las dinámicas de la noche, en el orden en que se muestran. */
@@ -112,10 +116,13 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
     bajada:
       "Esta noche se corona al primer campeón de MG1, en vivo y con la gente que lo vio nacer. " +
       "Es víspera de Halloween: ven disfrazado. " +
-      "La entrada es gratis y personal: tu QR llega a tu correo y es la única forma de entrar.",
+      "Se entra por invitación: tu pase es personal, llega a tu correo y es la única forma de entrar.",
+    // Quien comparte INVITA, no reenvía un link: el que lo recibe entra por
+    // alguien, y eso es lo que hace que la lista se sienta privada.
     compartir:
-      "Te paso el link para La Coronación de MG1, el viernes 30 en DEF (Soacha). " +
-      "Es víspera de Halloween y hay $3.000.000 para el mejor disfraz. Regístrate y te llega el QR al correo:",
+      "Te incluyo en la lista de La Coronación de MG1, el viernes 30 en DEF (Soacha). " +
+      "Es víspera de Halloween y hay $3.000.000 para el mejor disfraz. Confirma tu lugar y te llega el pase al correo:",
+    acceso: "Solo por invitación",
     destacado: { valor: "$3.000.000", texto: "al mejor disfraz de la noche" },
     dinamicas: [
       {

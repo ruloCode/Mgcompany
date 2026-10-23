@@ -69,7 +69,7 @@ export default async function FiestaPage({ params, searchParams }: Props) {
     { k: "Cuándo", v: fechaEvento(evento.fecha) },
     { k: "Puertas", v: `Desde las ${horaEvento(evento.hora_puertas)}` },
     { k: "Dónde", v: `${evento.lugar} · ${evento.ciudad}` },
-    { k: "Entrada", v: "Gratis, con tu QR" },
+    { k: "Acceso", v: contenido.acceso },
   ]
 
   return (
@@ -81,7 +81,7 @@ export default async function FiestaPage({ params, searchParams }: Props) {
               [ {contenido.etiqueta} ]
             </span>
             <span className="h-px flex-1 bg-mg-red/40" />
-            <span className="hidden font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 md:block">Lista privada</span>
+            <span className="hidden font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 md:block">Lista privada · Comunidad MG</span>
           </div>
 
           <h1 className="font-heading uppercase leading-[0.82] tracking-tight text-[clamp(4rem,17vw,11rem)]">

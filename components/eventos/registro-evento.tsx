@@ -242,7 +242,9 @@ export default function RegistroEvento({
 
       <button type="submit" disabled={isSubmitting}
         className="mt-8 w-full bg-mg-red px-6 py-4 font-mono text-sm font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-mg-red/90 disabled:opacity-60 sm:w-auto">
-        {isSubmitting ? "Registrando…" : "Quiero mi QR"}
+        {/* "Confirmar mi lugar" y no "Quiero mi QR": quien llega con una
+            invitación confirma algo que ya es suyo, no pide un favor. */}
+        {isSubmitting ? "Confirmando…" : "Confirmar mi lugar"}
       </button>
     </form>
   )
