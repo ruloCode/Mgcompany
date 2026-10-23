@@ -248,3 +248,90 @@ export async function cargarMesaJurado(): Promise<MesaJurado> {
     comentarios: (comentarios.data ?? []) as ComentarioDeJurado[],
   }
 }
+
+/* ============================================================
+   Eventos y comunidad
+   ============================================================
+   Se cargan las tres tablas enteras y los cruces se hacen en el cliente: son
+   cientos de filas, no millones, y así una sola lectura alimenta la lista,
+   la comunidad y el ranking de promotores sin una vista SQL por pantalla.
+
+   Paginado desde ya: PostgREST corta en 1.000 filas por defecto, y un panel
+   que enseña 1.000 personas de 1.400 sin decirlo es un error silencioso. */
+
+export interface EventoPanel {
+  slug: string
+  nombre: string
+  fecha: string
+  hora_puertas: string
+  lugar: string
+  ciudad: string
+  direccion: string | null
+  registro_cierra: string
+  concurso_cierra: string | null
+}
+
+export interface PersonaComunidad {
+  id: string
+  nombre: string
+  email: string
+  whatsapp_e164: string | null
+  instagram: string | null
+  tiktok: string | null
+  fecha_nacimiento: string | null
+  generos: string[]
+  acepta_invitaciones: boolean
+  tipo: string
+  codigo_ref: string
+  email_verificado_at: string | null
+  created_at: string
+}
+
+export interface RegistroDeEvento {
+  id: string
+  evento: string
+  persona_id: string
+  codigo: string
+  referido_por: string | null
+  utm_source: string | null
+  correo_enviado_at: string | null
+  pase_abierto_at: string | null
+  ingreso_at: string | null
+  created_at: string
+}
+
+export interface Comunidad {
+  eventos: EventoPanel[]
+  personas: PersonaComunidad[]
+  registros: RegistroDeEvento[]
+}
+
+async function todas<T>(tabla: string, columnas: string, orden: string): Promise<T[]> {
+  const supabase = await createClient()
+  const filas: T[] = []
+  const PAGINA = 1000
+  for (let desde = 0; ; desde += PAGINA) {
+    const { data, error } = await supabase
+      .from(tabla).select(columnas).order(orden, { ascending: false }).range(desde, desde + PAGINA - 1)
+    if (error) throw new Error(error.message)
+    filas.push(...((data ?? []) as T[]))
+    if (!data || data.length < PAGINA) return filas
+  }
+}
+
+export async function cargarComunidad(): Promise<Comunidad> {
+  const [eventos, personas, registros] = await Promise.all([
+    todas<EventoPanel>("eventos", "slug, nombre, fecha, hora_puertas, lugar, ciudad, direccion, registro_cierra, concurso_cierra", "fecha"),
+    todas<PersonaComunidad>(
+      "personas",
+      "id, nombre, email, whatsapp_e164, instagram, tiktok, fecha_nacimiento, generos, acepta_invitaciones, tipo, codigo_ref, email_verificado_at, created_at",
+      "created_at",
+    ),
+    todas<RegistroDeEvento>(
+      "evento_registros",
+      "id, evento, persona_id, codigo, referido_por, utm_source, correo_enviado_at, pase_abierto_at, ingreso_at, created_at",
+      "created_at",
+    ),
+  ])
+  return { eventos, personas, registros }
+}

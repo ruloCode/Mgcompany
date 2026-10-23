@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import jsQR from "jsqr"
 import { acreditarPorCodigo, type ResultadoPuerta } from "@/app/admin/acciones"
+import { codigoDeEvento } from "@/lib/eventos"
 import { codigoDeLoEscaneado, etiquetaTipo } from "@/lib/gala"
 
 /* Modo puerta.
@@ -46,7 +47,25 @@ const TITULO: Record<string, string> = {
   error: "ALGO FALLÓ",
 }
 
-export default function EscanerPuerta({ entraron, confirmados }: { entraron: number; confirmados: number }) {
+/* La misma puerta sirve para la Gala y para cualquier fiesta de la comunidad.
+   Lo que cambia entre una y otra viaja como props: qué acción acredita, qué
+   formato de código se reconoce (MG- de la Gala, MGE- de los eventos) y a qué
+   lista se vuelve. El lector de códigos no puede llegar como función —un
+   Server Component no puede pasarle funciones a uno de cliente—, así que llega
+   como nombre y se elige aquí. */
+const LECTORES = { gala: codigoDeLoEscaneado, evento: codigoDeEvento } as const
+
+export default function EscanerPuerta({
+  entraron, confirmados, acreditar = acreditarPorCodigo, formato = "gala", volver = "/admin/gala",
+}: {
+  entraron: number
+  confirmados: number
+  /** Server Action que decide si se entra. Por omisión, la de la Gala. */
+  acreditar?: (bruto: string) => Promise<ResultadoPuerta>
+  formato?: keyof typeof LECTORES
+  volver?: string
+}) {
+  const leerCodigo = LECTORES[formato]
   const [estado, setEstado] = useState<Estado>("apagada")
   const [fallo, setFallo] = useState<string | null>(null)
   const [res, setRes] = useState<ResultadoPuerta | null>(null)
@@ -82,10 +101,10 @@ export default function EscanerPuerta({ entraron, confirmados }: { entraron: num
     ocupado.current = true
     if (lazo.current) cancelAnimationFrame(lazo.current)
 
-    const codigo = codigoDeLoEscaneado(bruto)
+    const codigo = leerCodigo(bruto)
     if (codigo) ultimo.current = { codigo, cuando: Date.now() }
 
-    const r = await acreditarPorCodigo(bruto)
+    const r = await acreditar(bruto)
     setRes(r)
     setEstado("resultado")
     setManual("")
@@ -96,7 +115,7 @@ export default function EscanerPuerta({ entraron, confirmados }: { entraron: num
       navigator.vibrate(r.veredicto === "entra" ? 60 : [50, 60, 50])
     }
     ocupado.current = false
-  }, [])
+  }, [acreditar, leerCodigo])
 
   const mirar = useCallback(() => {
     const v = video.current
@@ -121,7 +140,7 @@ export default function EscanerPuerta({ entraron, confirmados }: { entraron: num
     const hallado = jsQR(img.data, img.width, img.height, { inversionAttempts: "dontInvert" })
 
     if (hallado?.data) {
-      const codigo = codigoDeLoEscaneado(hallado.data)
+      const codigo = leerCodigo(hallado.data)
       const repetidoReciente =
         codigo &&
         ultimo.current?.codigo === codigo &&
@@ -133,7 +152,7 @@ export default function EscanerPuerta({ entraron, confirmados }: { entraron: num
       }
     }
     lazo.current = requestAnimationFrame(mirar)
-  }, [resolver])
+  }, [resolver, leerCodigo])
 
   const encender = useCallback(async () => {
     setFallo(null)
@@ -212,7 +231,7 @@ export default function EscanerPuerta({ entraron, confirmados }: { entraron: num
   return (
     <div className="puerta">
       <div className="puerta-barra">
-        <Link className="btn sm ghost" href="/admin/gala">← Lista</Link>
+        <Link className="btn sm ghost" href={volver}>← Lista</Link>
         <span className="puerta-cuenta mono">
           <b>{contador}</b> / {confirmados} adentro
         </span>

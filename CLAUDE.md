@@ -117,6 +117,8 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/registro` | Redirect a `/gala` (era una maqueta que no guardaba nada) |
 | `/gala` | Landing y registro de la **Gala MG** (vie 11 sep, 6–9 p.m., aforo 80) |
 | `/gala/pase/[codigo]` | Pase de entrada con QR. Solo existe si el registro está `confirmed` |
+| `/fiesta/[evento]` | Landing y registro de una fiesta de la comunidad (hoy `coronacion-mg1`). Lista sin cupo: el QR sale al correo al registrarse |
+| `/fiesta/pase/[codigo]` | Pase `MGE-` con QR. Abrirlo verifica el correo de la persona |
 | `/mg1` | Redirect a `/mg1/convocatoria` |
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
@@ -142,14 +144,17 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/admin/radar` | Scouting del ecosistema con puntaje por rol |
 | `/admin/mg1` | Curaduria de las inscripciones de la convocatoria |
 | `/admin/gala` | Admisiones y acreditación de la Gala MG |
+| `/admin/eventos` | Comunidad: personas, quién repite, promotores, música en vivo, exportar audiencia |
+| `/admin/eventos/[evento]` | Lista de una fiesta y sus promotores |
+| `/admin/eventos/[evento]/puerta` | El mismo escáner de la Gala, ligado a esa fiesta |
 | `/admin/plan` | Reglas del motor de fechas y capacidad de estudio |
 | `/admin/equipo` | Miembros, roles y activacion de cuentas (owner/admin) |
 | `/admin/datos` | Respaldos y bitacora completa |
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
 header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/mg1/coronacion`,
-`/mg1/estudio`, `/mg1/def`, `/mg1/seleccion`, `/admin` y `/gala/pase` (el pase se abre en la
-puerta: solo tiene que caber el QR).
+`/mg1/estudio`, `/mg1/def`, `/mg1/seleccion`, `/fiesta`, `/admin` y `/gala/pase` (el pase se
+abre en la puerta: solo tiene que caber el QR).
 
 Las piezas de `/mg1` que se mandan por enlace a una persona o a un lugar concreto
 —jurado, bar, estudio y DEF— llevan `robots: { index: false }`: son propuestas, no paginas del
@@ -483,6 +488,71 @@ falla, devuelve cero filas. Una mesa vacia que parece "todavia no hay
 preseleccionados" manda al jurado a esperar algo que ya estaba ahi. Sin la key,
 en desarrollo corre contra `.data/mg1-seleccion-dev.json` con 32 fichas de
 mentira; en produccion dice que no esta disponible.
+
+### Comunidad y eventos (migraciones `024` y `025`)
+
+La Gala resolvió una fiesta; esto resuelve todas las que vengan, porque el
+objetivo ya no es llenar una sala sino **conocer a la comunidad**: quién
+repite, quién trae gente y cuánta de esa gente llega de verdad.
+
+| Tabla | Para qué |
+|-------|----------|
+| `eventos` | Una fiesta: fecha, lugar, cierre del registro. `cupo` NULL = sin límite. Los textos de la landing viven en `CONTENIDO_EVENTOS` (`lib/eventos.ts`) |
+| `personas` | **Una por correo.** Su `tipo` (público, influencer, creador, artista, marca, medio, producción) lo marca el EQUIPO |
+| `evento_registros` | Un pase por persona y fiesta. `ingreso_at` lo pone la puerta |
+
+Cinco reglas, todas impuestas en Postgres:
+
+1. **La persona es el correo, no el nombre ni el teléfono.** La clave es
+   `email_clave`, que calcula `normalizarEmail()` en `lib/contacto.ts`:
+   minúsculas, sin `+etiqueta` y, solo en Gmail, sin puntos (en otros
+   proveedores los puntos sí distinguen buzones). El WhatsApp se guarda además
+   en E.164 (`normalizarWhatsapp`: "300 123 4567", "+57…", "0057…" → `+573001234567`).
+2. **El QR lo emite la base** (`evento_emitir_codigo`), con prefijo `MGE-`
+   para no confundirse en la puerta con los pases `MG-` de la Gala. Alfabeto
+   sin 0/O ni 1/I/L, porque se dicta en voz alta y se teclea cuando la cámara falla.
+3. **El alta es una transacción** (`registrar_en_evento`, solo `service_role`):
+   lock por correo, persona + registro + referido en una sola llamada. Si el
+   correo ya existe, **completa lo vacío y nunca reescribe**: quien escribe el
+   correo de otro no le puede cambiar el WhatsApp ni el Instagram.
+4. **Un promotor se mide por quién ENTRA, no por quién se inscribe.** Cada
+   persona tiene un `codigo_ref` estable entre fiestas (`/fiesta/<evento>?ref=XXXXXX`);
+   quien se registra con él queda con `referido_por` (primer toque, nunca se
+   reescribe; nadie se refiere a sí mismo). El ranking ordena por invitados
+   que entraron con su QR.
+5. **Lo que escribió la persona es suyo.** Con sesión del panel solo cambian
+   `tipo`, `notas` e `ingreso_at` (`proteger_persona`, `proteger_registro_evento`).
+
+**Correo verificado** (`personas.email_verificado_at`): se marca al abrir el
+pase o al entrar con el QR, porque los dos solo llegaron a ese buzón. Es lo que
+una votación futura puede usar para no volver a verificar a nadie: mandarle a
+las personas verificadas un enlace de voto de un toque.
+
+**El correo del pase** (`lib/eventos-correo.ts`) lleva el QR tres veces —imagen
+en el cuerpo, PNG adjunto y enlace al pase— más el código en texto, porque en
+la puerta puede no haber señal. La imagen sale de `/api/eventos/qr/[codigo]`,
+que no consulta la base (el QR solo codifica la URL que ya va en el correo).
+Volver a registrarse reenvía el pase, pero no antes de 2 minutos: si no,
+cualquiera podría llenarle la bandeja a otro escribiendo su correo.
+
+**Música en vivo** (`GENEROS_EN_VIVO`): diez opciones elegidas con datos
+medidos de Bogotá 2025 (Festivales al Parque, programación del Movistar Arena,
+TaquillaLive). El formulario las **baraja en el servidor** para cada persona
+—la gente se queda con las primeras opciones aceptables— y no en el cliente,
+que rompería la hidratación.
+
+**Pauta**: `/admin/eventos/exportar` genera el CSV que Meta y TikTok aceptan
+como audiencia, y **solo incluye a quien marcó "quiero que me inviten"**. Esa
+casilla arranca desmarcada: una premarcada no es consentimiento (Ley 1581).
+
+La `025` copió la Gala al historial (64 personas, 32 ingresos) para que
+"quién repite" tenga sentido desde la Coronación. Todas quedaron con
+`acepta_invitaciones = false`: en la Gala autorizaron sus datos para ese
+evento, no para pauta.
+
+Una fiesta nueva es una fila en `eventos` y una entrada en `CONTENIDO_EVENTOS`.
+La puerta (`components/admin/escaner-puerta.tsx`) es la misma de la Gala:
+recibe la acción, el formato de código y la ruta de vuelta como props.
 
 ### `registros`
 

@@ -1,0 +1,215 @@
+import { z } from "zod"
+
+import { normalizarWhatsapp, usuarioDeRed } from "./contacto"
+
+/* ============================================================
+   Eventos y comunidad: lo que comparten la landing, la API y el panel
+   ============================================================
+   Lo que el servidor necesita para DECIDIR (fecha, cierre del registro, cupo)
+   vive en la tabla `eventos` (migración 024). Aquí vive lo que se MUESTRA y
+   los catálogos cerrados que valida el servidor. Una fiesta nueva es una fila
+   en esa tabla más una entrada en CONTENIDO_EVENTOS. */
+
+export const MG_INSTAGRAM = "mgcompanygroup"
+
+/* ---------- qué música le gusta escuchar en vivo ---------- */
+
+/* Diez opciones, elegidas con datos medidos en Bogotá entre 2025 y 2026, no
+   con listas de "lo que está de moda":
+
+   - Festivales al Parque 2025 (Idartes / Alcaldía, asistencia contada):
+     Rock 253.000 · Salsa 88.000 · Hip Hop 75.000 · Popular 72.947.
+   - Movistar Arena 2025, 168 eventos y 900.000 asistentes, programación por
+     género: urbano 24 % · pop 13 % · rock 8,1 % · electrónica 5,7 % ·
+     música popular 4,9 %. El artista que más vendió fue Beéle (83.406
+     entradas en 8 fechas), por eso existe la opción afro/dancehall.
+   - TaquillaLive 2025: los formatos de un día que más vendieron fueron
+     electrónica y reggaetón.
+   - Spotify Wrapped 2025 Colombia: el urbano domina lo que se ESCUCHA, pero
+     lo que se ve en vivo está mucho más repartido (el rock al aire libre
+     llena más que cualquier otro género). Por eso la pregunta es "en vivo" y
+     no "qué escuchas".
+
+   "Acústico y cantautor" es un formato más que un género. No sale de esos
+   datos: lo pidió el equipo, y se queda porque MG produce ese formato.
+
+   Diez y no más: la investigación de Pew Research (2019) sobre preguntas de
+   "marca todas las que apliquen" muestra que la gente tiende a quedarse con
+   las primeras opciones aceptables. Por eso además el formulario BARAJA el
+   orden para cada persona: así ningún género gana solo por estar arriba. */
+export const GENEROS_EN_VIVO = [
+  { valor: "urbano", label: "Reggaetón y urbano" },
+  { valor: "rap", label: "Rap y hip hop" },
+  { valor: "afro", label: "Afro, dancehall y reggae" },
+  { valor: "electronica", label: "Electrónica: techno, house" },
+  { valor: "rock", label: "Rock" },
+  { valor: "salsa", label: "Salsa" },
+  { valor: "pop", label: "Pop" },
+  { valor: "popular", label: "Popular y despecho" },
+  { valor: "vallenato", label: "Vallenato" },
+  { valor: "acustico", label: "Acústico y cantautor" },
+] as const
+
+export type Genero = (typeof GENEROS_EN_VIVO)[number]["valor"]
+
+export const etiquetaGenero = (g: string) => GENEROS_EN_VIVO.find((x) => x.valor === g)?.label ?? g
+
+/** Fisher-Yates. Se baraja en el SERVIDOR y el orden viaja al formulario como
+ *  prop: si se barajara en el navegador, el HTML del servidor y el del cliente
+ *  no coincidirían y React rompería la hidratación. */
+export function barajar<T>(lista: readonly T[]): T[] {
+  const copia = [...lista]
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+  }
+  return copia
+}
+
+/* ---------- qué tipo de persona es (lo marca el EQUIPO) ---------- */
+
+export const TIPOS_PERSONA = [
+  { valor: "publico", label: "Público general" },
+  { valor: "influencer", label: "Influencer" },
+  { valor: "creador", label: "Creador de contenido" },
+  { valor: "artista", label: "Artista" },
+  { valor: "marca", label: "Marca" },
+  { valor: "medio", label: "Medio o prensa" },
+  { valor: "produccion", label: "Equipo de producción" },
+] as const
+
+export type TipoPersona = (typeof TIPOS_PERSONA)[number]["valor"]
+
+export const etiquetaTipoPersona = (t: string) => TIPOS_PERSONA.find((x) => x.valor === t)?.label ?? t
+
+/* ---------- lo que se muestra de cada fiesta ---------- */
+
+export interface ContenidoEvento {
+  etiqueta: string
+  titular: string
+  bajada: string
+  /** Lo que acompaña al link de invitación cuando se comparte por WhatsApp. */
+  compartir: string
+  /** La dinámica de la noche. Sin esto, la landing no pinta el bloque. */
+  concurso?: {
+    titulo: string
+    reglas: string[]
+  }
+}
+
+export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
+  "coronacion-mg1": {
+    etiqueta: "MG1 / La noche final",
+    titular: "La Coronación",
+    bajada:
+      "Esta noche se corona al primer campeón de MG1, en vivo y con la gente que lo vio nacer. " +
+      "La entrada es gratis y personal: tu QR llega a tu correo y es la única forma de entrar.",
+    compartir:
+      "Te paso el link para La Coronación de MG1, el viernes 30 en DEF (Soacha). Regístrate y te llega el QR al correo:",
+    concurso: {
+      titulo: "Una botella para tu parche",
+      reglas: [
+        `Comenta y comparte los capítulos de MG1 y los posts de la fiesta, etiquetando a @${MG_INSTAGRAM}.`,
+        "Cuando te registres te damos tu link personal: la gente que llegue a la fiesta con él también te suma.",
+        "El perfil más activo se lleva una botella para su parche esa misma noche.",
+        "Cerramos a las 8:00 p.m. del viernes 30 y anunciamos al ganador en la fiesta.",
+      ],
+    },
+  },
+}
+
+/** Lo que exige la ley junto a cualquier promoción con alcohol en Colombia. */
+export const LEYENDA_ALCOHOL =
+  "Solo mayores de 18. El exceso de alcohol es perjudicial para la salud. " +
+  "Prohíbase el expendio de bebidas embriagantes a menores de edad."
+
+export const EDAD_MINIMA = 18
+
+/* ---------- el pase ---------- */
+
+/** Lo que entrega el lector de la puerta, venga como venga: el texto del QR
+ *  (la URL del pase), el código tecleado a mano, en minúsculas o con espacios.
+ *  Prefijo MGE- para no confundirse nunca con un pase de la Gala (MG-). */
+export function codigoDeEvento(bruto: string): string | null {
+  const limpio = bruto.trim()
+  if (!limpio) return null
+  const desdeUrl = limpio.match(/\/pase\/(MGE-[A-Za-z0-9]+)/i)
+  const candidato = (desdeUrl ? desdeUrl[1] : limpio).toUpperCase().replace(/\s+/g, "")
+  return /^MGE-[A-Z0-9]{8}$/.test(candidato) ? candidato : null
+}
+
+/* ---------- el formulario ---------- */
+
+const utm = z.string().trim().max(60).optional().or(z.literal(""))
+
+export const registroEventoSchema = z
+  .object({
+    evento: z.string().trim().min(1).max(60),
+    nombre: z.string().trim().min(3, "Escribe tu nombre y apellido").max(80, "Máximo 80 caracteres"),
+    email: z.string().trim().toLowerCase().email("Ingresa un correo válido").max(120, "Máximo 120 caracteres"),
+    whatsapp: z
+      .string()
+      .trim()
+      .min(1, "Escribe tu WhatsApp")
+      .refine((v) => normalizarWhatsapp(v) !== null, "Revisa el número: 10 dígitos, como 300 123 4567"),
+    instagram: z.string().trim().max(120).optional().or(z.literal("")),
+    tiktok: z.string().trim().max(120).optional().or(z.literal("")),
+    fecha_nacimiento: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Escribe tu fecha de nacimiento"),
+    generos: z.array(z.enum(GENEROS_EN_VIVO.map((g) => g.valor) as [Genero, ...Genero[]])).max(GENEROS_EN_VIVO.length).default([]),
+    acepta_invitaciones: z.boolean().default(false),
+    acepta_datos: z.literal(true, {
+      errorMap: () => ({ message: "Necesitamos tu autorización para registrarte" }),
+    }),
+    ref: z.string().trim().max(12).optional().or(z.literal("")),
+    utm_source: utm,
+    utm_medium: utm,
+    utm_campaign: utm,
+    // Honeypot: los bots llenan todo. El servidor descarta en silencio lo que
+    // lo trae lleno, para no decirle al bot que lo pilló.
+    website: z.string().optional(),
+  })
+  .superRefine((d, ctx) => {
+    const ig = d.instagram ? usuarioDeRed(d.instagram, "instagram") : null
+    const tt = d.tiktok ? usuarioDeRed(d.tiktok, "tiktok") : null
+    if (d.instagram && !ig) {
+      ctx.addIssue({ code: "custom", path: ["instagram"], message: "Escribe tu usuario (@tucuenta) o el link de tu perfil, no el de un post" })
+    }
+    if (d.tiktok && !tt) {
+      ctx.addIssue({ code: "custom", path: ["tiktok"], message: "Escribe tu usuario (@tucuenta) o el link de tu perfil" })
+    }
+    if (!d.instagram && !d.tiktok) {
+      ctx.addIssue({ code: "custom", path: ["instagram"], message: "Déjanos al menos tu Instagram o tu TikTok" })
+    }
+  })
+
+export type RegistroEventoInput = z.infer<typeof registroEventoSchema>
+
+export interface RespuestaRegistroEvento {
+  ok: true
+  /** El link de promotor de esta persona, para compartir de una. */
+  ref: string
+  /** false = ya estaba registrada; se le reenvió el pase. */
+  nuevo: boolean
+}
+
+/* ---------- fechas para mostrar ---------- */
+
+export function fechaEvento(iso: string): string {
+  const texto = new Intl.DateTimeFormat("es-CO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "America/Bogota",
+  }).format(new Date(`${iso}T12:00:00-05:00`))
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
+/** "18:00:00" → "6:00 p.m." Nadie en Bogotá dice "a las 18". */
+export function horaEvento(hora: string): string {
+  const [h, m] = hora.split(":").map(Number)
+  const sufijo = h >= 12 ? "p.m." : "a.m."
+  const h12 = h % 12 === 0 ? 12 : h % 12
+  return `${h12}:${String(m).padStart(2, "0")} ${sufijo}`
+}

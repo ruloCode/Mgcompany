@@ -10,6 +10,9 @@ import { D, evitarFestivos, fmt, hoy, masDias } from "@/lib/mg/fechas"
 import type { EstadoProyecto, FichaRadar, Perfil, Publicacion, TipoEvento } from "@/lib/mg/tipos"
 import { sanearDisponibilidad, type Disponibilidad } from "@/lib/mg1-disponibilidad"
 import { codigoDeLoEscaneado } from "@/lib/gala"
+import { TIPOS_PERSONA, codigoDeEvento, etiquetaTipoPersona } from "@/lib/eventos"
+import { enviarPase as enviarPaseEvento } from "@/lib/eventos-correo"
+import { marcarCorreoEnviado } from "@/lib/eventos-datos"
 import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
 import { avisarAltaPendiente, avisarCuentaActivada } from "@/lib/correos-panel"
 import { asuntoPase, htmlPase, textoPase } from "@/lib/gala-correo"
@@ -1744,4 +1747,121 @@ export async function acreditarPorCodigo(bruto: string): Promise<ResultadoPuerta
     })}`,
     registro: { ...registro, ingreso_at: ahora },
   }
+}
+
+
+/* ============================================================
+   Eventos y comunidad
+   ============================================================
+   Desde el panel solo se toca lo que pone el equipo: el TIPO de persona y el
+   ingreso en la puerta. Lo que la persona escribió es suyo, y el trigger
+   proteger_persona (migración 024) lo impone aunque alguien llame a la API
+   con su propia sesión. Esto de aquí es para que el mensaje sea legible. */
+
+const acreditaEventos = (p: Perfil) =>
+  puede(p.rol, "operar") || tieneExtra(p, "eventos:acreditar")
+
+/** Lo marca el equipo mirando el perfil: público, influencer, artista… */
+export async function clasificarPersona(personaId: string, tipo: string) {
+  return mutar("operar", async () => {
+    if (!TIPOS_PERSONA.some((t) => t.valor === tipo)) throw new Error("Tipo de persona desconocido")
+    const supabase = await createClient()
+    const { data: p, error } = await supabase
+      .from("personas").update({ tipo }).eq("id", personaId).select("nombre").single()
+    if (error) throw new Error(error.message)
+    revalidatePath("/admin/eventos", "layout")
+    return `🏷 Comunidad: ${p?.nombre ?? "una persona"} marcada como ${etiquetaTipoPersona(tipo)}.`
+  })
+}
+
+/** La puerta de una fiesta. Mismo contrato que acreditarPorCodigo, para que
+ *  el escáner sea uno solo; se le pasa ligada al evento con .bind(). */
+export async function acreditarEnEvento(evento: string, bruto: string): Promise<ResultadoPuerta> {
+  const perfil = await perfilActual()
+  if (!perfil) redirect("/admin/login")
+  if (!acreditaEventos(perfil)) {
+    return { veredicto: "sin_permiso", mensaje: "Tu rol no puede acreditar en la puerta." }
+  }
+
+  const codigo = codigoDeEvento(bruto)
+  if (!codigo) {
+    // Un pase de la Gala leído en otra fiesta es el error más probable de la
+    // noche: se dice tal cual, para que en la puerta no se piense que es falso.
+    const deGala = codigoDeLoEscaneado(bruto)
+    return {
+      veredicto: "desconocido",
+      mensaje: deGala ? "Ese es un pase de la Gala, no de esta fiesta." : "Eso no es un pase de MG.",
+    }
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("evento_registros")
+    .select("id, evento, ingreso_at, personas(nombre, instagram, tiktok, tipo)")
+    .eq("codigo", codigo)
+    .maybeSingle()
+
+  if (error) return { veredicto: "error", mensaje: error.message }
+  if (!data) return { veredicto: "desconocido", mensaje: `No existe ningún pase ${codigo}.` }
+
+  const persona = data.personas as unknown as { nombre: string; instagram: string | null; tiktok: string | null; tipo: string }
+  const red = persona.instagram ? `@${persona.instagram}` : persona.tiktok ? `@${persona.tiktok} (TikTok)` : null
+  const registro = {
+    nombre_completo: persona.nombre,
+    nombre_artistico: red,
+    tipo_asistente: etiquetaTipoPersona(persona.tipo),
+    codigo,
+    ingreso_at: data.ingreso_at,
+  }
+
+  if (data.evento !== evento) {
+    return { veredicto: "no_confirmado", mensaje: "Este pase es de otra fiesta.", registro }
+  }
+  if (data.ingreso_at) {
+    return {
+      veredicto: "repetido",
+      mensaje: `Ya había entrado a las ${new Date(data.ingreso_at).toLocaleTimeString("es-CO", {
+        hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota",
+      })}`,
+      registro,
+    }
+  }
+
+  const { error: fallo } = await supabase
+    .from("evento_registros").update({ ingreso_at: new Date().toISOString() }).eq("id", data.id)
+  if (fallo) return { veredicto: "error", mensaje: fallo.message, registro }
+
+  await bitacora(`🚪 ${evento}: entró ${persona.nombre} (${codigo}).`)
+  revalidatePath(`/admin/eventos/${evento}`)
+  return { veredicto: "entra", mensaje: "Adelante", registro }
+}
+
+/** Reenviar el pase desde el panel: para quien dice que no le llegó. */
+export async function reenviarPaseEvento(registroId: string) {
+  return mutar("operar", async () => {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from("evento_registros")
+      .select("id, codigo, eventos(*), personas(nombre, email, codigo_ref)")
+      .eq("id", registroId)
+      .single()
+    if (error || !data) throw new Error(error?.message ?? "Registro no encontrado")
+
+    const persona = data.personas as unknown as { nombre: string; email: string; codigo_ref: string }
+    const envio = await enviarPaseEvento({
+      evento: data.eventos as never,
+      nombre: persona.nombre,
+      email: persona.email,
+      codigo: data.codigo,
+      ref: persona.codigo_ref,
+    })
+    if (!envio.ok) throw new Error(`No salió el correo: ${envio.error}`)
+
+    // El sello va con la service_role: con la sesión del panel, el trigger
+    // proteger_registro_evento lo devolvería a su valor anterior (lo que la
+    // persona recibió no es algo que el equipo pueda declarar a mano).
+    await marcarCorreoEnviado(registroId)
+    revalidatePath("/admin/eventos", "layout")
+    return `✉️ Pase reenviado a ${persona.nombre}.`
+  })
 }
