@@ -34,13 +34,16 @@ interface DatosCorreo {
   email: string
   codigo: string
   ref: string
+  /** Vista previa para el equipo: mismo correo, marcado como prueba en el
+   *  asunto y con una franja arriba, para que nadie lo tome por una entrada. */
+  prueba?: boolean
 }
 
 export function asuntoPase(evento: Evento) {
   return `Tu QR para ${evento.nombre} · estás en la lista`
 }
 
-function html({ evento, nombre, codigo, ref }: DatosCorreo): string {
+function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
   const contenido = CONTENIDO_EVENTOS[evento.slug]
   const primerNombre = esc(nombre.split(" ")[0])
   const lugar = [evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).map((x) => esc(x!)).join(" · ")
@@ -78,6 +81,11 @@ function html({ evento, nombre, codigo, ref }: DatosCorreo): string {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#111111;">Tu QR para ${esc(evento.nombre)}. Tómale captura: en la puerta puede no haber señal.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111;">
 <tr><td align="center">
+  ${prueba ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
+    <tr><td style="background-color:#fab219;padding:12px 20px;font-family:Helvetica,Arial,sans-serif;font-size:13px;font-weight:bold;color:#111111;text-align:center;">
+      CORREO DE PRUEBA · Este QR no es una entrada. Así lo verán los asistentes.
+    </td></tr>
+  </table>` : ""}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
     <tr><td style="height:8px;background-color:#E8200C;line-height:8px;font-size:8px;">&nbsp;</td></tr>
   </table>
@@ -139,9 +147,10 @@ function html({ evento, nombre, codigo, ref }: DatosCorreo): string {
 </body></html>`
 }
 
-function texto({ evento, nombre, codigo, ref }: DatosCorreo): string {
+function texto({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
   const contenido = CONTENIDO_EVENTOS[evento.slug]
   return [
+    ...(prueba ? ["CORREO DE PRUEBA · Este QR no es una entrada.", ""] : []),
     `Estás en la lista, ${nombre.split(" ")[0]}.`,
     ``,
     `Tu pase para ${evento.nombre}: ${codigo}`,
@@ -179,7 +188,7 @@ export async function enviarPase(datos: DatosCorreo): Promise<ResultadoEnvio> {
     from: REMITE,
     to: datos.email,
     replyTo: CORREO_RESPONDER_A,
-    subject: asuntoPase(datos.evento),
+    subject: (datos.prueba ? "[PRUEBA] " : "") + asuntoPase(datos.evento),
     html: html(datos),
     text: texto(datos),
     attachments: [{ filename: `pase-${datos.codigo}.png`, content: png }],
