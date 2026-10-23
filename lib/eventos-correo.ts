@@ -46,13 +46,25 @@ function html({ evento, nombre, codigo, ref }: DatosCorreo): string {
   const lugar = [evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).map((x) => esc(x!)).join(" · ")
   const invitacion = urlInvitacion(evento.slug, ref)
 
-  const concurso = contenido?.concurso
-    ? `<tr><td style="padding:30px 32px 0 32px;">
+  const dinamicas = (contenido?.dinamicas ?? [])
+    .map((d) => `<tr><td style="padding:24px 32px 0 32px;">
         <div style="border:1px solid #2a2a2a;padding:20px 22px;">
-          <p style="margin:0 0 8px;font-family:'Courier New',Courier,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#E8200C;">🍾 ${esc(contenido.concurso.titulo)}</p>
-          ${contenido.concurso.reglas.map((r) => `<p style="margin:0 0 8px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b8b8b8;">${esc(r)}</p>`).join("")}
-          <p style="margin:14px 0 6px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#8a8a8a;">Tu link personal:</p>
-          <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:13px;word-break:break-all;"><a href="${invitacion}" style="color:#ffffff;">${invitacion}</a></p>
+          <p style="margin:0 0 8px;font-family:'Courier New',Courier,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#E8200C;">${d.icono} ${esc(d.titulo)}</p>
+          ${d.reglas.map((r) => `<p style="margin:0 0 8px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b8b8b8;">${esc(r)}</p>`).join("")}
+          ${d.conLink ? `<p style="margin:14px 0 6px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#8a8a8a;">Tu link personal:</p>
+          <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:13px;word-break:break-all;"><a href="${invitacion}" style="color:#ffffff;">${invitacion}</a></p>` : ""}
+        </div>
+      </td></tr>`)
+    .join("")
+
+  /* El destacado va pegado al QR y no al final: este correo es lo último que
+     la persona mira antes de salir de casa, y "ven disfrazado" hay que leerlo
+     ANTES de vestirse, no en la puerta. */
+  const destacado = contenido?.destacado
+    ? `<tr><td style="padding:24px 32px 0 32px;">
+        <div style="border:2px solid #E8200C;padding:16px 20px;">
+          <p style="margin:0;font-family:'Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:900;font-size:26px;line-height:1;color:#E8200C;">${esc(contenido.destacado.valor)}</p>
+          <p style="margin:6px 0 0;font-family:'Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:900;font-size:15px;text-transform:uppercase;color:#ffffff;">${esc(contenido.destacado.texto)}</p>
         </div>
       </td></tr>`
     : ""
@@ -107,13 +119,15 @@ function html({ evento, nombre, codigo, ref }: DatosCorreo): string {
       </table>
     </td></tr>
 
+    ${destacado}
+
     <tr><td style="padding:28px 32px 0 32px;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#E8200C" style="background-color:#E8200C;">
         <a href="${urlPase(codigo)}" style="display:inline-block;padding:15px 30px;font-family:'Courier New',Courier,monospace;font-size:12px;font-weight:bold;letter-spacing:.18em;text-transform:uppercase;color:#ffffff;text-decoration:none;">Abrir mi pase</a>
       </td></tr></table>
     </td></tr>
 
-    ${concurso}
+    ${dinamicas}
 
     <tr><td style="padding:30px 32px 36px 32px;">
       <div style="height:1px;background-color:#2a2a2a;line-height:1px;font-size:1px;margin-bottom:18px;">&nbsp;</div>
@@ -137,9 +151,13 @@ function texto({ evento, nombre, codigo, ref }: DatosCorreo): string {
     `${fechaEvento(evento.fecha)} · desde las ${horaEvento(evento.hora_puertas)}`,
     [evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).join(" · "),
     evento.mapa_url ?? "",
-    ...(contenido?.concurso
-      ? ["", contenido.concurso.titulo.toUpperCase(), ...contenido.concurso.reglas, `Tu link: ${urlInvitacion(evento.slug, ref)}`]
-      : []),
+    ...(contenido?.destacado ? ["", `${contenido.destacado.valor} ${contenido.destacado.texto}`.toUpperCase()] : []),
+    ...(contenido?.dinamicas ?? []).flatMap((d) => [
+      "",
+      `${d.icono} ${d.titulo.toUpperCase()}`,
+      ...d.reglas,
+      ...(d.conLink ? [`Tu link: ${urlInvitacion(evento.slug, ref)}`] : []),
+    ]),
     ``,
     LEYENDA_ALCOHOL,
   ].join("\n")

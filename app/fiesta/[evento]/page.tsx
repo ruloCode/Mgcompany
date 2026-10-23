@@ -89,6 +89,22 @@ export default async function FiestaPage({ params, searchParams }: Props) {
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-300 md:text-lg">{contenido.bajada}</p>
 
+          {/* Los ganchos van ARRIBA, donde los ve todo el mundo antes de decidir
+              si se registra. Las reglas completas van con el formulario: en
+              celular, ocho reglas antes del botón lo entierran. */}
+          {contenido.destacado ? (
+            <div className="mt-8 inline-flex max-w-full flex-wrap items-baseline gap-x-4 gap-y-1 border-2 border-mg-red px-5 py-4">
+              <span className="font-heading text-5xl leading-none text-mg-red md:text-6xl">{contenido.destacado.valor}</span>
+              <span className="font-heading text-2xl uppercase leading-tight md:text-3xl">{contenido.destacado.texto}</span>
+            </div>
+          ) : null}
+          {contenido.dinamicas && contenido.dinamicas.length > 1 ? (
+            <p className="mt-4 text-sm text-zinc-400">
+              {contenido.dinamicas.slice(1).map((d) => `${d.icono} ${d.titulo}`).join(" · ")} ·{" "}
+              <a href="#dinamicas" className="text-white underline underline-offset-4">Ver las dinámicas ↓</a>
+            </p>
+          ) : null}
+
           <dl className="mt-10 grid grid-cols-2 border-y border-white/10 md:grid-cols-4">
             {datos.map((d, i) => (
               <div key={d.k} className={`py-4 ${i % 2 ? "pl-4" : "pr-4"} md:px-0 md:pr-6`}>
@@ -123,21 +139,25 @@ export default async function FiestaPage({ params, searchParams }: Props) {
           )}
         </section>
 
-        {contenido.concurso ? (
-          // En celular va ANTES del formulario: es el gancho para registrarse,
-          // y debajo del botón de enviar casi nadie llega a leerla.
-          <aside className="order-first lg:order-none lg:col-span-5">
-            <div className="border-2 border-mg-red p-6 md:p-8 lg:sticky lg:top-8">
-              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red-bright">🍾 La dinámica</p>
-              <h2 className="mt-3 font-heading text-4xl uppercase leading-[0.9] md:text-5xl">{contenido.concurso.titulo}</h2>
-              <ol className="mt-6 space-y-4">
-                {contenido.concurso.reglas.map((r, i) => (
-                  <li key={i} className="flex gap-3 text-sm leading-relaxed text-zinc-300">
-                    <span className="font-mono text-xs text-mg-red-bright">{String(i + 1).padStart(2, "0")}</span>
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ol>
+        {contenido.dinamicas?.length ? (
+          <aside id="dinamicas" className="scroll-mt-6 lg:col-span-5">
+            <div className="space-y-6 lg:sticky lg:top-8">
+              {contenido.dinamicas.map((d) => (
+                <div key={d.titulo} className="border-2 border-mg-red p-6 md:p-8">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red-bright">
+                    <span aria-hidden>{d.icono}</span> La dinámica
+                  </p>
+                  <h2 className="mt-3 font-heading text-4xl uppercase leading-[0.9] md:text-5xl">{d.titulo}</h2>
+                  <ol className="mt-6 space-y-4">
+                    {d.reglas.map((r, i) => (
+                      <li key={i} className="flex gap-3 text-sm leading-relaxed text-zinc-300">
+                        <span className="font-mono text-xs text-mg-red-bright">{String(i + 1).padStart(2, "0")}</span>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
             </div>
           </aside>
         ) : null}

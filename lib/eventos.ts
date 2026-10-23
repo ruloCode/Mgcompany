@@ -84,17 +84,25 @@ export const etiquetaTipoPersona = (t: string) => TIPOS_PERSONA.find((x) => x.va
 
 /* ---------- lo que se muestra de cada fiesta ---------- */
 
+export interface Dinamica {
+  /** Un emoji. Va en la etiqueta del bloque, en la web y en el correo. */
+  icono: string
+  titulo: string
+  reglas: string[]
+  /** Si debajo va el link personal de la persona (para la de referidos). */
+  conLink?: boolean
+}
+
 export interface ContenidoEvento {
   etiqueta: string
   titular: string
   bajada: string
   /** Lo que acompaña al link de invitación cuando se comparte por WhatsApp. */
   compartir: string
-  /** La dinámica de la noche. Sin esto, la landing no pinta el bloque. */
-  concurso?: {
-    titulo: string
-    reglas: string[]
-  }
+  /** La cifra grande de la cabecera: lo primero que se lee de la fiesta. */
+  destacado?: { valor: string; texto: string }
+  /** Las dinámicas de la noche, en el orden en que se muestran. */
+  dinamicas?: Dinamica[]
 }
 
 export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
@@ -103,18 +111,35 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
     titular: "La Coronación",
     bajada:
       "Esta noche se corona al primer campeón de MG1, en vivo y con la gente que lo vio nacer. " +
+      "Es víspera de Halloween: ven disfrazado. " +
       "La entrada es gratis y personal: tu QR llega a tu correo y es la única forma de entrar.",
     compartir:
-      "Te paso el link para La Coronación de MG1, el viernes 30 en DEF (Soacha). Regístrate y te llega el QR al correo:",
-    concurso: {
-      titulo: "Una botella para tu parche",
-      reglas: [
-        `Comenta y comparte los capítulos de MG1 y los posts de la fiesta, etiquetando a @${MG_INSTAGRAM}.`,
-        "Cuando te registres te damos tu link personal: la gente que llegue a la fiesta con él también te suma.",
-        "El perfil más activo se lleva una botella para su parche esa misma noche.",
-        "Cerramos a las 8:00 p.m. del viernes 30 y anunciamos al ganador en la fiesta.",
-      ],
-    },
+      "Te paso el link para La Coronación de MG1, el viernes 30 en DEF (Soacha). " +
+      "Es víspera de Halloween y hay $3.000.000 para el mejor disfraz. Regístrate y te llega el QR al correo:",
+    destacado: { valor: "$3.000.000", texto: "al mejor disfraz de la noche" },
+    dinamicas: [
+      {
+        icono: "🎭",
+        titulo: "Ven disfrazado",
+        reglas: [
+          "El 30 es víspera de Halloween: ven disfrazado, solo o con tu parche.",
+          "Los parches que lleguen disfrazados tienen sorpresas en la fiesta.",
+          "El mejor disfraz de la noche se lleva $3.000.000.",
+          "Anunciamos al ganador esa misma noche.",
+        ],
+      },
+      {
+        icono: "🍾",
+        titulo: "Una botella para tu parche",
+        conLink: true,
+        reglas: [
+          `Comenta y comparte los capítulos de MG1 y los posts de la fiesta, etiquetando a @${MG_INSTAGRAM}.`,
+          "Cuando te registres te damos tu link personal: la gente que llegue a la fiesta con él también te suma.",
+          "El perfil más activo se lleva una botella para su parche esa misma noche.",
+          "Cerramos a las 8:00 p.m. del viernes 30 y anunciamos al ganador en la fiesta.",
+        ],
+      },
+    ],
   },
 }
 
