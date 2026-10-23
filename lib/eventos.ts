@@ -232,6 +232,15 @@ export interface RespuestaRegistroEvento {
   nuevo: boolean
 }
 
+/** "Def Jamaica Club · Cra. 7, zona rosa de Soacha", sin repetir la ciudad.
+ *  La dirección suele traerla ya, y ponerla otra vez al final ("… de Soacha ·
+ *  Soacha") se lee como un error en el pase y en el correo. */
+export function lugarCompleto(e: { lugar: string; direccion: string | null; ciudad: string }): string {
+  const ciudad = e.ciudad.toLowerCase()
+  const yaLaDice = [e.lugar, e.direccion].some((x) => x?.toLowerCase().includes(ciudad))
+  return [e.lugar, e.direccion, yaLaDice ? null : e.ciudad].filter(Boolean).join(" · ")
+}
+
 /* ---------- fechas para mostrar ---------- */
 
 export function fechaEvento(iso: string): string {

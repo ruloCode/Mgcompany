@@ -3,7 +3,7 @@ import "server-only"
 import QRCode from "qrcode"
 
 import { CORREO_RESPONDER_A, getResend } from "./correo"
-import { LEYENDA_ALCOHOL, CONTENIDO_EVENTOS, fechaEvento, horaEvento } from "./eventos"
+import { LEYENDA_ALCOHOL, CONTENIDO_EVENTOS, fechaEvento, horaEvento, lugarCompleto } from "./eventos"
 import { urlImagenQr, urlInvitacion, urlPase, type Evento } from "./eventos-datos"
 
 /* ============================================================
@@ -46,7 +46,7 @@ export function asuntoPase(evento: Evento) {
 function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
   const contenido = CONTENIDO_EVENTOS[evento.slug]
   const primerNombre = esc(nombre.split(" ")[0])
-  const lugar = [evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).map((x) => esc(x!)).join(" · ")
+  const lugar = esc(lugarCompleto(evento))
   const invitacion = urlInvitacion(evento.slug, ref)
 
   const dinamicas = (contenido?.dinamicas ?? [])
@@ -158,7 +158,7 @@ function texto({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
     `Tómale captura al QR: en la puerta puede no haber señal.`,
     ``,
     `${fechaEvento(evento.fecha)} · desde las ${horaEvento(evento.hora_puertas)}`,
-    [evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).join(" · "),
+    lugarCompleto(evento),
     evento.mapa_url ?? "",
     ...(contenido?.destacado ? ["", `${contenido.destacado.valor} ${contenido.destacado.texto}`.toUpperCase()] : []),
     ...(contenido?.dinamicas ?? []).flatMap((d) => [

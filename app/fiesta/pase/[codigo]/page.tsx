@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { QRCodeSVG } from "qrcode.react"
 
-import { CODIGO_PRUEBA, CONTENIDO_EVENTOS, codigoDeEvento, fechaEvento, horaEvento } from "@/lib/eventos"
+import { CODIGO_PRUEBA, CONTENIDO_EVENTOS, codigoDeEvento, fechaEvento, horaEvento, lugarCompleto } from "@/lib/eventos"
 import { EventosNoDisponible, abrirPase, eventoProximo, urlPase, type DatosPaseEvento } from "@/lib/eventos-datos"
 
 export const dynamic = "force-dynamic"
@@ -84,7 +84,7 @@ export default async function PaseEventoPage({ params }: { params: Promise<{ cod
       <dl className="mt-8 border-t border-white/10 pt-5 text-left text-sm">
         <div className="flex justify-between gap-4 py-1.5"><dt className="text-zinc-500">Cuándo</dt><dd>{fechaEvento(evento.fecha)}</dd></div>
         <div className="flex justify-between gap-4 py-1.5"><dt className="text-zinc-500">Puertas</dt><dd>{horaEvento(evento.hora_puertas)}</dd></div>
-        <div className="flex justify-between gap-4 py-1.5"><dt className="text-zinc-500">Dónde</dt><dd className="text-right">{[evento.lugar, evento.direccion, evento.ciudad].filter(Boolean).join(" · ")}</dd></div>
+        <div className="flex justify-between gap-4 py-1.5"><dt className="text-zinc-500">Dónde</dt><dd className="text-right">{lugarCompleto(evento)}</dd></div>
       </dl>
       {evento.mapa_url ? (
         <a href={evento.mapa_url} target="_blank" rel="noopener noreferrer"
