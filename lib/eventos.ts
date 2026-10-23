@@ -145,7 +145,14 @@ const utm = z.string().trim().max(60).optional().or(z.literal(""))
 export const registroEventoSchema = z
   .object({
     evento: z.string().trim().min(1).max(60),
-    nombre: z.string().trim().min(3, "Escribe tu nombre y apellido").max(80, "Máximo 80 caracteres"),
+    // En la Gala varias personas escribieron su cédula en este campo, y una
+    // lista de puerta con "1019128264" no le sirve a nadie para saludar.
+    nombre: z
+      .string()
+      .trim()
+      .min(3, "Escribe tu nombre y apellido")
+      .max(80, "Máximo 80 caracteres")
+      .refine((v) => /\p{L}/u.test(v) && !/\d{5,}/.test(v), "Escribe tu nombre, no tu número de documento"),
     email: z.string().trim().toLowerCase().email("Ingresa un correo válido").max(120, "Máximo 120 caracteres"),
     whatsapp: z
       .string()

@@ -56,6 +56,11 @@ export function SelectorTipo({ persona, puede }: { persona: PersonaComunidad; pu
 
 type Pestana = "comunidad" | "promotores" | "musica"
 
+/** Hoy en Bogotá como "YYYY-MM-DD". Comparar con la hora del navegador daría
+ *  otro día a quien abra el panel de madrugada desde otra zona horaria. */
+const hoyBogota = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date())
+
 export default function VistaEventos({
   comunidad, puedeOperar, puedeAcreditar,
 }: {
@@ -138,7 +143,11 @@ export default function VistaEventos({
                       <td className="mono">{m.porReferido}</td>
                       <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                         <Link className="btn sm" href={`/admin/eventos/${e.slug}`}>Ver lista</Link>{" "}
-                        {puedeAcreditar ? <Link className="btn sm" href={`/admin/eventos/${e.slug}/puerta`}>Puerta</Link> : null}
+                        {/* Una fiesta que ya pasó no tiene puerta. La de la Gala vive en
+                            /admin/gala/puerta: sus pases son MG-, no MGE-. */}
+                        {puedeAcreditar && e.fecha >= hoyBogota() ? (
+                          <Link className="btn sm" href={`/admin/eventos/${e.slug}/puerta`}>Puerta</Link>
+                        ) : null}
                       </td>
                     </tr>
                   )

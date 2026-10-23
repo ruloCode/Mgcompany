@@ -124,7 +124,9 @@ export default async function FiestaPage({ params, searchParams }: Props) {
         </section>
 
         {contenido.concurso ? (
-          <aside className="lg:col-span-5">
+          // En celular va ANTES del formulario: es el gancho para registrarse,
+          // y debajo del botón de enviar casi nadie llega a leerla.
+          <aside className="order-first lg:order-none lg:col-span-5">
             <div className="border-2 border-mg-red p-6 md:p-8 lg:sticky lg:top-8">
               <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red-bright">🍾 La dinámica</p>
               <h2 className="mt-3 font-heading text-4xl uppercase leading-[0.9] md:text-5xl">{contenido.concurso.titulo}</h2>

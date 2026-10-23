@@ -142,7 +142,7 @@ export default function RegistroEvento({
         <div className="grid gap-5">
           <div>
             <label htmlFor="ev-nombre" className={labelClass}>Nombre y apellido</label>
-            <input id="ev-nombre" autoComplete="name" className={inputClass} placeholder="Como aparece en tu cédula"
+            <input id="ev-nombre" autoComplete="name" className={inputClass} placeholder="Ej: Laura Gómez"
               aria-invalid={!!errors.nombre} {...register("nombre")} />
             {errors.nombre && <p className={errorClass}>{errors.nombre.message}</p>}
           </div>

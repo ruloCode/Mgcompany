@@ -289,7 +289,7 @@ export default function EscanerPuerta({
             onChange={(e) => setManual(e.target.value)}
             onFocus={pausarPorTeclado}
             onBlur={reanudarTrasTeclado}
-            placeholder="MG-XXXXXXXX"
+            placeholder={formato === "evento" ? "MGE-XXXXXXXX" : "MG-XXXXXXXX"}
             aria-label="Código del pase escrito a mano"
             autoCapitalize="characters"
             autoCorrect="off"
