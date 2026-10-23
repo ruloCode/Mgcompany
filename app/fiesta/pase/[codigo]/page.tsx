@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import { QRCodeSVG } from "qrcode.react"
 
-import { CONTENIDO_EVENTOS, codigoDeEvento, fechaEvento, horaEvento } from "@/lib/eventos"
-import { EventosNoDisponible, abrirPase, urlPase, type DatosPaseEvento } from "@/lib/eventos-datos"
+import { CODIGO_PRUEBA, CONTENIDO_EVENTOS, codigoDeEvento, fechaEvento, horaEvento } from "@/lib/eventos"
+import { EventosNoDisponible, abrirPase, eventoProximo, urlPase, type DatosPaseEvento } from "@/lib/eventos-datos"
 
 export const dynamic = "force-dynamic"
 
@@ -18,7 +18,18 @@ export default async function PaseEventoPage({ params }: { params: Promise<{ cod
 
   let pase: DatosPaseEvento | null = null
   let sinServicio = false
-  if (codigo) {
+  // El pase del correo de prueba: se pinta como demostración y NO toca la base
+  // (no marca aperturas ni verifica a nadie, porque no es de nadie).
+  const esPrueba = codigo === CODIGO_PRUEBA
+  if (esPrueba) {
+    try {
+      const evento = await eventoProximo()
+      if (evento) pase = { codigo: CODIGO_PRUEBA, nombre: "Asistente de prueba", ingreso_at: null, evento }
+    } catch (e) {
+      if (!(e instanceof EventosNoDisponible)) throw e
+      sinServicio = true
+    }
+  } else if (codigo) {
     try {
       pase = await abrirPase(codigo)
     } catch (e) {
@@ -45,6 +56,11 @@ export default async function PaseEventoPage({ params }: { params: Promise<{ cod
 
   return (
     <Marco>
+      {esPrueba ? (
+        <p className="mb-6 bg-[#fab219] px-3 py-2 text-sm font-bold text-black">
+          PASE DE PRUEBA · Así verá su pase cada asistente. Este no abre la puerta.
+        </p>
+      ) : null}
       <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red">[ {etiqueta} ]</p>
       <h1 className="mt-3 font-heading text-5xl uppercase leading-[0.9]">{evento.nombre}</h1>
       <p className="mt-2 text-zinc-300">{pase.nombre}</p>

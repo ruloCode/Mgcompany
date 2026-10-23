@@ -47,6 +47,16 @@ export async function cargarEvento(slug: string): Promise<Evento | null> {
 }
 
 export const urlPase = (codigo: string) => `${SITIO}/fiesta/pase/${codigo}`
+
+/** La fiesta más cercana que no ha pasado. La usa el pase de prueba, que no
+ *  pertenece a ninguna inscripción y por tanto a ninguna fiesta concreta. */
+export async function eventoProximo(): Promise<Evento | null> {
+  const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date())
+  const { data, error } = await admin()
+    .from("eventos").select("*").gte("fecha", hoy).order("fecha", { ascending: true }).limit(1).maybeSingle()
+  if (error) throw new EventosNoDisponible(error.message)
+  return (data as Evento) ?? null
+}
 export const urlInvitacion = (evento: string, ref: string) => `${SITIO}/fiesta/${evento}?ref=${ref}`
 export const urlImagenQr = (codigo: string) => `${SITIO}/api/eventos/qr/${codigo}`
 

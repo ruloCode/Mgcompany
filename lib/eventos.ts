@@ -152,6 +152,12 @@ export const EDAD_MINIMA = 18
 
 /* ---------- el pase ---------- */
 
+/** El código del correo de PRUEBA (enviarPase con `prueba: true`). No existe
+ *  en la base: el pase lo pinta como demostración y la puerta lo rechaza
+ *  diciendo que es de prueba. Así el equipo puede recorrer correo → pase →
+ *  puerta sin inscribir a nadie. */
+export const CODIGO_PRUEBA = "MGE-PRUEBA22"
+
 /** Lo que entrega el lector de la puerta, venga como venga: el texto del QR
  *  (la URL del pase), el código tecleado a mano, en minúsculas o con espacios.
  *  Prefijo MGE- para no confundirse nunca con un pase de la Gala (MG-). */

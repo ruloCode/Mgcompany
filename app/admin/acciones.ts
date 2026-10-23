@@ -10,7 +10,7 @@ import { D, evitarFestivos, fmt, hoy, masDias } from "@/lib/mg/fechas"
 import type { EstadoProyecto, FichaRadar, Perfil, Publicacion, TipoEvento } from "@/lib/mg/tipos"
 import { sanearDisponibilidad, type Disponibilidad } from "@/lib/mg1-disponibilidad"
 import { codigoDeLoEscaneado } from "@/lib/gala"
-import { TIPOS_PERSONA, codigoDeEvento, etiquetaTipoPersona } from "@/lib/eventos"
+import { CODIGO_PRUEBA, TIPOS_PERSONA, codigoDeEvento, etiquetaTipoPersona } from "@/lib/eventos"
 import { enviarPase as enviarPaseEvento } from "@/lib/eventos-correo"
 import { marcarCorreoEnviado } from "@/lib/eventos-datos"
 import { CORREO_DE, CORREO_RESPONDER_A, getResend } from "@/lib/correo"
@@ -1792,6 +1792,12 @@ export async function acreditarEnEvento(evento: string, bruto: string): Promise<
       veredicto: "desconocido",
       mensaje: deGala ? "Ese es un pase de la Gala, no de esta fiesta." : "Eso no es un pase de MG.",
     }
+  }
+
+  // El QR del correo de prueba: sirve para ensayar la puerta antes de la
+  // fiesta. Se reconoce y se dice, pero no deja pasar a nadie.
+  if (codigo === CODIGO_PRUEBA) {
+    return { veredicto: "no_confirmado", mensaje: "Pase de PRUEBA: la cámara lo lee bien, pero no es una entrada." }
   }
 
   const supabase = await createClient()
