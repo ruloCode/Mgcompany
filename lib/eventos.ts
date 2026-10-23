@@ -12,6 +12,13 @@ import { normalizarWhatsapp, usuarioDeRed } from "./contacto"
 
 export const MG_INSTAGRAM = "mgcompanygroup"
 
+/** El buzón que aparece en los términos para reclamos, retiro de imagen y
+ *  derechos sobre los datos. Tiene que ser un buzón que alguien LEA: es el
+ *  mismo al que llegan las respuestas a los correos de pases (CORREO_RESPONDER_A
+ *  en lib/correo.ts). Fijo y no por variable de entorno: un texto legal no
+ *  puede cambiar según el servidor que lo pinte. */
+export const CORREO_CONTACTO = "gala@mgcompany.co"
+
 /* ---------- qué música le gusta escuchar en vivo ---------- */
 
 /* Diez opciones, elegidas con datos medidos en Bogotá entre 2025 y 2026, no
@@ -102,7 +109,10 @@ export interface ContenidoEvento {
    *  se nombra es el acceso restringido, que es lo que la hace valiosa. */
   acceso: string
   /** La cifra grande de la cabecera: lo primero que se lee de la fiesta. */
-  destacado?: { valor: string; texto: string }
+  /** `nota` va debajo, pequeña pero visible. Para un premio tiene que decir
+   *  QUIÉN lo da: quien publica una promoción queda obligado por ella (Ley
+   *  1480, art. 33), así que si no se dice, el obligado es quien publica. */
+  destacado?: { valor: string; texto: string; nota?: string }
   /** Las dinámicas de la noche, en el orden en que se muestran. */
   dinamicas?: Dinamica[]
 }
@@ -119,18 +129,22 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
     // alguien, y eso es lo que hace que la lista se sienta privada.
     compartir:
       "Te incluyo en la lista de La Coronación de MG1, el viernes 30 en DEF (Soacha). " +
-      "Es víspera de Halloween y hay $3.000.000 para el mejor disfraz. Confirma tu lugar y te llega el pase al correo:",
+      "Es víspera de Halloween y DEF da $3.000.000 al mejor disfraz. Confirma tu lugar y te llega el pase al correo:",
     acceso: "Solo por invitación",
-    destacado: { valor: "$3.000.000", texto: "al mejor disfraz de la noche" },
+    destacado: {
+      valor: "$3.000.000",
+      texto: "al mejor disfraz de la noche",
+      nota: "Premio ofrecido y pagado por Def Jamaica Club · aplican términos",
+    },
     dinamicas: [
       {
         icono: "🎭",
         titulo: "Ven disfrazado",
         reglas: [
           "El 30 es víspera de Halloween: ven disfrazado, solo o con tu parche.",
-          "Los parches que lleguen disfrazados tienen sorpresas en la fiesta.",
-          "El mejor disfraz de la noche se lleva $3.000.000.",
-          "Anunciamos al ganador esa misma noche.",
+          "Def Jamaica Club entrega $3.000.000 al mejor disfraz de la noche: un solo ganador, elegido por el jurado de DEF.",
+          "MG tiene sorpresas para algunos de los parches que lleguen disfrazados.",
+          "El ganador se anuncia esa misma noche. Aplican términos y condiciones.",
         ],
       },
       {
@@ -139,7 +153,7 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
         reglas: [
           `Comenta y comparte los capítulos de MG1 y los posts de la fiesta, etiquetando a @${MG_INSTAGRAM}.`,
           "Invita con tu link personal: la gente que llegue a la fiesta con él también te suma.",
-          "El perfil más activo se lleva una botella para su parche esa misma noche.",
+          "MG le entrega una botella al perfil más activo, esa misma noche, para su parche.",
           "Cerramos a las 8:00 p.m. del viernes 30 y anunciamos al ganador en la fiesta.",
         ],
       },

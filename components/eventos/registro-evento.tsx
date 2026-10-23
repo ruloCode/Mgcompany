@@ -227,7 +227,12 @@ export default function RegistroEvento({
       <Bloque index="04" titulo="Autorizaciones">
         <label className="flex cursor-pointer gap-3 text-sm leading-relaxed text-zinc-300">
           <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#E8200C]" {...register("acepta_datos")} />
-          <span>Autorizo a MG Company a tratar mis datos para gestionar mi registro y mi entrada (Ley 1581 de 2012).</span>
+          <span>
+            Acepto los{" "}
+            <a href={`/fiesta/${evento}/terminos`} target="_blank" rel="noopener noreferrer"
+              className="text-white underline underline-offset-4">términos y condiciones</a>
+            {" "}del evento y autorizo a MG Company a tratar mis datos para gestionar mi registro y mi entrada (Ley 1581 de 2012).
+          </span>
         </label>
         {errors.acepta_datos && <p className={errorClass}>{errors.acepta_datos.message}</p>}
         <label className="mt-4 flex cursor-pointer gap-3 text-sm leading-relaxed text-zinc-300">

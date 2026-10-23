@@ -121,6 +121,15 @@ export async function registrarEnEvento(a: AltaNormalizada): Promise<ResultadoAl
   return fila as ResultadoAlta
 }
 
+/** La constancia de qué términos aceptó y cuándo (migración 027). Va con la
+ *  service_role: desde el panel, proteger_registro_evento no deja tocarla. */
+export async function marcarTerminos(registroId: string, version: string) {
+  await admin()
+    .from("evento_registros")
+    .update({ terminos_version: version, terminos_aceptados_at: new Date().toISOString() })
+    .eq("id", registroId)
+}
+
 export async function marcarCorreoEnviado(registroId: string) {
   await admin()
     .from("evento_registros")

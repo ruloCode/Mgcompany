@@ -96,6 +96,11 @@ export default async function FiestaPage({ params, searchParams }: Props) {
             <div className="mt-8 inline-flex max-w-full flex-wrap items-baseline gap-x-4 gap-y-1 border-2 border-mg-red px-5 py-4">
               <span className="font-heading text-5xl leading-none text-mg-red md:text-6xl">{contenido.destacado.valor}</span>
               <span className="font-heading text-2xl uppercase leading-tight md:text-3xl">{contenido.destacado.texto}</span>
+              {contenido.destacado.nota ? (
+                <span className="basis-full pt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/55">
+                  {contenido.destacado.nota}
+                </span>
+              ) : null}
             </div>
           ) : null}
           {contenido.dinamicas && contenido.dinamicas.length > 1 ? (
@@ -166,6 +171,10 @@ export default async function FiestaPage({ params, searchParams }: Props) {
       <footer className="border-t border-white/10">
         <div className="container mx-auto px-4 py-8 md:px-6 lg:px-10">
           <p className="max-w-3xl text-xs leading-relaxed text-zinc-500">{LEYENDA_ALCOHOL}</p>
+          <a href={`/fiesta/${slug}/terminos`}
+            className="mt-3 inline-block text-xs text-zinc-400 underline underline-offset-4 hover:text-white">
+            Términos y condiciones
+          </a>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">MG Company Group · Bogotá</p>
         </div>
       </footer>

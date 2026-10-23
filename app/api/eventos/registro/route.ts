@@ -3,7 +3,8 @@ import { NextResponse } from "next/server"
 import { correoDeEnvio, edadEn, normalizarEmail, normalizarWhatsapp, usuarioDeRed } from "@/lib/contacto"
 import { EDAD_MINIMA, registroEventoSchema, type RespuestaRegistroEvento } from "@/lib/eventos"
 import { enviarPase } from "@/lib/eventos-correo"
-import { EventosNoDisponible, cargarEvento, marcarCorreoEnviado, registrarEnEvento } from "@/lib/eventos-datos"
+import { EventosNoDisponible, cargarEvento, marcarCorreoEnviado, marcarTerminos, registrarEnEvento } from "@/lib/eventos-datos"
+import { terminosDe } from "@/lib/eventos-terminos"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -79,6 +80,11 @@ export async function POST(request: Request) {
       utm_campaign: d.utm_campaign || null,
       user_agent: request.headers.get("user-agent")?.slice(0, 300) ?? null,
     })
+
+    // Constancia de los términos aceptados en ESTE envío. El formulario no
+    // deja enviar sin la casilla, y el schema tampoco (acepta_datos: true).
+    const terminos = terminosDe(evento.slug)
+    if (terminos) await marcarTerminos(alta.registro_id, terminos.version)
 
     const reciente =
       alta.correo_enviado_at && Date.now() - new Date(alta.correo_enviado_at).getTime() < REENVIO_MINIMO_MS

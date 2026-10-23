@@ -83,6 +83,7 @@ export function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): stri
         <div style="border:2px solid #E8200C;padding:16px 20px;">
           <p style="margin:0;font-family:'Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:900;font-size:26px;line-height:1;color:#E8200C;">${esc(contenido.destacado.valor)}</p>
           <p style="margin:6px 0 0;font-family:'Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:900;font-size:15px;text-transform:uppercase;color:#ffffff;">${esc(contenido.destacado.texto)}</p>
+          ${contenido.destacado.nota ? `<p style="margin:8px 0 0;font-family:'Courier New',Courier,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a8a8a;">${esc(contenido.destacado.nota)}</p>` : ""}
         </div>
       </td></tr>`
     : ""
@@ -157,6 +158,7 @@ export function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): stri
     <tr><td style="padding:30px 32px 36px 32px;">
       <div style="height:1px;background-color:#2a2a2a;line-height:1px;font-size:1px;margin-bottom:18px;">&nbsp;</div>
       <p style="margin:0 0 10px;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.55;color:#6e6e6e;">${esc(LEYENDA_ALCOHOL)}</p>
+      <p style="margin:0 0 10px;font-family:Helvetica,Arial,sans-serif;font-size:11px;"><a href="${SITIO}/fiesta/${evento.slug}/terminos" style="color:#8a8a8a;">Términos y condiciones del evento</a></p>
       <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#4a4a4a;">MG Company Group &middot; Bogot&aacute;, Colombia</p>
     </td></tr>
   </table>
@@ -181,7 +183,9 @@ function texto({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
     "INVITA A TU GENTE",
     "Tu link personal. Quien se registre con él entra a la lista por ti:",
     urlInvitacion(evento.slug, ref),
-    ...(contenido?.destacado ? ["", `${contenido.destacado.valor} ${contenido.destacado.texto}`.toUpperCase()] : []),
+    ...(contenido?.destacado
+      ? ["", `${contenido.destacado.valor} ${contenido.destacado.texto}`.toUpperCase(), ...(contenido.destacado.nota ? [contenido.destacado.nota] : [])]
+      : []),
     ...(contenido?.dinamicas ?? []).flatMap((d) => [
       "",
       `${d.icono} ${d.titulo.toUpperCase()}`,
@@ -189,6 +193,7 @@ function texto({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
     ]),
     ``,
     LEYENDA_ALCOHOL,
+    `Términos y condiciones: ${SITIO}/fiesta/${evento.slug}/terminos`,
   ].join("\n")
 }
 
