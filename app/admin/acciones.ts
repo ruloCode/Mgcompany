@@ -1797,14 +1797,16 @@ export async function acreditarEnEvento(evento: string, bruto: string): Promise<
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("evento_registros")
-    .select("id, evento, ingreso_at, personas(nombre, instagram, tiktok, tipo)")
+    .select("id, evento, ingreso_at, persona:personas!evento_registros_persona_id_fkey(nombre, instagram, tiktok, tipo)")
     .eq("codigo", codigo)
     .maybeSingle()
 
   if (error) return { veredicto: "error", mensaje: error.message }
   if (!data) return { veredicto: "desconocido", mensaje: `No existe ningún pase ${codigo}.` }
 
-  const persona = data.personas as unknown as { nombre: string; instagram: string | null; tiktok: string | null; tipo: string }
+  // Ver lib/eventos-datos.ts → abrirPase: hay dos claves hacia personas y
+  // hay que nombrar cuál. Sin esto la puerta respondía "algo falló" a todo.
+  const persona = data.persona as unknown as { nombre: string; instagram: string | null; tiktok: string | null; tipo: string }
   const red = persona.instagram ? `@${persona.instagram}` : persona.tiktok ? `@${persona.tiktok} (TikTok)` : null
   const registro = {
     nombre_completo: persona.nombre,
@@ -1842,12 +1844,12 @@ export async function reenviarPaseEvento(registroId: string) {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from("evento_registros")
-      .select("id, codigo, eventos(*), personas(nombre, email, codigo_ref)")
+      .select("id, codigo, eventos(*), persona:personas!evento_registros_persona_id_fkey(nombre, email, codigo_ref)")
       .eq("id", registroId)
       .single()
     if (error || !data) throw new Error(error?.message ?? "Registro no encontrado")
 
-    const persona = data.personas as unknown as { nombre: string; email: string; codigo_ref: string }
+    const persona = data.persona as unknown as { nombre: string; email: string; codigo_ref: string }
     const envio = await enviarPaseEvento({
       evento: data.eventos as never,
       nombre: persona.nombre,

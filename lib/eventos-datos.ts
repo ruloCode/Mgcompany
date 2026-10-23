@@ -137,13 +137,16 @@ export async function abrirPase(codigo: string): Promise<DatosPaseEvento | null>
   const sb = admin()
   const { data, error } = await sb
     .from("evento_registros")
-    .select("id, codigo, ingreso_at, pase_abierto_at, persona_id, personas(nombre, email_verificado_at), eventos(*)")
+    .select("id, codigo, ingreso_at, pase_abierto_at, persona_id, persona:personas!evento_registros_persona_id_fkey(nombre, email_verificado_at), eventos(*)")
     .eq("codigo", codigo)
     .maybeSingle()
   if (error) throw new EventosNoDisponible(error.message)
   if (!data) return null
 
-  const persona = data.personas as unknown as { nombre: string; email_verificado_at: string | null }
+  // `persona:` + el nombre de la clave, no `personas(...)` a secas:
+  // evento_registros tiene DOS claves hacia personas (persona_id y
+  // referido_por) y sin decir cuál, Supabase no sabe por cuál ir y falla.
+  const persona = data.persona as unknown as { nombre: string; email_verificado_at: string | null }
   const evento = data.eventos as unknown as Evento
 
   const ahora = new Date().toISOString()
