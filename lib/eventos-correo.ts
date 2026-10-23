@@ -43,7 +43,8 @@ export function asuntoPase(evento: Evento) {
   return `Tu QR para ${evento.nombre} · estás en la lista`
 }
 
-function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
+/** Exportada para poder mirar el correo antes de enviarlo (vista previa). */
+export function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
   const contenido = CONTENIDO_EVENTOS[evento.slug]
   const primerNombre = esc(nombre.split(" ")[0])
   const lugar = esc(lugarCompleto(evento))
@@ -54,11 +55,25 @@ function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
         <div style="border:1px solid #2a2a2a;padding:20px 22px;">
           <p style="margin:0 0 8px;font-family:'Courier New',Courier,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#E8200C;">${d.icono} ${esc(d.titulo)}</p>
           ${d.reglas.map((r) => `<p style="margin:0 0 8px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b8b8b8;">${esc(r)}</p>`).join("")}
-          ${d.conLink ? `<p style="margin:14px 0 6px;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#8a8a8a;">Tu link personal:</p>
-          <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:13px;word-break:break-all;"><a href="${invitacion}" style="color:#ffffff;">${invitacion}</a></p>` : ""}
         </div>
       </td></tr>`)
     .join("")
+
+  /* Invitar es lo SEGUNDO que se le pide a la persona, justo después de su
+     pase, y no un renglón al final de una dinámica: ahí no lo veía nadie.
+     El botón de WhatsApp abre el chat con el mensaje y el link ya escritos,
+     porque invitar tiene que costar un toque y no copiar y pegar. */
+  const mensajeWhatsApp = `${contenido?.compartir ?? `Te incluyo en la lista de ${evento.nombre}:`} ${invitacion}`
+  const invitar = `<tr><td style="padding:30px 32px 0 32px;">
+        <div style="border:2px solid #ffffff;padding:22px 22px 24px;">
+          <p style="margin:0 0 6px;font-family:'Courier New',Courier,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#E8200C;">Invita a tu gente</p>
+          <p style="margin:0 0 14px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#b8b8b8;">Este es tu link personal. Quien se registre con él entra a la lista por ti, y cada persona que llegue a la fiesta con tu link te suma.</p>
+          <p style="margin:0 0 18px;font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:bold;word-break:break-all;"><a href="${invitacion}" style="color:#ffffff;">${invitacion}</a></p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#25D366" style="background-color:#25D366;">
+            <a href="https://wa.me/?text=${encodeURIComponent(mensajeWhatsApp)}" style="display:inline-block;padding:13px 24px;font-family:'Courier New',Courier,monospace;font-size:12px;font-weight:bold;letter-spacing:.16em;text-transform:uppercase;color:#111111;text-decoration:none;">Invitar por WhatsApp</a>
+          </td></tr></table>
+        </div>
+      </td></tr>`
 
   /* El destacado va pegado al QR y no al final: este correo es lo último que
      la persona mira antes de salir de casa, y "ven disfrazado" hay que leerlo
@@ -135,6 +150,8 @@ function html({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
       </td></tr></table>
     </td></tr>
 
+    ${invitar}
+
     ${dinamicas}
 
     <tr><td style="padding:30px 32px 36px 32px;">
@@ -160,12 +177,15 @@ function texto({ evento, nombre, codigo, ref, prueba }: DatosCorreo): string {
     `${fechaEvento(evento.fecha)} · desde las ${horaEvento(evento.hora_puertas)}`,
     lugarCompleto(evento),
     evento.mapa_url ?? "",
+    "",
+    "INVITA A TU GENTE",
+    "Tu link personal. Quien se registre con él entra a la lista por ti:",
+    urlInvitacion(evento.slug, ref),
     ...(contenido?.destacado ? ["", `${contenido.destacado.valor} ${contenido.destacado.texto}`.toUpperCase()] : []),
     ...(contenido?.dinamicas ?? []).flatMap((d) => [
       "",
       `${d.icono} ${d.titulo.toUpperCase()}`,
       ...d.reglas,
-      ...(d.conLink ? [`Tu link: ${urlInvitacion(evento.slug, ref)}`] : []),
     ]),
     ``,
     LEYENDA_ALCOHOL,

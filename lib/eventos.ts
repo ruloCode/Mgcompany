@@ -89,8 +89,6 @@ export interface Dinamica {
   icono: string
   titulo: string
   reglas: string[]
-  /** Si debajo va el link personal de la persona (para la de referidos). */
-  conLink?: boolean
 }
 
 export interface ContenidoEvento {
@@ -138,10 +136,9 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
       {
         icono: "🍾",
         titulo: "Una botella para tu parche",
-        conLink: true,
         reglas: [
           `Comenta y comparte los capítulos de MG1 y los posts de la fiesta, etiquetando a @${MG_INSTAGRAM}.`,
-          "Cuando te registres te damos tu link personal: la gente que llegue a la fiesta con él también te suma.",
+          "Invita con tu link personal: la gente que llegue a la fiesta con él también te suma.",
           "El perfil más activo se lleva una botella para su parche esa misma noche.",
           "Cerramos a las 8:00 p.m. del viernes 30 y anunciamos al ganador en la fiesta.",
         ],
