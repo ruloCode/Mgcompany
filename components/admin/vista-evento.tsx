@@ -17,11 +17,17 @@ const hora = (iso: string) =>
 
 export default function VistaEvento({
   comunidad, slug, puedeOperar, puedeAcreditar,
+  base = `/admin/eventos/${slug}`,
+  volver = { href: "/admin/eventos", label: "← Comunidad" },
 }: {
   comunidad: Comunidad
   slug: string
   puedeOperar: boolean
   puedeAcreditar: boolean
+  /** Ruta de esta pantalla en el panel; la puerta cuelga de ella. */
+  base?: string
+  /** null en "Fiesta Def" para quien no ve la comunidad completa. */
+  volver?: { href: string; label: string } | null
 }) {
   const evento = comunidad.eventos.find((e) => e.slug === slug)!
   const [busca, setBusca] = useState("")
@@ -73,8 +79,8 @@ export default function VistaEvento({
           </div>
         </div>
         <div className="spacer" />
-        <Link className="btn" href="/admin/eventos">← Comunidad</Link>
-        {puedeAcreditar ? <Link className="btn primary" href={`/admin/eventos/${slug}/puerta`}>Abrir puerta</Link> : null}
+        {volver ? <Link className="btn" href={volver.href}>{volver.label}</Link> : null}
+        {puedeAcreditar ? <Link className="btn primary" href={`${base}/puerta`}>Abrir puerta</Link> : null}
         <a className="btn" href={`/fiesta/${slug}`} target="_blank" rel="noopener noreferrer">Ver landing ↗</a>
       </div>
 

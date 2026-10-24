@@ -136,6 +136,9 @@ export const SECCIONES = [
   { slug: "radar",       label: "Radar",               icon: "◎", color: "var(--c-seguimiento)",   grupo: "Catálogo" },
   { slug: "mg1",         label: "Convocatoria MG1",    icon: "◇", color: "var(--c-hito)",          grupo: "Catálogo" },
   { slug: "gala",        label: "Gala MG",             icon: "◆", color: "var(--c-fiesta)",        grupo: "Catálogo" },
+  // La Coronación sola, sin el resto de la comunidad. Concedida a título
+  // personal, la 028 deja leer solo las filas de esa fiesta.
+  { slug: "fiesta-def",  label: "Fiesta Def",          icon: "✦", color: "var(--c-fiesta)",        grupo: "Catálogo" },
   { slug: "eventos",     label: "Eventos y comunidad", icon: "◈", color: "var(--c-fiesta)",        grupo: "Catálogo" },
   { slug: "plan",        label: "Plan y reglas",       icon: "⚙", color: "var(--c-hito)",          grupo: "Administración" },
   { slug: "equipo",      label: "Equipo y accesos",    icon: "◑", color: "var(--muted)",           grupo: "Administración", permiso: "equipo" as Permiso },

@@ -147,6 +147,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/admin/eventos` | Comunidad: personas, quién repite, promotores, música en vivo, exportar audiencia |
 | `/admin/eventos/[evento]` | Lista de una fiesta y sus promotores |
 | `/admin/eventos/[evento]/puerta` | El mismo escáner de la Gala, ligado a esa fiesta |
+| `/admin/fiesta-def` | **Fiesta Def**: la lista de La Coronación (`EVENTO_FIESTA_DEF`) con su puerta en `/admin/fiesta-def/puerta`. Concedida sola, la `028` deja leer solo esa fiesta |
 | `/admin/plan` | Reglas del motor de fechas y capacidad de estudio |
 | `/admin/equipo` | Miembros, roles y activacion de cuentas (owner/admin) |
 | `/admin/datos` | Respaldos y bitacora completa |
@@ -551,6 +552,13 @@ La `025` copió la Gala al historial (64 personas, 32 ingresos) para que
 evento, no para pauta.
 
 Una fiesta nueva es una fila en `eventos` y una entrada en `CONTENIDO_EVENTOS`.
+
+**Fiesta Def** (`/admin/fiesta-def`, migracion `028`) es la misma vista de la
+Coronacion con entrada propia en la navegacion, para poder concederle a
+alguien SOLO esa fiesta (`secciones_extra = 'fiesta-def'`): lee la fiesta, sus
+registros y las personas inscritas o que invitaron, nada de la Gala ni del
+historial. Es solo lectura; la puerta sigue pidiendo `eventos:acreditar`. El
+slug vive en `EVENTO_FIESTA_DEF` y en `persona_en_fiesta_def()`: cambian juntos.
 La puerta (`components/admin/escaner-puerta.tsx`) es la misma de la Gala:
 recibe la acción, el formato de código y la ruta de vuelta como props.
 

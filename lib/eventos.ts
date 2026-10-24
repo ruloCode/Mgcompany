@@ -176,6 +176,10 @@ export const EDAD_MINIMA = 18
  *  puerta sin inscribir a nadie. */
 export const CODIGO_PRUEBA = "MGE-PRUEBA22"
 
+/** La fiesta de la sección "Fiesta Def" del panel. Si DEF repite con otra
+ *  fecha, se cambia aquí y en puede_ver_fiesta_def() (migración 028). */
+export const EVENTO_FIESTA_DEF = "coronacion-mg1"
+
 /** Lo que entrega el lector de la puerta, venga como venga: el texto del QR
  *  (la URL del pase), el código tecleado a mano, en minúsculas o con espacios.
  *  Prefijo MGE- para no confundirse nunca con un pase de la Gala (MG-). */
