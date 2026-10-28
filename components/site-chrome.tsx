@@ -17,6 +17,8 @@ const STANDALONE_PREFIXES = [
   // La mesa del jurado es una herramienta, no una pagina del sitio: quien
   // entra viene a escuchar y a votar, no a navegar el menu.
   "/mg1/seleccion",
+  // La votacion del publico: landing cerrada con su propio pie.
+  "/mg1/votacion",
   // Las fiestas: cada una es una landing cerrada con su propio pie, y el pase
   // se abre en la puerta, donde solo tiene que caber el QR.
   "/fiesta",

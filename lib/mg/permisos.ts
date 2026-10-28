@@ -25,11 +25,12 @@ export type Permiso =
   | "verComo"        // previsualizar el panel de otro rol
   | "reglas"         // cambiar las reglas del sistema
   | "equipo"         // invitar, cambiar roles, desactivar cuentas
+  | "escrutinio"     // ver el resultado de la votacion del publico MG1
   | "exportar"
 
 const MATRIZ: Record<RolApp, Permiso[]> = {
-  owner:       ["operar", "publicar", "aprobarCambios", "proponerSesion", "area", "verComo", "reglas", "equipo", "exportar"],
-  admin:       ["operar", "publicar", "aprobarCambios", "proponerSesion", "area", "verComo", "reglas", "equipo", "exportar"],
+  owner:       ["operar", "publicar", "aprobarCambios", "proponerSesion", "area", "verComo", "reglas", "equipo", "escrutinio", "exportar"],
+  admin:       ["operar", "publicar", "aprobarCambios", "proponerSesion", "area", "verComo", "reglas", "equipo", "escrutinio", "exportar"],
   manager:     ["operar", "publicar", "aprobarCambios", "proponerSesion", "area", "exportar"],
   contenido:   ["publicar", "area", "exportar"],
   produccion:  ["proponerSesion", "area"],
@@ -135,6 +136,9 @@ export const SECCIONES = [
   { slug: "redes",       label: "Redes",               icon: "◐", color: "var(--c-publicacion)",   grupo: "Catálogo" },
   { slug: "radar",       label: "Radar",               icon: "◎", color: "var(--c-seguimiento)",   grupo: "Catálogo" },
   { slug: "mg1",         label: "Convocatoria MG1",    icon: "◇", color: "var(--c-hito)",          grupo: "Catálogo" },
+  // Solo owner y admin: el resultado no lo ve nadie más antes de la coronación.
+  // Al exigir un permiso, ni una concesión individual la abre (seccionesVisibles).
+  { slug: "votacion",    label: "Votación MG1",        icon: "♛", color: "var(--brand)",           grupo: "Catálogo", permiso: "escrutinio" as Permiso },
   { slug: "gala",        label: "Gala MG",             icon: "◆", color: "var(--c-fiesta)",        grupo: "Catálogo" },
   // La Coronación sola, sin el resto de la comunidad. Concedida a título
   // personal, la 028 deja leer solo las filas de esa fiesta.

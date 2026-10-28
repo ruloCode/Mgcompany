@@ -1395,3 +1395,39 @@
   justify-content: space-between;
   flex-wrap: wrap;
 }
+
+/* ---------- votación del público MG1 ---------- */
+.votacion-telon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 22px 18px;
+  border: 1px dashed var(--baseline);
+  border-radius: var(--r-md);
+  background: repeating-linear-gradient(135deg, var(--page) 0 10px, var(--surface) 10px 20px);
+}
+.votacion-ranking { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.votacion-ranking li {
+  display: grid;
+  grid-template-columns: 28px minmax(140px, 1.2fr) 2fr 48px 56px auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--grid);
+  border-radius: var(--r-md);
+}
+.votacion-ranking li.lider { border-color: var(--brand); }
+.votacion-ranking .pos { font-weight: 800; color: var(--muted); }
+.votacion-ranking li.lider .pos { color: var(--brand); }
+.votacion-ranking .quien { display: flex; flex-direction: column; min-width: 0; }
+.votacion-ranking .barra { height: 10px; border-radius: 99px; background: var(--page); overflow: hidden; }
+.votacion-ranking .barra i { display: block; height: 100%; background: var(--brand); border-radius: 99px; transition: width 0.6s ease; }
+.votacion-ranking .n { font-weight: 800; font-size: 16px; text-align: right; }
+.votacion-ranking .p { color: var(--muted); text-align: right; }
+.votacion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 16px; }
+@media (max-width: 640px) {
+  .votacion-ranking li { grid-template-columns: 24px 1fr auto auto; row-gap: 8px; }
+  .votacion-ranking .barra { grid-column: 1 / -1; order: 9; }
+}

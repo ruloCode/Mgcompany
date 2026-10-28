@@ -335,3 +335,34 @@ export async function cargarComunidad(): Promise<Comunidad> {
   ])
   return { eventos, personas, registros }
 }
+
+/* ============================================================
+   Votación del público MG1
+   ============================================================
+   Con la sesión de quien mira, no con la service_role: así la que decide si
+   se ve el resultado es la policy de la 026 (es_admin()), no esta función.
+   Si alguien sin permiso llegara hasta aquí, recibiría cero filas. */
+
+export interface VotoPublico {
+  id: string
+  email: string
+  nombre: string
+  ciudad: string
+  es_artista: boolean
+  /** El voto que cuenta. null = pidió votar y no ha confirmado. */
+  finalista: string | null
+  confirmado_at: string | null
+  finalista_pendiente: string | null
+  solicitado_at: string
+  cambios: number
+  utm_source: string | null
+  created_at: string
+}
+
+export async function cargarVotacionPublico(): Promise<VotoPublico[]> {
+  return todas<VotoPublico>(
+    "mg1_votos_publico",
+    "id, email, nombre, ciudad, es_artista, finalista, confirmado_at, finalista_pendiente, solicitado_at, cambios, utm_source, created_at",
+    "created_at",
+  )
+}

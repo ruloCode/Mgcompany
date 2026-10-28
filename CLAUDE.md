@@ -123,6 +123,8 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
 | `/mg1/seleccion/[jurado]` | **Mesa del jurado**: los 32 preseleccionados, con reproductor, voto de 12 y comentarios. Enlace privado por jurado |
+| `/mg1/votacion` | **Votacion del publico** de la final: un Disco Ruby por finalista que gira al sonar, voto con correo confirmado, invitacion a La Coronacion. Cierra vie 30 oct, 8:00 p.m. |
+| `/mg1/votacion/confirmar` | Aterrizaje del enlace del correo: un toque confirma el voto |
 | `/mg1/coronacion` | Propuesta privada a un bar para ser la sede de la noche final (vie 30 / sab 31 de octubre) |
 | `/mg1/estudio` | Propuesta privada a un estudio audiovisual para ser el set del rodaje (24-30 de septiembre) |
 | `/mg1/def` | La misma propuesta de `/mg1/coronacion`, personalizada para **Def Jamaica Club** (Soacha) |
@@ -144,6 +146,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/admin/radar` | Scouting del ecosistema con puntaje por rol |
 | `/admin/mg1` | Curaduria de las inscripciones de la convocatoria |
 | `/admin/gala` | Admisiones y acreditación de la Gala MG |
+| `/admin/votacion` | Escrutinio de la votacion MG1. Solo owner y admin (permiso `escrutinio`), resultado tapado hasta destaparlo |
 | `/admin/eventos` | Comunidad: personas, quién repite, promotores, música en vivo, exportar audiencia |
 | `/admin/eventos/[evento]` | Lista de una fiesta y sus promotores |
 | `/admin/eventos/[evento]/puerta` | El mismo escáner de la Gala, ligado a esa fiesta |
@@ -154,7 +157,7 @@ middleware.ts                     # Auth middleware for /admin routes
 
 Las rutas en `STANDALONE_PREFIXES` (`components/site-chrome.tsx`) se renderizan sin
 header/footer del sitio: hoy `/mg1/jurado`, `/mg1/convocatoria`, `/mg1/coronacion`,
-`/mg1/estudio`, `/mg1/def`, `/mg1/seleccion`, `/fiesta`, `/admin` y `/gala/pase` (el pase se
+`/mg1/estudio`, `/mg1/def`, `/mg1/seleccion`, `/mg1/votacion`, `/fiesta`, `/admin` y `/gala/pase` (el pase se
 abre en la puerta: solo tiene que caber el QR).
 
 Las piezas de `/mg1` que se mandan por enlace a una persona o a un lugar concreto
@@ -383,6 +386,7 @@ Sin credenciales de Supabase, en desarrollo el route handler cae a
 | `mg_bitacora` | Append-only: quien cambio que. Sin policy de UPDATE/DELETE. |
 | `mg_accesos_previstos` | Correo → rol, escrito por un admin ANTES de que la persona se registre. Solo `es_admin()`. |
 | `gala_registros` | Registros a la Gala MG. El cupo y el pase QR los decide la base, no la app. |
+| `mg1_votos_publico` | Votacion del publico MG1. Una fila por correo; solo cuenta el voto confirmado. Solo `es_admin()` la lee. |
 
 `mg_comentarios` admite `entidad_tipo = 'area'`, con el `entidad_id` igual al
 nombre del area (`'produccion'`). Asi el canal general de un area reutiliza
@@ -561,6 +565,46 @@ historial. Es solo lectura; la puerta sigue pidiendo `eventos:acreditar`. El
 slug vive en `EVENTO_FIESTA_DEF` y en `persona_en_fiesta_def()`: cambian juntos.
 La puerta (`components/admin/escaner-puerta.tsx`) es la misma de la Gala:
 recibe la acción, el formato de código y la ruta de vuelta como props.
+
+### `mg1_votos_publico` (migracion `026`)
+
+La **votacion del publico**: `/mg1/votacion`. Cierra el **viernes 30 de octubre a
+las 8:00 p.m.**, la misma noche de La Coronacion.
+
+1. **Un voto es un correo confirmado.** Votar deja la eleccion en
+   `finalista_pendiente` y manda un enlace; solo al confirmarlo pasa a
+   `finalista`. Lo que no se confirma no cuenta en ningun conteo. La identidad
+   es `email_clave` (`normalizarEmail` de `lib/contacto.ts`).
+2. **La ventana la impone la base.** `mg1_votacion_abre()` / `mg1_votacion_cierra()`
+   son espejo de `MG1_VOTACION_ABRE` / `MG1_VOTACION_CIERRA` en
+   `lib/mg1-votacion.ts`: moverla es moverla en los dos sitios. Un voto pedido
+   antes del cierre se puede confirmar hasta 15 min despues.
+3. **Confirmar es un POST, no abrir el enlace**: los filtros de correo abren los
+   enlaces para revisarlos y confirmarian votos solos.
+4. **Cambiar de voto se confirma igual**; el anterior cuenta mientras tanto.
+5. **El enlace no se guarda, se guarda su sha256** (`token_hash`).
+
+Escriben `mg1_solicitar_voto` y `mg1_confirmar_voto`, solo ejecutables por la
+service_role. Frenos: honeypot, un correo por minuto por buzon, tope de 10
+correos por buzon, 20 solicitudes por IP cada 10 min (la IP se guarda como
+huella con sal, `MG1_VOTO_SAL`).
+
+**Nadie fuera de direccion ve un conteo.** Ni la landing ni la API devuelven
+uno, en ningun estado. Lee solo `es_admin()` (mas estricto que la `018`), y
+`/admin/votacion` exige el permiso `escrutinio`, que solo tienen owner y
+admin y que ninguna concesion individual abre.
+
+**Tampoco el voto de una persona.** El formulario recibe siempre la misma
+respuesta (`revisa_correo`), sea voto nuevo, cambio, el voto que ya contaba o
+un correo que ya iba en camino; si no, escribir el correo de otro y probar
+finalista por finalista revelaria por quien voto. Lo que distingue un caso de
+otro va en el correo (`lib/mg1-votacion-correo.ts`), que solo lee el dueño del
+buzon.
+
+Los finalistas (`FINALISTAS`) son los cuatro del Cap 3 y sus MP3 viven en
+`public/mg1/finalistas/<slug>.mp3`. El slug ES el voto: no cambiarlo con la
+votacion abierta. En desarrollo, `?ventana=antes|abierta|cerrada` fuerza la
+vista (no la API).
 
 ### `registros`
 
