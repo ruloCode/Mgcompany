@@ -97,7 +97,7 @@ export const FINALISTAS: Finalista[] = [
   {
     slug: "marlon-castillo",
     nombre: "Marlon Castillo",
-    cancion: "Todavía",
+    cancion: "Vacío",
     audio: "/mg1/finalistas/marlon-castillo.mp3",
     redes: {},
   },
