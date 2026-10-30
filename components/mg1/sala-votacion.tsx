@@ -8,6 +8,7 @@ import { Loader2, Pause, Play } from "lucide-react"
 
 import DiagonalArrow from "@/components/diagonal-arrow"
 import PlatformLinks from "@/components/platform-links"
+import Corona from "@/components/mg1/corona"
 import DiscoFinalista from "@/components/mg1/disco-finalista"
 import {
   MG1_FIESTA,
@@ -612,7 +613,10 @@ function Listo({
         href={MG1_FIESTA.url}
         className="group mt-10 block border-2 border-white/15 p-5 transition-colors hover:border-mg-red md:p-6"
       >
-        <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red-bright">👑 {MG1_FIESTA.nombre}</p>
+        <p className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.25em] text-mg-red-bright">
+          <Corona className="h-5 w-5 shrink-0 text-white" />
+          {MG1_FIESTA.nombre}
+        </p>
         <p className="mt-3 text-sm leading-relaxed text-zinc-300">
           El campeón se corona en vivo la misma noche del cierre. {MG1_FIESTA.cuando} · {MG1_FIESTA.donde}. Entrada
           gratis con registro.

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Loader2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Loader2, Pause, Play } from "lucide-react"
 
 import DiscoFinalista from "@/components/mg1/disco-finalista"
 import type { Finalista, ResultadoConfirmacion } from "@/lib/mg1-votacion"
@@ -23,10 +23,40 @@ export default function ConfirmarVoto({ token, finalista, yaConfirmado = false }
     yaConfirmado ? "ya_confirmado" : "listo",
   )
   const [error, setError] = useState<string | null>(null)
+  const audio = useRef<HTMLAudioElement | null>(null)
+  const [sonando, setSonando] = useState(false)
+
+  useEffect(() => () => audio.current?.pause(), [])
+
+  function reproductor() {
+    if (!audio.current) {
+      const a = new Audio(finalista.audio)
+      a.preload = "auto"
+      a.addEventListener("play", () => setSonando(true))
+      a.addEventListener("pause", () => setSonando(false))
+      a.addEventListener("ended", () => setSonando(false))
+      audio.current = a
+    }
+    return audio.current
+  }
+
+  function alternarAudio() {
+    const a = reproductor()
+    if (a.paused) a.play().catch(() => {})
+    else a.pause()
+  }
 
   async function confirmar() {
     setEstado("enviando")
     setError(null)
+
+    // iOS solo deja sonar un audio que se tocó dentro del gesto del usuario, y la
+    // respuesta llega después: se desbloquea aquí en silencio y suena al confirmar.
+    const a = reproductor()
+    a.muted = true
+    a.play().catch(() => {})
+    a.pause()
+
     try {
       const res = await fetch("/api/mg1/votacion/confirmar", {
         method: "POST",
@@ -34,13 +64,20 @@ export default function ConfirmarVoto({ token, finalista, yaConfirmado = false }
         body: JSON.stringify({ t: token }),
       })
       const json = await res.json().catch(() => ({}))
+      a.muted = false
       if (json.resultado) {
-        setEstado(json.resultado as ResultadoConfirmacion)
+        const r = json.resultado as ResultadoConfirmacion
+        setEstado(r)
+        if (r === "confirmado" || r === "ya_confirmado") {
+          a.currentTime = 0
+          a.play().catch(() => {})
+        }
         return
       }
       setEstado("listo")
       setError(json.error ?? "No pudimos confirmar tu voto. Intenta de nuevo.")
     } catch {
+      a.muted = false
       setEstado("listo")
       setError("Sin conexión. Revisa tus datos móviles e intenta de nuevo.")
     }
@@ -71,6 +108,14 @@ export default function ConfirmarVoto({ token, finalista, yaConfirmado = false }
               Votaste por <b className="text-white">{finalista.nombre}</b>. El resultado es secreto hasta la
               coronación: se anuncia en vivo la noche del cierre.
             </p>
+            <button
+              type="button"
+              onClick={alternarAudio}
+              className="mt-8 inline-flex min-h-[48px] items-center gap-3 border-2 border-white/25 px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-white transition-colors hover:border-white/60"
+            >
+              {sonando ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {sonando ? "Pausar" : "Escuchar"} «{finalista.cancion}»
+            </button>
           </>
         ) : estado === "vencido" || estado === "invalido" || estado === "cerrada" ? (
           <>

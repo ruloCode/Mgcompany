@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import DiagonalArrow from "@/components/diagonal-arrow"
 import ConfirmarVoto from "@/components/mg1/confirmar-voto"
+import Corona from "@/components/mg1/corona"
 import { MG1_FIESTA, buscarFinalista, confirmarVotoSchema } from "@/lib/mg1-votacion"
 import { VotacionNoDisponible, verEnlace, type VistaEnlace } from "@/lib/mg1-votacion-datos"
 
@@ -84,7 +85,10 @@ export default async function ConfirmarVotoPage({ searchParams }: Props) {
       >
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-6 md:px-6 lg:px-10">
           <div>
-            <p className="font-heading text-3xl uppercase leading-none md:text-4xl">👑 {MG1_FIESTA.nombre}</p>
+            <p className="flex items-center gap-3 font-heading text-3xl uppercase leading-none md:text-4xl">
+              <Corona className="h-7 w-7 shrink-0 text-white md:h-8 md:w-8" />
+              {MG1_FIESTA.nombre}
+            </p>
             <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.2em] text-white/85">
               {MG1_FIESTA.cuando} · {MG1_FIESTA.donde}
             </p>
