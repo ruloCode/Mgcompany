@@ -575,7 +575,7 @@ function Listo({
 
   const compartir = () => {
     const url = `${window.location.origin}/mg1/votacion?utm_source=whatsapp&utm_medium=compartir`
-    const texto = `Ya voté en la final de MG1. Escucha a los finalistas y vota tú, cierra el viernes 30 a las 8 p.m.: ${url}`
+    const texto = `Ya voté en la final de MG1. Escucha a los finalistas y vota tú, cierra el viernes 30 a las 8:45 p.m.: ${url}`
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener,noreferrer")
   }
 
