@@ -129,12 +129,12 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
     // alguien, y eso es lo que hace que la lista se sienta privada.
     compartir:
       "Te incluyo en la lista de La Coronación de MG1, el viernes 30 en DEF (Soacha). " +
-      "Es víspera de Halloween y DEF da $3.000.000 al mejor disfraz. Confirma tu lugar y te llega el pase al correo:",
+      "Es víspera de Halloween y DEF tiene $3.000.000 en premios. Confirma tu lugar y te llega el pase al correo:",
     acceso: "Solo por invitación",
     destacado: {
       valor: "$3.000.000",
-      texto: "al mejor disfraz de la noche",
-      nota: "Premio ofrecido y pagado por Def Jamaica Club · aplican términos",
+      texto: "en premios esta noche",
+      nota: "Premios ofrecidos y pagados por Def Jamaica Club · aplican términos",
     },
     dinamicas: [
       {
@@ -142,9 +142,9 @@ export const CONTENIDO_EVENTOS: Record<string, ContenidoEvento> = {
         titulo: "Ven disfrazado",
         reglas: [
           "El 30 es víspera de Halloween: ven disfrazado, solo o con tu parche.",
-          "Def Jamaica Club entrega $3.000.000 al mejor disfraz de la noche: un solo ganador, elegido por el jurado de DEF.",
+          "Def Jamaica Club entrega $3.000.000 en premios durante la noche: DEF anuncia en el evento cómo se reparten.",
           "MG tiene sorpresas para algunos de los parches que lleguen disfrazados.",
-          "El ganador se anuncia esa misma noche. Aplican términos y condiciones.",
+          "Los ganadores se anuncian esa misma noche. Aplican términos y condiciones.",
         ],
       },
       {

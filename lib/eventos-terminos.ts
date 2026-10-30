@@ -9,17 +9,18 @@ import { CORREO_CONTACTO, LEYENDA_ALCOHOL, MG_INSTAGRAM } from "./eventos"
    aceptó esa persona y CUÁNDO, no el texto que esté publicado ese día.
 
    Cambiar el texto = subir la versión. Nunca se edita una versión ya
-   aceptada por alguien.
+   aceptada por alguien. Las anteriores quedan en el historial de git: la 1.0
+   (un solo premio de $3.000.000 al mejor disfraz) es la del commit dfc1ff5.
 
    Tres ideas organizan el texto, todas por norma colombiana:
 
    1. Quien publica una promoción queda obligado por ella (Ley 1480 de 2011,
-      art. 33), y un concurso cuenta como promoción (art. 5). Por eso el
-      premio de $3.000.000 dice en todas partes que lo OFRECE, DECIDE y PAGA
-      DEF. Si solo lo dijera aquí, la página de MG lo seguiría prometiendo.
-   2. El concurso se decide por un jurado, por creatividad: no hay sorteo.
-      Un sorteo con premio es un juego de suerte y azar (Ley 643 de 2001) y
-      exige autorización; un concurso de habilidad no es azar.
+      art. 33), y un concurso cuenta como promoción (art. 5). Por eso los
+      $3.000.000 en premios dicen en todas partes que los OFRECE, DECIDE y
+      PAGA DEF. Si solo lo dijera aquí, la página de MG los seguiría prometiendo.
+   2. Un sorteo con premio es un juego de suerte y azar (Ley 643 de 2001) y
+      exige autorización. Las dinámicas de los premios las define DEF, así que
+      si alguna es un sorteo, esa autorización le corresponde a DEF.
    3. La autorización de imagen tiene que ser previa, expresa y específica:
       quién la usa, para qué, dónde y por cuánto tiempo. Una frase genérica
       de "fines publicitarios" no basta.
@@ -46,8 +47,8 @@ const CONTACTO = CORREO_CONTACTO
 
 export const TERMINOS_EVENTOS: Record<string, Terminos> = {
   "coronacion-mg1": {
-    version: "1.0",
-    actualizados: "23 de octubre de 2026",
+    version: "1.1",
+    actualizados: "30 de octubre de 2026",
     titulo: "La Coronación MG1",
     secciones: [
       {
@@ -55,7 +56,7 @@ export const TERMINOS_EVENTOS: Record<string, Terminos> = {
         parrafos: [
           "MG Company Group («MG») produce La Coronación MG1, la noche final del concurso MG1, y administra la lista de invitados, el registro y los pases.",
           "Def Jamaica Club («DEF») es el establecimiento donde se realiza el evento, en Soacha, Cundinamarca. DEF opera el lugar y responde por sus instalaciones, su seguridad, el control de acceso, el aforo y la venta y servicio de alimentos y bebidas.",
-          "El concurso de disfraces y su premio de $3.000.000 los ofrece, decide y paga exclusivamente DEF (sección 6). MG no es parte de ese concurso.",
+          "Los premios de la noche, por $3.000.000 en total, los ofrece, decide y paga exclusivamente DEF (sección 6). MG no es parte de ellos.",
         ],
       },
       {
@@ -91,14 +92,14 @@ export const TERMINOS_EVENTOS: Record<string, Terminos> = {
         ],
       },
       {
-        titulo: "Concurso de disfraces · lo ofrece y paga DEF",
+        titulo: "Premios de la noche · los ofrece y paga DEF",
         parrafos: [
-          "Organizador y responsable: DEF. DEF ofrece el concurso, elige al ganador y paga el premio. MG no participa en la elección, no paga el premio y no responde por su entrega. Cualquier reclamo sobre el concurso se dirige a DEF.",
-          "Premio: $3.000.000 (tres millones de pesos colombianos) para un (1) ganador, que debe ser una persona natural. Si el disfraz es grupal, el premio se paga a una sola persona del grupo, y su reparto es asunto del grupo.",
-          "Pueden participar los mayores de 18 años que hayan ingresado al evento, que estén presentes cuando se anuncie al ganador y que acrediten su identidad.",
-          "El ganador lo elige exclusivamente DEF, con el jurado y los criterios que DEF defina y dé a conocer en el evento. Es un concurso de creatividad: no hay sorteo ni intervención del azar.",
-          "DEF acordará con el ganador la forma y el plazo de pago, después de verificar su identidad. El premio no es transferible ni canjeable por otros bienes.",
-          "El premio puede estar sujeto a retención en la fuente y a los demás impuestos que establezca la ley, entre ellos el impuesto de ganancia ocasional. Los impuestos a cargo del ganador son de su responsabilidad, y las retenciones que exija la ley las practica quien paga el premio.",
+          "Organizador y responsable: DEF. DEF ofrece los premios, elige a los ganadores y los paga. MG no participa en la elección, no paga los premios y no responde por su entrega. Cualquier reclamo sobre los premios se dirige a DEF.",
+          "Monto: $3.000.000 (tres millones de pesos colombianos) en premios, en total. Cuántos premios hay, en qué dinámicas, cuánto corresponde a cada uno y cómo se eligen los ganadores lo define DEF y lo da a conocer en el evento.",
+          "Pueden ganar los mayores de 18 años que hayan ingresado al evento, que estén presentes cuando se anuncien los ganadores y que acrediten su identidad. Cada premio se paga a una persona natural: si lo gana un grupo, se paga a una sola persona del grupo, y su reparto es asunto del grupo.",
+          "Si alguna de las dinámicas de DEF es un sorteo, DEF es responsable de contar con las autorizaciones que exija la ley.",
+          "DEF acordará con cada ganador la forma y el plazo de pago, después de verificar su identidad. Los premios no son transferibles ni canjeables por otros bienes.",
+          "Los premios pueden estar sujetos a retención en la fuente y a los demás impuestos que establezca la ley, entre ellos el impuesto de ganancia ocasional. Los impuestos a cargo de cada ganador son de su responsabilidad, y las retenciones que exija la ley las practica quien paga el premio.",
           "Reglas para los disfraces: no se admiten armas reales ni réplicas que puedan confundirse con armas reales, objetos cortantes, fuego, pirotecnia, aerosoles ni líquidos; tampoco disfraces que inciten al odio o a la discriminación, ni uniformes de autoridad usados para confundir. Las máscaras deben poder quitarse para el control de identidad. DEF puede impedir el ingreso con un disfraz que incumpla estas reglas.",
         ],
       },
@@ -145,7 +146,7 @@ export const TERMINOS_EVENTOS: Record<string, Terminos> = {
         titulo: "Responsabilidad",
         parrafos: [
           "MG responde por lo que le corresponde: la administración de la lista y de los pases, la producción de su contenido, y la botella y las sorpresas que entregue.",
-          "DEF responde por el establecimiento —instalaciones, seguridad, control de ingreso, aforo y servicio de alimentos y bebidas— y por el concurso de disfraces y su premio.",
+          "DEF responde por el establecimiento —instalaciones, seguridad, control de ingreso, aforo y servicio de alimentos y bebidas— y por los premios de la noche.",
           "En la medida en que la ley lo permite, MG no responde por objetos perdidos, olvidados o hurtados; por daños causados por otros asistentes o por terceros; por el transporte de ida y regreso; ni por hechos atribuibles a DEF o a la conducta de cada asistente. Nada en estos términos limita la responsabilidad que la ley no permite limitar.",
         ],
       },
@@ -161,7 +162,7 @@ export const TERMINOS_EVENTOS: Record<string, Terminos> = {
         titulo: "Ley aplicable y contacto",
         parrafos: [
           "Estos términos se rigen por la ley colombiana.",
-          `Para cualquier pregunta sobre la lista, tu pase o estos términos, escribe a ${CONTACTO}. Las preguntas sobre el concurso de disfraces y su premio se dirigen a DEF.`,
+          `Para cualquier pregunta sobre la lista, tu pase o estos términos, escribe a ${CONTACTO}. Las preguntas sobre los premios de la noche se dirigen a DEF.`,
         ],
       },
     ],
