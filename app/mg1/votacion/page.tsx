@@ -41,7 +41,7 @@ const hl = "text-white"
 
 const OG_TITLE = "Final MG1 · Tú coronas al campeón"
 const OG_DESCRIPTION =
-  "Escucha a los finalistas de MG1 y vota por quién se lleva el Disco Ruby. Un correo, un voto. Cierra el viernes 30 de octubre a las 8:45 p.m."
+  "Escucha a los finalistas de MG1 y vota por quién se lleva el Disco Ruby. Un correo, un voto. Cierra el viernes 30 de octubre a las 9:45 p.m."
 
 export function generateMetadata(): Metadata {
   const propia = "/og/og-mg1-votacion.jpg"
@@ -315,7 +315,7 @@ export default async function VotacionPage({ searchParams }: Props) {
               {MG1_FIESTA.nombre}
             </h2>
             <p className="mt-5 max-w-xl text-base leading-relaxed md:text-lg">
-              La votación cierra a las <b>8:45 p.m.</b> y esa misma noche se corona al campeón, en vivo y con la
+              La votación cierra a las <b>9:45 p.m.</b> y esa misma noche se corona al campeón, en vivo y con la
               gente que lo vio nacer. Víspera de Halloween: ven disfrazado.
             </p>
             <ul className="mt-6 flex flex-wrap gap-3">

@@ -123,7 +123,7 @@ middleware.ts                     # Auth middleware for /admin routes
 | `/mg1/convocatoria` | Landing publica del Concurso MG1 + formulario de inscripcion (persiste en Supabase) |
 | `/mg1/jurado/[invitado]` | Invitacion privada de jurado, parametrizada por slug |
 | `/mg1/seleccion/[jurado]` | **Mesa del jurado**: los 32 preseleccionados, con reproductor, voto de 12 y comentarios. Enlace privado por jurado |
-| `/mg1/votacion` | **Votacion del publico** de la final: un Disco Ruby por finalista que gira al sonar, voto con correo confirmado, invitacion a La Coronacion. Cierra vie 30 oct, 8:45 p.m. |
+| `/mg1/votacion` | **Votacion del publico** de la final: un Disco Ruby por finalista que gira al sonar, voto con correo confirmado, invitacion a La Coronacion. Cierra vie 30 oct, 9:45 p.m. |
 | `/mg1/votacion/confirmar` | Aterrizaje del enlace del correo: un toque confirma el voto |
 | `/mg1/coronacion` | Propuesta privada a un bar para ser la sede de la noche final (vie 30 / sab 31 de octubre) |
 | `/mg1/estudio` | Propuesta privada a un estudio audiovisual para ser el set del rodaje (24-30 de septiembre) |
@@ -569,7 +569,7 @@ recibe la acción, el formato de código y la ruta de vuelta como props.
 ### `mg1_votos_publico` (migracion `026`)
 
 La **votacion del publico**: `/mg1/votacion`. Cierra el **viernes 30 de octubre a
-las 8:45 p.m.**, la misma noche de La Coronacion.
+las 9:45 p.m.**, la misma noche de La Coronacion.
 
 1. **Un voto es un correo confirmado.** Votar deja la eleccion en
    `finalista_pendiente` y manda un enlace; solo al confirmarlo pasa a

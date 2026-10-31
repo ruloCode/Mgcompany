@@ -8,7 +8,7 @@ export { MG1_EDICION }
    MG1 — votación del público
    ============================================================
    La página donde el público corona al campeón entre los finalistas.
-   Abre con el estreno del Cap 3 y cierra el viernes 30 a las 8:45 p.m., la
+   Abre con el estreno del Cap 3 y cierra el viernes 30 a las 9:45 p.m., la
    misma noche de La Coronación.
 
    Una sola fuente para las tres capas, como en `lib/gala.ts`: la landing la
@@ -33,10 +33,10 @@ export { MG1_EDICION }
  *  026: la que manda es la base. Moverla es moverla en los dos sitios. */
 export const MG1_VOTACION_ABRE = "2026-10-23T19:00:00-05:00"
 
-/** Cierre duro: viernes 30 de octubre, 8:45 p.m. hora Colombia. Espejo de
- *  mg1_votacion_cierra() (migración 029). La página puede quedarse abierta en el celular de
+/** Cierre duro: viernes 30 de octubre, 9:45 p.m. hora Colombia. Espejo de
+ *  mg1_votacion_cierra() (migración 030). La página puede quedarse abierta en el celular de
  *  alguien; la base no. */
-export const MG1_VOTACION_CIERRA = "2026-10-30T20:45:00-05:00"
+export const MG1_VOTACION_CIERRA = "2026-10-30T21:45:00-05:00"
 
 /** La fiesta donde se corona. Es el gancho del "gracias" y de la página cerrada. */
 export const MG1_FIESTA = {
